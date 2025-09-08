@@ -42,3 +42,22 @@
     box-shadow: none;
   }
 }
+
+/* ===== DataGrid: mobile stacked cards ===== */
+@media (max-width: 760px){
+  .dg-scroll{ border:0; }
+  .dg-table thead{ display:none; }
+  .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ display:block; width:100%; }
+  .dg-table tbody tr{
+    background:#fff; border:1px solid #e5e7eb; border-radius:12px;
+    box-shadow: var(--shadow); margin-bottom:12px; padding:10px;
+  }
+  .dg-table tbody td{
+    border:none; padding:8px 10px;
+  }
+  .dg-table tbody td::before{
+    content: attr(data-label);
+    display:block; font-weight:600; color: var(--muted); margin-bottom:4px;
+  }
+  .dg-pager{ flex-wrap:wrap; gap:8px; }
+}

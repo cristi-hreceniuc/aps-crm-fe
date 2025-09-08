@@ -139,7 +139,10 @@ app.get('/', (req, res) => {
   res.render('home', { title: 'Direcționare 20%' });
 });
 
-app.get('/voluntari',  (req, res) => res.render('voluntari', { title: 'Voluntari',  heading: 'Voluntari'  }));
+app.get('/voluntari', (req, res) => {
+  res.render('voluntari', { title: 'Voluntari', heading: 'Voluntari' });
+});
+
 app.get('/formulare',  (req, res) => res.render('stub', { title: 'Formulare', heading: 'Formulare' }));
 app.get('/donatii',    (req, res) => res.render('stub', { title: 'Donații',    heading: 'Donații'    }));
 app.get('/proiecte',   (req, res) => res.render('stub', { title: 'Proiecte',   heading: 'Proiecte'   }));
@@ -147,6 +150,34 @@ app.get('/cazuri',     (req, res) => res.render('stub', { title: 'Cazuri',     h
 app.get('/rapoarte',   (req, res) => res.render('stub', { title: 'Rapoarte',   heading: 'Rapoarte'   }));
 app.get('/setari',     (req, res) => res.render('stub', { title: 'Setări',     heading: 'Setări'     }));
 app.get('/dashboard',  (req, res) => res.render('dashboard', { title: 'Dashboard' }));
+
+/* -------------------- PROXY spre Spring (ATAȘEAZĂ token) -------------------- */
+const proxyVoluntari = async (req, res) => {
+  if (!req.session?.token) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+  try {
+    // debug util: vezi în server logs ce cere FE
+    console.log('[proxy] ->', `${API_BASE}/volunteers`, 'query:', req.query);
+
+    const { data, status } = await api.get('/volunteers', {
+      params: req.query, // forward page,size,sort,q...
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+    return res.status(status).json(data);
+  } catch (err) {
+    const status = err.response?.status || 500;
+    const payload = err.response?.data || { message: 'Upstream error' };
+    return res.status(status).json(payload);
+  }
+};
+
+// preferat
+app.get('/api/voluntari', proxyVoluntari);
+
+// alias — ca să funcționeze și dacă FE încă cere /api/v1/volunteers
+app.get('/api/v1/volunteers', proxyVoluntari);
+
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {
@@ -156,31 +187,4 @@ app.use((req, res) => {
 /* -------------------------- Start app -------------------------- */
 app.listen(PORT, () => {
   console.log(`FE running on http://localhost:${PORT}`);
-});
-
-// în server.js sau app.js (fișierul unde inițializezi Express)
-
-app.get('/voluntari', (req, res) => {
-  res.render('voluntari', {
-    title: 'Voluntari',
-    path: req.path,
-    isLogged: !!req.user,
-    user: req.user || null
-  });
-});
-
-app.get('/api/voluntari', async (req, res) => {
-  const page = Math.max(1, parseInt(req.query.page || '1', 10));
-  const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize || '10', 10)));
-  const sortBy = req.query.sortBy || 'nume';
-  const sortDir = (req.query.sortDir || 'asc').toLowerCase() === 'desc' ? -1 : 1;
-  const q = (req.query.q || '').trim();
-
-  // TODO: aici faci query în DB-ul tău real și returnezi JSON
-  res.json({
-    items: [], // array cu voluntari
-    page,
-    pageSize,
-    total: 0
-  });
 });

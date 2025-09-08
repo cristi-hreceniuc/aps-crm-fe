@@ -4,7 +4,9 @@
   <div class="dg-toolbar">
     <div class="dg-left">
       <h2 class="dg-title"><%= title %></h2>
-      <% if (subtitle) { %><div class="muted"><%= subtitle %></div><% } %>
+      <% if (typeof subtitle !== 'undefined' && subtitle) { %>
+        <div class="muted"><%= subtitle %></div>
+      <% } %>
     </div>
     <div class="dg-right">
       <input class="dg-search" type="search" placeholder="<%= searchPlaceholder || 'Căutare…' %>">
@@ -16,17 +18,21 @@
     <table class="dg-table">
       <thead>
         <tr>
-          <% columns.forEach(col => { %>
-            <th data-key="<%= col.key %>" <%= col.sortable ? 'data-sortable' : '' %> style="<%= col.width ? ('width:'+col.width) : '' %>">
+          <% (columns || []).forEach(col => { %>
+            <th
+              data-key="<%= col.key %>"
+              <%= col.sortable ? 'data-sortable' : '' %>
+              style="<%= col.width ? ('width:'+col.width) : '' %>"
+            >
               <span><%= col.label %></span>
-              <% if (col.sortable) { %><button class="dg-sort" aria-label="Sortează">&#8597;</button><% } %>
+              <% if (col.sortable) { %>
+                <button class="dg-sort" aria-label="Sortează">&#8597;</button>
+              <% } %>
             </th>
           <% }) %>
         </tr>
       </thead>
-      <tbody class="dg-body">
-        <!-- rândurile sunt randate de FE prin fetch -->
-      </tbody>
+      <tbody class="dg-body"></tbody>
     </table>
   </div>
 
@@ -37,12 +43,16 @@
     <button class="dg-next btn btn-outline" disabled>Înainte &raquo;</button>
   </div>
 
-  <!-- Config JSON (endpoint, pageSize, columns) -->
-  <script type="application/json" class="dg-config">
-    <%- JSON.stringify({
-      endpoint,
-      pageSize: pageSize || 10,
-      columns
-    }) %>
-  </script>
+  <!-- Config JSON (cu fallback-uri safe) -->
+  <%
+    const _cfg = {
+      endpoint: (typeof endpoint !== 'undefined') ? endpoint : '',
+      pageSize: (typeof pageSize !== 'undefined') ? pageSize : 10,
+      columns:  Array.isArray(columns) ? columns : [],
+      api:      (typeof api !== 'undefined') ? api : {},
+      response: (typeof response !== 'undefined') ? response : {},
+      auth:     (typeof auth !== 'undefined') ? auth : null
+    };
+  %>
+  <script type="application/json" class="dg-config"><%- JSON.stringify(_cfg) %></script>
 </section>

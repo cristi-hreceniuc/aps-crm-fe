@@ -59,7 +59,6 @@ input:focus,select:focus,textarea:focus{border-color:#d1d5db;box-shadow:0 0 0 4p
 
 /* ========= Footer ========= */
 .footer{padding:28px 0;color:#6b7280}
-
 /* ===== DataGrid generic ===== */
 .dg-toolbar{
   display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:12px;
@@ -72,7 +71,7 @@ input:focus,select:focus,textarea:focus{border-color:#d1d5db;box-shadow:0 0 0 4p
 }
 .dg-right .dg-search:focus{ border-color:#d1d5db; box-shadow:0 0 0 4px #f3f4f6; }
 
-.dg-scroll{ overflow:auto; border:1px solid #f1f5f9; border-radius:14px; }
+.dg-scroll{ overflow:auto; border:1px solid #f1f5f9; border-radius:14px; background:#fff; }
 .dg-table{ width:100%; border-collapse:separate; border-spacing:0; }
 .dg-table thead th{
   position:sticky; top:0; z-index:1; background:#fff; text-align:left; font-weight:700;
@@ -85,7 +84,6 @@ input:focus,select:focus,textarea:focus{border-color:#d1d5db;box-shadow:0 0 0 4p
 .dg-table thead th.sort-active{ color:var(--brand); }
 .dg-table thead th.sort-asc::after{ content:" ▲"; font-size:11px; }
 .dg-table thead th.sort-desc::after{ content:" ▼"; font-size:11px; }
-
 .dg-table tbody td{ padding:12px 14px; border-bottom:1px solid #f1f5f9; }
 .dg-table tbody tr:hover{ background:#fff7f7; }
 
