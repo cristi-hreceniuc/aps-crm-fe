@@ -1,0 +1,29 @@
+<!-- views/voluntari.ejs -->
+<%- include('partials/head', { title: 'Voluntari' }) %>
+<div class="app">
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
+
+  <main class="content-shell">
+    <header class="content-header">
+      <h1>Voluntari</h1>
+      <small class="muted">Listă paginată + sort + căutare</small>
+    </header>
+
+    <%- include('partials/datagrid', {
+      gridId: 'voluntari',
+      title: 'Voluntari',
+      subtitle: 'Detalii despre voluntari',
+      searchPlaceholder: 'Caută în toate câmpurile…',
+      endpoint: '/api/voluntari', // <— endpoint-ul tău din BE
+      pageSize: 10,
+      columns: [
+        { key: 'nume',        label: 'Nume',        sortable: true,  width: '22%' },
+        { key: 'email',       label: 'Email',       sortable: true,  width: '24%' },
+        { key: 'telefon',     label: 'Telefon',     sortable: false, width: '16%' },
+        { key: 'oras',        label: 'Oraș',        sortable: true,  width: '14%' },
+        { key: 'interese',    label: 'Interese',    sortable: false, width: '24%' }
+      ]
+    }) %>
+  </main>
+</div>
+<%- include('partials/footer') %>

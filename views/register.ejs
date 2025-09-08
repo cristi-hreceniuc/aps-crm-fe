@@ -1,0 +1,50 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<section class="container center pad">
+  <div class="auth-card">
+    <h1>Înregistrare</h1>
+
+    <% if (message) { %>
+      <div class="alert alert-success"><%= message %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <!-- UN SINGUR FORMULAR -->
+    <form id="regForm" class="form">
+      <label>Email</label>
+      <input id="regEmail" name="email" type="email" required placeholder="you@example.com" />
+      
+      <label>Parolă</label>
+      <input id="regPass" name="password" type="password" required placeholder="Min. 6 caractere" />
+      
+      <button class="btn btn-primary" type="submit">Creează cont</button>
+    </form>
+  </div>
+</section>
+
+<script>
+document.getElementById('regForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPass').value;
+
+  try {
+    const res = await fetch('/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    // dacă serverul a returnat HTML (success sau eroare), îl rerandăm
+    const html = await res.text();
+    document.open(); document.write(html); document.close();
+  } catch {
+    alert('Eroare la înregistrare');
+  }
+});
+</script>
+
+<%- include('partials/footer') %>

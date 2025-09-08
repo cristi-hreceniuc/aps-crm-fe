@@ -1,0 +1,6 @@
+{
+  "watch": ["server.js", "views", "public"],
+  "ext": "js,ejs,css,svg,png,jpg,webp",
+  "exec": "node server.js",
+  "delay": "150"
+}

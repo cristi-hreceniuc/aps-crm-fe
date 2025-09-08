@@ -1,0 +1,215 @@
+/* ============================
+   sidebar.css — APS Sidebar UI
+   ============================ */
+
+/* mici variabile locale pentru ajustări */
+:root{
+  /* corecție optică dacă logo-ul are whitespace asimetric (+/- px) */
+  --logo-nudge-x: 0px;
+}
+
+/* ===== Container & surface (rosy theme) ===== */
+.sidenav.light.rosy{
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-w);
+  background: transparent;
+  padding: 16px;
+  z-index: 20;
+}
+
+.sidenav-surface{
+  height: calc(100vh - 32px);
+  position: sticky;
+  top: 16px;
+  background: radial-gradient(140% 120% at 0% 0%, var(--rose-75) 0%, var(--rose-50) 40%, #fff 100%);
+  border: 1px solid var(--rose-100);
+  border-radius: 26px;
+  box-shadow: var(--shadow-rose);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px;
+}
+
+/* ===== Logo perfect centrat ===== */
+.side-header{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0 8px;
+}
+
+.brand-logo{
+  display: grid;
+  place-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+.brand-logo img{
+  display: block;
+  margin: 0 auto;
+  width: clamp(120px, 68%, 240px); /* scalare pe lățime (stabil & centrat) */
+  height: auto;
+  transform: translateX(var(--logo-nudge-x));
+}
+
+/* accent bar sub logo */
+.brand-underline{
+  width: 84px;
+  height: 6px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--brand), #ff6b6b);
+  margin-top: 10px;
+}
+
+/* ===== Wrapper colapsabil pentru meniu ===== */
+.menu-wrapper{
+  overflow: hidden;
+  transition: max-height .28s ease, opacity .2s ease;
+}
+
+/* ===== Meniu ===== */
+.menu{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.item{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: #364152;
+  background: transparent;
+  border: 1px solid transparent;
+  border-left: 6px solid transparent;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.item .ico{
+  width: 22px;
+  text-align: center;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.item .label{
+  position: relative;
+  top: -1px; /* text un pic mai sus, aliniere optică */
+}
+
+.item:hover{
+  background: var(--rose-75);
+  border-left-color: var(--brand);
+  color: var(--brand-600);
+  box-shadow: 0 8px 20px rgba(229,57,53,.12);
+}
+
+.item:active{
+  background: var(--rose-100);
+  border-left-color: var(--brand-600);
+}
+
+.item.active{
+  background: var(--rose-50);
+  border-left-color: var(--brand-600);
+  color: var(--brand-600);
+  box-shadow: 0 10px 26px rgba(229,57,53,.14);
+}
+
+/* ===== Shelf cont utilizator ===== */
+.shelf{
+  margin-top: auto;
+  padding: 10px;
+}
+
+.acct{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--rose-25);
+  border: 1px solid var(--rose-100);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.avatar{
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--rose-100);
+  color: var(--brand-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.link{
+  background: none;
+  border: 0;
+  color: var(--brand);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* =========================================================
+   MOBILE: sidebar devine “header” sticky
+   - logo rămâne sus centrat
+   - meniul se colapsează la scroll-down și reapare la scroll-up
+   ========================================================= */
+@media (max-width: 900px){
+  .sidenav.light.rosy{
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    padding: 0;
+  }
+
+  .sidenav-surface{
+    position: relative;
+    top: 0;
+    height: auto;
+    border-radius: 0;
+    padding: 10px 12px;
+    backdrop-filter: blur(8px);
+    background: rgba(255,255,255,.78);
+    box-shadow: var(--shadow-rose);
+    transition: transform .25s ease, padding .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+
+  .sidenav-surface.shrink{
+    padding: 6px 10px;
+    box-shadow: 0 8px 18px rgba(229,57,53,.10);
+    background: rgba(255,255,255,.72);
+  }
+
+  /* logo — scalare mai conservatoare pe mobil */
+  .brand-logo img{
+    width: clamp(110px, 45vw, 190px);
+    height: auto;
+    transform: translateX(var(--logo-nudge-x));
+  }
+
+  /* meniu deschis implicit */
+  .menu-wrapper{
+    max-height: 80vh;
+    opacity: 1;
+  }
+
+  /* stare colaps: ascundem meniul, păstrăm doar header-ul cu logo */
+  .menu-wrapper.collapse{
+    max-height: 0;
+    opacity: 0;
+  }
+}
+
+:root{ --logo-nudge-x: -4px; } /* sau +4px, după caz */
+.brand-logo img{ transform: translateX(var(--logo-nudge-x)); }

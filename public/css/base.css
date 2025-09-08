@@ -1,0 +1,56 @@
+/* ========= Base + Theme ========= */
+:root{
+  /* Brand */
+  --brand:#e53935;           /* main red */
+  --brand-600:#d32f2f;       /* deeper red */
+
+  /* Rose tints for surfaces */
+  --rose-25:#fff7f7;
+  --rose-50:#fff0f1;
+  --rose-75:#ffe9ec;
+  --rose-100:#ffe1e5;
+
+  /* Neutrals */
+  --bg:#f6f7fb;
+  --ink:#2b3440;
+  --muted:#5b6471;
+  --white:#fff;
+
+  /* Layout */
+  --sidebar-w:260px;
+
+  /* FX */
+  --shadow:0 10px 25px rgba(0,0,0,.06);
+  --shadow-rose:0 12px 36px rgba(229,57,53,.12);
+
+  /* Logo sizing (fluid) */
+  --logo-max: 150px;       /* plafon desktop */
+  --logo-min: 56px;        /* minim */
+  --logo-scale: 12vw;      /* navbar scaling */
+  --logo-scale-side: 10vw; /* sidebar scaling */
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+.center{text-align:center}
+.pad{padding:48px 0}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+
+/* Headings (Poppins ca în mock) */
+h1,h2,h3,.h{
+  font-family:Poppins,Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--brand);
+  letter-spacing:-0.02em;
+  line-height:1.1;
+}
+h1{font-weight:800}
+h2{font-weight:700}
+h3{font-weight:600}

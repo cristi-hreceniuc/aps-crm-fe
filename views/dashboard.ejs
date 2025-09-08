@@ -1,0 +1,9 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<section class="container pad">
+  <h1>Salut, <%= (user && user.email) ? user.email : 'utilizator' %>!</h1>
+  <p class="muted">Aceasta este o pagină protejată. Ești autentificat.</p>
+</section>
+
+<%- include('partials/footer') %>

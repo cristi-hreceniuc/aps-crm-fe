@@ -1,0 +1,18 @@
+<nav class="nav">
+  <div class="nav-inner container">
+    <a href="/" class="brand-logo">
+      <img src="/img/aps-logo.png" alt="Acțiune pentru Sănătate" />
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <% if (!isLogged) { %>
+        <a href="/login">Login</a>
+        <a class="btn btn-outline" href="/register">Register</a>
+      <% } else { %>
+        <form action="/logout" method="post" style="display:inline">
+          <button class="btn btn-danger" type="submit">Logout</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</nav>

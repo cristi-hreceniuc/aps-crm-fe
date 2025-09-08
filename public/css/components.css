@@ -1,0 +1,96 @@
+/* ========= Buttons ========= */
+.btn{
+  display:inline-block;padding:12px 18px;border-radius:14px;
+  background:var(--brand);color:#fff;border:none;cursor:pointer;
+  text-decoration:none;transition:filter .15s ease, transform .02s
+}
+.btn:hover{filter:brightness(.96)}
+.btn:active{transform:translateY(1px)}
+.btn-outline{border:1px solid var(--brand);color:var(--brand);background:transparent}
+.btn-outline:hover{background:var(--brand);color:#fff}
+.btn-danger{background:#ef4444}
+.btn-primary{background:var(--brand)}
+.btn-mini{display:inline-block;padding:8px 10px;border-radius:10px;background:var(--brand);color:#fff;font-weight:700}
+.btn-mini.outline{background:#fff;border:1px solid var(--brand);color:var(--brand)}
+
+/* ========= Forms & Alerts ========= */
+.auth-card{max-width:420px;margin:40px auto;background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:26px}
+.form{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+label{font-weight:600}
+input,select,textarea{
+  width:100%;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;outline:none
+}
+input:focus,select:focus,textarea:focus{border-color:#d1d5db;box-shadow:0 0 0 4px #f3f4f6}
+.alert{padding:10px 12px;border-radius:10px;margin:8px 0}
+.alert-danger{background:#fee2e2;color:#991b1b}
+.alert-success{background:#dcfce7;color:#166534}
+
+/* ========= Cards / Grid / Charts ========= */
+.grid{display:grid; gap:18px}
+.grid.two{grid-template-columns:1fr}
+.grid.three{grid-template-columns:1fr}
+@media(min-width:1024px){
+  .grid.two{grid-template-columns:1fr 1fr}
+  .grid.three{grid-template-columns:repeat(3,1fr)}
+}
+.card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px}
+.card.tall{min-height:280px}
+.mini-card{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:14px}
+.chart-placeholder{
+  height:220px; border:2px dashed #e5e7eb; border-radius:12px;
+  display:flex; align-items:center; justify-content:center; color:#94a3b8;
+}
+
+/* ========= Hero panel (ca în screenshot) ========= */
+.hero-panel{
+  background:radial-gradient(130% 120% at 0% 0%, var(--rose-75) 0%, var(--rose-50) 55%, #fff 100%);
+  border:1px solid var(--rose-100);
+  border-radius:28px;
+  box-shadow:0 22px 40px rgba(15,16,18,.06), 0 18px 44px rgba(229,57,53,.08);
+  padding:42px 36px;
+}
+.headline-xl{
+  font-family:Poppins; font-size:48px; font-weight:800; letter-spacing:-.02em; color:var(--brand); margin:0 0 16px 0;
+}
+.hero-lead{font-size:20px; color:var(--muted); line-height:1.6}
+.accent-underline{
+  width:86px;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--brand),#ff6b6b);margin:18px auto 0
+}
+
+/* ========= Footer ========= */
+.footer{padding:28px 0;color:#6b7280}
+
+/* ===== DataGrid generic ===== */
+.dg-toolbar{
+  display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:12px;
+}
+.dg-title{ margin:0; }
+.dg-right{ min-width: 220px; }
+.dg-right .dg-search{
+  width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:12px;
+  background:#fff; outline:none;
+}
+.dg-right .dg-search:focus{ border-color:#d1d5db; box-shadow:0 0 0 4px #f3f4f6; }
+
+.dg-scroll{ overflow:auto; border:1px solid #f1f5f9; border-radius:14px; }
+.dg-table{ width:100%; border-collapse:separate; border-spacing:0; }
+.dg-table thead th{
+  position:sticky; top:0; z-index:1; background:#fff; text-align:left; font-weight:700;
+  padding:12px 14px; border-bottom:1px solid #e5e7eb; white-space:nowrap;
+}
+.dg-table thead th[data-sortable]{ cursor:pointer; user-select:none; }
+.dg-table thead th .dg-sort{
+  margin-left:8px; border:0; background:transparent; cursor:pointer; font-size:14px; line-height:1;
+}
+.dg-table thead th.sort-active{ color:var(--brand); }
+.dg-table thead th.sort-asc::after{ content:" ▲"; font-size:11px; }
+.dg-table thead th.sort-desc::after{ content:" ▼"; font-size:11px; }
+
+.dg-table tbody td{ padding:12px 14px; border-bottom:1px solid #f1f5f9; }
+.dg-table tbody tr:hover{ background:#fff7f7; }
+
+.dg-pager{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding-top:12px;
+}
+.dg-pager .dg-pages{ padding:6px 10px; }

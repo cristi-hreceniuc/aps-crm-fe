@@ -1,0 +1,17 @@
+/* ========= Global layout, navbar, content shell ========= */
+
+/* Top navbar (auth pages) */
+.nav{background:var(--white);box-shadow:var(--shadow);position:sticky;top:0;z-index:30}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.brand-logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+.brand-logo img{
+  height: clamp(var(--logo-min), var(--logo-scale), var(--logo-max));
+  width:auto; display:block;
+}
+.nav-links a,.nav-links button{margin-left:14px;text-decoration:none;color:#374151}
+.nav-links a:hover{color:var(--brand)}
+
+/* App shell with left sidebar */
+.app{min-height:100vh}
+.content-shell{ margin-left:var(--sidebar-w); padding:24px 28px 40px }
+.content-header{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:18px }
