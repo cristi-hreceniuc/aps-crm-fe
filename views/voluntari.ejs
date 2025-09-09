@@ -1,7 +1,15 @@
 <!-- views/voluntari.ejs -->
 <%- include('partials/head', { title: 'Voluntari' }) %>
+
 <div class="app">
+  <!-- Sidenav (auto-collapse pe desktop / overlay pe mobil) -->
   <%- include('partials/sidenav', { path, isLogged, user }) %>
+
+  <!-- Mobil: buton hamburger + scrim overlay -->
+  <button class="nav-toggle" aria-label="Deschide meniul" hidden>
+    <span class="bar"></span>
+  </button>
+  <div class="nav-scrim" hidden></div>
 
   <main class="content-shell">
     <header class="content-header">
@@ -13,13 +21,14 @@
       gridId: 'voluntari',
       title: 'Voluntari',
       subtitle: 'Detalii despre voluntari',
-      searchPlaceholder: 'Caută în toate câmpurile…',
+      searchPlaceholder: 'Caută în nume, ID, titlu, email, telefon, ocupație, domeniu…',
 
-      /* Folosește proxy-ul Node: /api/voluntari atașează Bearer și forwardează spre Spring */
+      /* Un singur endpoint în FE (proxy către /volunteers/search pe BE).
+         Când q e gol => listă; când q are text => căutare. */
       endpoint: '/api/voluntari',
 
-      /* implicit 10 per pagină */
-      pageSize: 10,
+      /* implicit 5 per pagină */
+      pageSize: 5,
 
       /* Mapping către Spring Data Page (0-based) */
       api: {
@@ -27,8 +36,8 @@
         sizeParam: 'size',
         sortParam: 'sort',
         sortValue: '{key},{dir}',
-        pageBase: 0
-        // Dacă ai implementat căutare în BE: ,searchParam: 'q'
+        pageBase: 0,
+        searchParam: 'q'
       },
       response: {
         items: 'content',
@@ -37,23 +46,29 @@
         total: 'totalElements'
       },
 
-      /* Coloane (cheile corespund exact cu DTO-ul din BE) */
+      /* Coloane (cheile corespund DTO-ului din BE) */
       columns: [
-        { key: 'id',             label: 'ID',              sortable: true,  width: '8%'  },
-        { key: 'name',           label: 'Nume',            sortable: true,  width: '14%' },
-        { key: 'date',           label: 'Dată',            sortable: true,  width: '10%', type: 'date' },
-        { key: 'postName',       label: 'Nume post',       sortable: true,  width: '18%' },
-        { key: 'email',          label: 'Email',           sortable: true,  width: '16%' },
-        { key: 'phone',          label: 'Telefon',         sortable: false, width: '12%' },
-        { key: 'disponibility',  label: 'Disponibilitate', sortable: false, width: '10%' },
-        { key: 'domain',         label: 'Domeniu',         sortable: true,  width: '12%' },
-        { key: 'age',            label: 'Vârstă',          sortable: true,  width: '8%'  },
-        { key: 'ocupation',      label: 'Ocupație',        sortable: true,  width: '12%' },
-        { key: 'motivation',     label: 'Motivație',       sortable: true,               },
-        { key: 'experience',     label: 'Experiență',      sortable: true                },
-        { key: 'link',           label: 'Link',            sortable: false, width: '7%',  type: 'link' }
+        { key: 'id',            label: 'ID',              sortable: true,  width: '7%'  },
+        { key: 'name',          label: 'Nume',            sortable: true,  width: '14%' },
+        { key: 'date',          label: 'Dată',            sortable: true,  width: '10%', type: 'date' },
+
+        /* texte mai lungi (clamp la 2 linii) */
+        { key: 'postName',      label: 'Nume post',       sortable: true,  width: '16%', clamp: 2 },
+
+        { key: 'email',         label: 'Email',           sortable: true,  width: '14%' },
+        { key: 'phone',         label: 'Telefon',         sortable: false, width: '11%' },
+        { key: 'disponibility', label: 'Disponibilitate', sortable: false, width: '10%' },
+        { key: 'domain',        label: 'Domeniu',         sortable: true,  width: '10%' },
+        { key: 'age',           label: 'Vârstă',          sortable: true,  width: '6%',  type: 'number' },
+        { key: 'ocupation',     label: 'Ocupație',        sortable: true,  width: '10%' },
+        { key: 'link',          label: 'Link',            sortable: false, width: '7%',  type: 'link' },
+
+        /* texte lungi, clamp + tooltip */
+        { key: 'motivation',    label: 'Motivație',       sortable: true,  clamp: 2 },
+        { key: 'experience',    label: 'Experiență',      sortable: true,  clamp: 2 }
       ]
     }) %>
   </main>
 </div>
+
 <%- include('partials/footer') %>

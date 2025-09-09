@@ -12,11 +12,11 @@ const app = express();
 
 /* ------------------------ Config ------------------------ */
 const PORT = process.env.PORT || 3000;
-const API_BASE = process.env.API_BASE || 'http://localhost:8080/api/v1';
+const API_BASE = process.env.API_BASE || 'http://localhost:8080/api/v1'; // ex: http://localhost:8080/api/v1
 const SESSION_SECRET = process.env.SESSION_SECRET || 'super-secret';
 const isProd = process.env.NODE_ENV === 'production';
 
-/* Axios client către backend */
+/* -------------------- Axios client BE ------------------- */
 const api = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' }
@@ -65,7 +65,7 @@ app.use((req, res, next) => {
   next();
 });
 
-/* Auth gate */
+/* ------------------------ Auth gate --------------------- */
 function requireAuth(req, res, next) {
   if (req.session?.token) return next();
   req.session.afterLogin = req.originalUrl;
@@ -96,11 +96,11 @@ app.post('/login', async (req, res) => {
     delete req.session.afterLogin;
     return res.redirect(redirectTo);
   } catch (err) {
-    req.session.lastEmail = '';
+    req.session.lastEmail = email || '';
     const msg = err.response?.data?.message || err.message || 'Credențiale invalide';
     return res
       .status(401)
-      .render('login', { title: 'Login', error: msg, email: '' });
+      .render('login', { title: 'Login', error: msg, email: req.session.lastEmail });
   }
 });
 
@@ -134,50 +134,42 @@ app.post('/logout', (req, res) => {
 /* exclude /login, /register, /favicon.ico; static e scos deja prin express.static */
 app.use(/^\/(?!login|register|favicon\.ico).*/, requireAuth);
 
-/* -------------------- Rute protejate (app) -------------------- */
-app.get('/', (req, res) => {
-  res.render('home', { title: 'Direcționare 20%' });
-});
-
-app.get('/voluntari', (req, res) => {
-  res.render('voluntari', { title: 'Voluntari', heading: 'Voluntari' });
-});
-
-app.get('/formulare',  (req, res) => res.render('stub', { title: 'Formulare', heading: 'Formulare' }));
-app.get('/donatii',    (req, res) => res.render('stub', { title: 'Donații',    heading: 'Donații'    }));
-app.get('/proiecte',   (req, res) => res.render('stub', { title: 'Proiecte',   heading: 'Proiecte'   }));
-app.get('/cazuri',     (req, res) => res.render('stub', { title: 'Cazuri',     heading: 'Cazuri'     }));
-app.get('/rapoarte',   (req, res) => res.render('stub', { title: 'Rapoarte',   heading: 'Rapoarte'   }));
-app.get('/setari',     (req, res) => res.render('stub', { title: 'Setări',     heading: 'Setări'     }));
+/* ------------------- Rute pagini (app) ------------------ */
+app.get('/',           (req, res) => res.render('home',      { title: 'Direcționare 20%' }));
+app.get('/voluntari',  (req, res) => res.render('voluntari', { title: 'Voluntari', heading: 'Voluntari' }));
+app.get('/formulare',  (req, res) => res.render('stub',      { title: 'Formulare', heading: 'Formulare' }));
+app.get('/donatii',    (req, res) => res.render('stub',      { title: 'Donații',   heading: 'Donații'   }));
+app.get('/proiecte',   (req, res) => res.render('stub',      { title: 'Proiecte',  heading: 'Proiecte'  }));
+app.get('/cazuri',     (req, res) => res.render('stub',      { title: 'Cazuri',    heading: 'Cazuri'    }));
+app.get('/rapoarte',   (req, res) => res.render('stub',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
+app.get('/setari',     (req, res) => res.render('stub',      { title: 'Setări',    heading: 'Setări'    }));
 app.get('/dashboard',  (req, res) => res.render('dashboard', { title: 'Dashboard' }));
 
-/* -------------------- PROXY spre Spring (ATAȘEAZĂ token) -------------------- */
-const proxyVoluntari = async (req, res) => {
-  if (!req.session?.token) {
-    return res.status(401).json({ message: 'Not authenticated' });
-  }
+/* ----------------------- Proxy helper ------------------- */
+// GET proxy spre Spring, pasează query-urile + Bearer din sesiune
+const proxyGet = (targetPath) => async (req, res) => {
+  if (!req.session?.token) return res.status(401).json({ message: 'Not authenticated' });
   try {
-    // debug util: vezi în server logs ce cere FE
-    console.log('[proxy] ->', `${API_BASE}/volunteers`, 'query:', req.query);
-
-    const { data, status } = await api.get('/volunteers', {
-      params: req.query, // forward page,size,sort,q...
+    const { data, status } = await api.get(targetPath, {
+      params: req.query,
       headers: { Authorization: `Bearer ${req.session.token}` }
     });
     return res.status(status).json(data);
   } catch (err) {
-    const status = err.response?.status || 500;
-    const payload = err.response?.data || { message: 'Upstream error' };
-    return res.status(status).json(payload);
+    const s = err.response?.status || 500;
+    const body = err.response?.data || { message: 'Upstream error' };
+    console.error('[proxyGet]', targetPath, '->', s, body);
+    return res.status(s).json(body);
   }
 };
 
-// preferat
-app.get('/api/voluntari', proxyVoluntari);
-
-// alias — ca să funcționeze și dacă FE încă cere /api/v1/volunteers
-app.get('/api/v1/volunteers', proxyVoluntari);
-
+/* -------------------- Rute proxy API -------------------- */
+/* Ambele rute FE mapează la același endpoint BE:
+   - când q e gol => listă paginată normală
+   - când q are text => căutare în câmpurile permise
+*/
+app.get('/api/voluntari',        proxyGet('/volunteers/search'));
+app.get('/api/voluntari/search', proxyGet('/volunteers/search'));
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {
@@ -187,4 +179,5 @@ app.use((req, res) => {
 /* -------------------------- Start app -------------------------- */
 app.listen(PORT, () => {
   console.log(`FE running on http://localhost:${PORT}`);
+  console.log(`Proxy to BE: ${API_BASE}`);
 });

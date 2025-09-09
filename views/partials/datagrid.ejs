@@ -1,6 +1,4 @@
-<!-- views/partials/datagrid.ejs -->
 <section class="card" data-grid data-grid-id="<%= gridId %>">
-  <!-- Toolbar -->
   <div class="dg-toolbar">
     <div class="dg-left">
       <h2 class="dg-title"><%= title %></h2>
@@ -13,21 +11,21 @@
     </div>
   </div>
 
-  <!-- Tabel -->
   <div class="dg-scroll">
     <table class="dg-table">
       <thead>
         <tr>
           <% (columns || []).forEach(col => { %>
-            <th
-              data-key="<%= col.key %>"
-              <%= col.sortable ? 'data-sortable' : '' %>
-              style="<%= col.width ? ('width:'+col.width) : '' %>"
-            >
-              <span><%= col.label %></span>
-              <% if (col.sortable) { %>
-                <button class="dg-sort" aria-label="Sortează">&#8597;</button>
-              <% } %>
+            <th class="col-<%= col.key %>"
+                data-key="<%= col.key %>"
+                <%= col.sortable ? 'data-sortable' : '' %>
+                style="<%= col.width ? ('width:'+col.width) : '' %>">
+              <div class="th-inner">
+                <span class="th-label"><%= col.label %></span>
+                <% if (col.sortable) { %>
+                  <button class="dg-sort" aria-label="Sortează">&#8597;</button>
+                <% } %>
+              </div>
             </th>
           <% }) %>
         </tr>
@@ -36,23 +34,20 @@
     </table>
   </div>
 
-  <!-- Pagination -->
   <div class="dg-pager">
     <button class="dg-prev btn btn-outline" disabled>&laquo; Înapoi</button>
     <div class="dg-pages muted"></div>
     <button class="dg-next btn btn-outline" disabled>Înainte &raquo;</button>
   </div>
 
-  <!-- Config JSON (cu fallback-uri safe) -->
-  <%
-    const _cfg = {
-      endpoint: (typeof endpoint !== 'undefined') ? endpoint : '',
-      pageSize: (typeof pageSize !== 'undefined') ? pageSize : 10,
-      columns:  Array.isArray(columns) ? columns : [],
-      api:      (typeof api !== 'undefined') ? api : {},
-      response: (typeof response !== 'undefined') ? response : {},
-      auth:     (typeof auth !== 'undefined') ? auth : null
-    };
+  <% const _cfg = {
+       endpoint: (typeof endpoint !== 'undefined') ? endpoint : '',
+       pageSize: (typeof pageSize !== 'undefined') ? pageSize : 10,
+       columns:  Array.isArray(columns) ? columns : [],
+       api:      (typeof api !== 'undefined') ? api : {},
+       response: (typeof response !== 'undefined') ? response : {},
+       auth:     (typeof auth !== 'undefined') ? auth : null
+     };
   %>
   <script type="application/json" class="dg-config"><%- JSON.stringify(_cfg) %></script>
 </section>

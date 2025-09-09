@@ -1,45 +1,40 @@
-<aside class="sidenav light rosy">
-  <div class="sidenav-surface">
-    <!-- LOGO sus, centrat -->
-    <div class="side-header">
-      <a href="/" class="brand-logo">
-        <img src="/img/aps-logo.png" alt="Acțiune pentru Sănătate" />
-      </a>
-      <div class="brand-underline"></div>
-    </div>
-
-    <!-- DOAR meniul intră în wrapperul colapsabil -->
-    <div class="menu-wrapper" id="menuWrapper">
-      <nav class="menu">
-        <a href="/"          class="item <%= path === '/' ? 'active' : '' %>"><span class="ico">🏠</span><span class="label">Dashboard</span></a>
-        <a href="/voluntari" class="item <%= path.startsWith('/voluntari') ? 'active' : '' %>"><span class="ico">👥</span><span class="label">Voluntari</span></a>
-        <a href="/formulare" class="item <%= path.startsWith('/formulare') ? 'active' : '' %>"><span class="ico">📝</span><span class="label">Formulare</span></a>
-        <a href="/donatii"   class="item <%= path.startsWith('/donatii') ? 'active' : '' %>"><span class="ico">❤️</span><span class="label">Donații</span></a>
-        <a href="/proiecte"  class="item <%= path.startsWith('/proiecte') ? 'active' : '' %>"><span class="ico">📁</span><span class="label">Proiecte</span></a>
-        <a href="/cazuri"    class="item <%= path.startsWith('/cazuri') ? 'active' : '' %>"><span class="ico">📂</span><span class="label">Cazuri</span></a>
-        <a href="/rapoarte"  class="item <%= path.startsWith('/rapoarte') ? 'active' : '' %>"><span class="ico">📊</span><span class="label">Rapoarte</span></a>
-        <a href="/setari"    class="item <%= path.startsWith('/setari') ? 'active' : '' %>"><span class="ico">⚙️</span><span class="label">Setări</span></a>
-      </nav>
-    </div>
-
-    <!-- USER JOS ÎN TOTDEAUNA (în afara wrapper-ului) -->
-    <div class="shelf">
-      <% if (isLogged && user) { %>
-        <div class="acct">
-          <div class="avatar"><span><%= (user.email || 'U')[0].toUpperCase() %></span></div>
-          <div class="meta">
-            <div class="name"><%= user.email %></div>
-            <form action="/logout" method="post"><button class="link" type="submit">Sign out</button></form>
-          </div>
-        </div>
-      <% } else { %>
-        <div class="acct">
-          <div class="meta">
-            <a class="btn-mini" href="/login">Login</a>
-            <a class="btn-mini outline" href="/register">Register</a>
-          </div>
-        </div>
-      <% } %>
-    </div>
+<!-- views/partials/sidenav.ejs -->
+<aside class="sidenav" aria-label="Meniu principal">
+  <div class="nav-header">
+    <a href="/" class="brand" title="Acțiune pentru Sănătate">
+      <!-- doar imaginea (fără text) -->
+      <img class="brand-logo" src="/img/aps-logo.png" alt="APS CRM" />
+      <span class="brand-text" aria-hidden="true">APS CRM</span>
+    </a>
   </div>
+
+  <nav class="nav-list">
+    <a href="/"          class="nav-link <%= path === '/' ? 'active' : '' %>"          title="Acasă">
+      <span class="nav-ico">🏠</span><span class="nav-text">Acasă</span>
+    </a>
+    <a href="/voluntari" class="nav-link <%= path === '/voluntari' ? 'active' : '' %>" title="Voluntari">
+      <span class="nav-ico">🤝</span><span class="nav-text">Voluntari</span>
+    </a>
+    <a href="/formulare" class="nav-link <%= path === '/formulare' ? 'active' : '' %>" title="Formulare">
+      <span class="nav-ico">📄</span><span class="nav-text">Formulare</span>
+    </a>
+    <a href="/donatii"   class="nav-link <%= path === '/donatii' ? 'active' : '' %>"   title="Donații">
+      <span class="nav-ico">💝</span><span class="nav-text">Donații</span>
+    </a>
+    <a href="/proiecte"  class="nav-link <%= path === '/proiecte' ? 'active' : '' %>"  title="Proiecte">
+      <span class="nav-ico">📦</span><span class="nav-text">Proiecte</span>
+    </a>
+    <a href="/cazuri"    class="nav-link <%= path === '/cazuri' ? 'active' : '' %>"    title="Cazuri">
+      <span class="nav-ico">📋</span><span class="nav-text">Cazuri</span>
+    </a>
+    <a href="/rapoarte"  class="nav-link <%= path === '/rapoarte' ? 'active' : '' %>"  title="Rapoarte">
+      <span class="nav-ico">📊</span><span class="nav-text">Rapoarte</span>
+    </a>
+    <a href="/setari"    class="nav-link <%= path === '/setari' ? 'active' : '' %>"    title="Setări">
+      <span class="nav-ico">⚙️</span><span class="nav-text">Setări</span>
+    </a>
+    <a href="/dashboard" class="nav-link <%= path === '/dashboard' ? 'active' : '' %>" title="Dashboard">
+      <span class="nav-ico">📈</span><span class="nav-text">Dashboard</span>
+    </a>
+  </nav>
 </aside>

@@ -1,0 +1,52 @@
+/* DataGrid container */
+.dg-toolbar{
+  display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:12px;
+}
+.dg-right{ min-width:220px; }
+.dg-right .dg-search{
+  width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff; outline:none;
+}
+.dg-right .dg-search:focus{ border-color:#d1d5db; box-shadow:0 0 0 4px #f3f4f6; }
+
+.dg-scroll{ overflow:auto; background:#f8fafc; border-radius:14px; }
+.dg-table{
+  width:100%; border-collapse:separate; border-spacing:0 8px; table-layout:fixed;
+}
+
+/* Header */
+.dg-table thead th{
+  position:sticky; top:0; z-index:2; background:#fff; padding:12px 14px; border-bottom:1px solid #e5e7eb; text-align:left;
+}
+.dg-table thead th .th-inner{ display:flex; align-items:center; gap:8px; }
+.dg-table thead th .th-label{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#111827; font-weight:600; }
+.dg-table thead th[data-sortable]{ cursor:pointer; user-select:none; }
+.dg-table thead th .dg-sort{ margin-left:0; border:0; background:transparent; cursor:pointer; font-size:14px; line-height:1; opacity:.7; }
+.dg-table thead th.sort-active{ color:var(--brand); }
+.dg-table thead th.sort-asc::after{ content:" ▲"; font-size:11px; }
+.dg-table thead th.sort-desc::after{ content:" ▼"; font-size:11px; }
+
+/* Rânduri + celule */
+.dg-table th, .dg-table td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dg-table tbody tr{ background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04); }
+.dg-table tbody td{ padding:12px 14px; border-bottom:none; }
+.dg-table tbody tr td:first-child{ border-top-left-radius:12px; border-bottom-left-radius:12px; }
+.dg-table tbody tr td:last-child { border-top-right-radius:12px; border-bottom-right-radius:12px; }
+.dg-table tbody tr:hover{ box-shadow:0 3px 8px rgba(0,0,0,.08); }
+
+/* Paginator */
+.dg-pager{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:12px; }
+.dg-pager .dg-pages{ padding:6px 10px; }
+
+/* Clamp */
+.dg-table td .dg-val{
+  display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.dg-table td .dg-val.dg-clamp{ white-space:normal; display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; }
+.dg-table td .dg-val.dg-clamp-2{ -webkit-line-clamp:2; }
+.dg-table td .dg-val.dg-clamp-3{ -webkit-line-clamp:3; }
+
+/* Mică optimizare pentru spațiu */
+@media (max-width:1600px){
+  .dg-table thead th.col-postName,
+  .dg-table tbody td.col-postName{ display:none; }
+}

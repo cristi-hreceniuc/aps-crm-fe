@@ -1,215 +1,91 @@
-/* ============================
-   sidebar.css — APS Sidebar UI
-   ============================ */
-
-/* mici variabile locale pentru ajustări */
 :root{
-  /* corecție optică dacă logo-ul are whitespace asimetric (+/- px) */
-  --logo-nudge-x: 0px;
+  --nav-collapsed: 72px;
+  --nav-expanded:  240px;
 }
 
-/* ===== Container & surface (rosy theme) ===== */
-.sidenav.light.rosy{
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: var(--sidebar-w);
-  background: transparent;
-  padding: 16px;
-  z-index: 20;
+/* Layout principal */
+.app{ display:flex; }
+
+/* ===== Sidenav: desktop (auto-collapse on hover) ===== */
+.sidenav{
+  width: var(--nav-collapsed);
+  transition: width .18s ease;
+  background:#fff;
+  border-right:1px solid #e5e7eb;
+  min-height:100vh;
+  position:sticky; top:0; left:0;
+  overflow:hidden;
+  z-index:20;
+}
+.sidenav:hover{ width: var(--nav-expanded); }
+
+/* Conținut */
+.content-shell{
+  flex:1;
+  margin-left: var(--nav-collapsed);
+  transition: margin-left .18s ease;
+}
+.sidenav:hover ~ .content-shell{
+  margin-left: var(--nav-expanded);
 }
 
-.sidenav-surface{
-  height: calc(100vh - 32px);
-  position: sticky;
-  top: 16px;
-  background: radial-gradient(140% 120% at 0% 0%, var(--rose-75) 0%, var(--rose-50) 40%, #fff 100%);
-  border: 1px solid var(--rose-100);
-  border-radius: 26px;
-  box-shadow: var(--shadow-rose);
-  display: flex;
-  flex-direction: column;
-  padding: 12px 10px;
-}
+/* Brand: doar imagine (textul rămâne ascuns) */
+.nav-header{ padding:12px; }
+.brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
+.brand-logo{ width:28px; height:28px; object-fit:contain; display:block; }
+.sidenav:hover .brand-logo{ width:32px; height:32px; }
+.brand-text{ display:none; } /* ascuns și când e deschis */
 
-/* ===== Logo perfect centrat ===== */
-.side-header{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 0 8px;
+/* Linkuri meniu */
+.nav-list{ display:flex; flex-direction:column; gap:6px; padding:6px; }
+.nav-link{
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px; border-radius:10px; color:#111827; text-decoration:none;
+  white-space:nowrap;
 }
+.nav-link:hover{ background:#f3f4f6; }
+.nav-link.active{ background:#fee2e2; color:#b91c1c; }
+.nav-ico{ width:24px; height:24px; display:grid; place-items:center; flex:0 0 24px; }
 
-.brand-logo{
-  display: grid;
-  place-items: center;
-  width: 100%;
-  text-align: center;
-}
+/* Text link: ascuns la collapsed, vizibil când hover (desktop) */
+.nav-text{ opacity:0; transform: translateX(-6px); transition: opacity .12s, transform .12s; }
+.sidenav:hover .nav-text{ opacity:1; transform:none; }
+/* already existing desktop rules can stay */
 
-.brand-logo img{
-  display: block;
-  margin: 0 auto;
-  width: clamp(120px, 68%, 240px); /* scalare pe lățime (stabil & centrat) */
-  height: auto;
-  transform: translateX(var(--logo-nudge-x));
-}
-
-/* accent bar sub logo */
-.brand-underline{
-  width: 84px;
-  height: 6px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, var(--brand), #ff6b6b);
-  margin-top: 10px;
-}
-
-/* ===== Wrapper colapsabil pentru meniu ===== */
-.menu-wrapper{
-  overflow: hidden;
-  transition: max-height .28s ease, opacity .2s ease;
-}
-
-/* ===== Meniu ===== */
-.menu{
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-}
-
-.item{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 12px;
-  border-radius: 14px;
-  text-decoration: none;
-  color: #364152;
-  background: transparent;
-  border: 1px solid transparent;
-  border-left: 6px solid transparent;
-  transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
-}
-
-.item .ico{
-  width: 22px;
-  text-align: center;
-  font-size: 17px;
-  line-height: 1;
-}
-
-.item .label{
-  position: relative;
-  top: -1px; /* text un pic mai sus, aliniere optică */
-}
-
-.item:hover{
-  background: var(--rose-75);
-  border-left-color: var(--brand);
-  color: var(--brand-600);
-  box-shadow: 0 8px 20px rgba(229,57,53,.12);
-}
-
-.item:active{
-  background: var(--rose-100);
-  border-left-color: var(--brand-600);
-}
-
-.item.active{
-  background: var(--rose-50);
-  border-left-color: var(--brand-600);
-  color: var(--brand-600);
-  box-shadow: 0 10px 26px rgba(229,57,53,.14);
-}
-
-/* ===== Shelf cont utilizator ===== */
-.shelf{
-  margin-top: auto;
-  padding: 10px;
-}
-
-.acct{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--rose-25);
-  border: 1px solid var(--rose-100);
-  border-radius: 14px;
-  padding: 12px;
-}
-
-.avatar{
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--rose-100);
-  color: var(--brand-600);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-}
-
-.link{
-  background: none;
-  border: 0;
-  color: var(--brand);
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* =========================================================
-   MOBILE: sidebar devine “header” sticky
-   - logo rămâne sus centrat
-   - meniul se colapsează la scroll-down și reapare la scroll-up
-   ========================================================= */
-@media (max-width: 900px){
-  .sidenav.light.rosy{
-    position: sticky;
-    top: 0;
-    z-index: 60;
-    padding: 0;
+/* ===== Mobil (<= 1024px): overlay + straturi corecte ===== */
+@media (max-width: 1024px){
+  .sidenav{
+    position:fixed; top:0; left:0; height:100dvh;
+    width: var(--nav-expanded);
+    transform: translateX(-100%);
+    transition: transform .18s ease;
+    z-index: 30;            /* peste conținut */
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
   }
+  body.nav-open .sidenav{ transform: translateX(0); }
 
-  .sidenav-surface{
-    position: relative;
-    top: 0;
-    height: auto;
-    border-radius: 0;
-    padding: 10px 12px;
-    backdrop-filter: blur(8px);
-    background: rgba(255,255,255,.78);
-    box-shadow: var(--shadow-rose);
-    transition: transform .25s ease, padding .2s ease, box-shadow .2s ease, background .2s ease;
+  .nav-scrim{
+    position:fixed; inset:0; background:rgba(0,0,0,.35);
+    opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:25;
   }
+  body.nav-open .nav-scrim{ opacity:1; pointer-events:auto; }
 
-  .sidenav-surface.shrink{
-    padding: 6px 10px;
-    box-shadow: 0 8px 18px rgba(229,57,53,.10);
-    background: rgba(255,255,255,.72);
+  .nav-toggle{
+    position:fixed; top:12px; left:12px; z-index:35;
+    width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb;
+    background:#fff; display:grid; place-items:center;
+    box-shadow:0 1px 2px rgba(0,0,0,.06);
+    touch-action: manipulation;
   }
+  .nav-toggle .bar{
+    width:18px; height:2px; background:#111827; border-radius:2px; position:relative;
+  }
+  .nav-toggle .bar::before, .nav-toggle .bar::after{
+    content:""; position:absolute; left:0; width:18px; height:2px; background:#111827; border-radius:2px;
+  }
+  .nav-toggle .bar::before{ top:-6px; }
+  .nav-toggle .bar::after { top: 6px; }
 
-  /* logo — scalare mai conservatoare pe mobil */
-  .brand-logo img{
-    width: clamp(110px, 45vw, 190px);
-    height: auto;
-    transform: translateX(var(--logo-nudge-x));
-  }
-
-  /* meniu deschis implicit */
-  .menu-wrapper{
-    max-height: 80vh;
-    opacity: 1;
-  }
-
-  /* stare colaps: ascundem meniul, păstrăm doar header-ul cu logo */
-  .menu-wrapper.collapse{
-    max-height: 0;
-    opacity: 0;
-  }
+  /* conținutul să ocupe toată lățimea pe mobil */
+  .content-shell{ margin-left: 0 !important; }
 }
-
-:root{ --logo-nudge-x: -4px; } /* sau +4px, după caz */
-.brand-logo img{ transform: translateX(var(--logo-nudge-x)); }
