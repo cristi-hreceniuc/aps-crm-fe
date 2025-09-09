@@ -110,9 +110,9 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, firstName, lastName, gender } = req.body; // ← noi
   try {
-    await api.post('/auth/register', { email, password });
+    await api.post('/auth/register', { email, password, firstName, lastName, gender });
     res.render('register', {
       title: 'Înregistrare',
       message: 'Cont creat! Te poți autentifica.',
@@ -120,9 +120,7 @@ app.post('/register', async (req, res) => {
     });
   } catch (err) {
     const msg = err.response?.data?.message || 'Eroare la crearea contului';
-    res
-      .status(400)
-      .render('register', { title: 'Înregistrare', message: null, error: msg });
+    res.status(400).render('register', { title: 'Înregistrare', message: null, error: msg });
   }
 });
 
@@ -138,7 +136,10 @@ app.use(/^\/(?!login|register|favicon\.ico).*/, requireAuth);
 app.get('/',           (req, res) => res.render('home',      { title: 'Direcționare 20%' }));
 app.get('/voluntari',  (req, res) => res.render('voluntari', { title: 'Voluntari', heading: 'Voluntari' }));
 app.get('/formulare',  (req, res) => res.render('stub',      { title: 'Formulare', heading: 'Formulare' }));
-app.get('/donatii',    (req, res) => res.render('stub',      { title: 'Donații',   heading: 'Donații'   }));
+
+app.get('/d177', (req, res) => {
+  res.render('d177', { title: 'Declarația 177', heading: 'Declarația 177' });
+});
 app.get('/proiecte',   (req, res) => res.render('stub',      { title: 'Proiecte',  heading: 'Proiecte'  }));
 app.get('/cazuri',     (req, res) => res.render('stub',      { title: 'Cazuri',    heading: 'Cazuri'    }));
 app.get('/rapoarte',   (req, res) => res.render('stub',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
@@ -171,28 +172,47 @@ const proxyGet = (targetPath) => async (req, res) => {
 app.get('/api/voluntari',        proxyGet('/volunteers/search'));
 app.get('/api/voluntari/search', proxyGet('/volunteers/search'));
 
+app.get('/api/d177',        proxyGet('/formulare/d177/search'));
+app.get('/api/d177/search', proxyGet('/formulare/d177/search')); // dacă vrei să păstrezi formatul grid-ului
 
-// helper DELETE
+/* === Proxy către BE (cu Bearer) === */
+
 const proxyDelete = (targetPathBuilder) => async (req, res) => {
-  if (!req.session?.token) return res.status(401).json({ message: 'Not authenticated' });
+  if (!req.session?.token) return res.status(401).json({ message:'Not authenticated' });
   const targetPath = (typeof targetPathBuilder === 'function') ? targetPathBuilder(req) : targetPathBuilder;
   try {
     const { status, data } = await api.delete(targetPath, {
       headers: { Authorization: `Bearer ${req.session.token}` }
     });
-    // Spring poate returna 204 No Content; forwardăm statusul
-    if (status === 204) return res.status(204).end();
-    return res.status(status).json(data);
+    return status === 204 ? res.status(204).end() : res.status(status).json(data);
   } catch (err) {
     const s = err.response?.status || 500;
-    const body = err.response?.data || { message: 'Upstream error' };
-    console.error('[proxyDelete]', targetPath, '->', s, body);
-    return res.status(s).json(body);
+    res.status(s).json(err.response?.data || { message:'Upstream error' });
   }
 };
 
+const proxyPut = (pathBuilder) => async (req, res) => {
+  if (!req.session?.token) return res.status(401).json({ message: 'Not authenticated' });
+  const targetPath = (typeof pathBuilder === 'function') ? pathBuilder(req) : pathBuilder;
+  try {
+    const { status, data } = await api.put(targetPath, req.body, {
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+    return res.status(status).json(data);
+  } catch (err) {
+    const s = err.response?.status || 500;
+    return res.status(s).json(err.response?.data || { message:'Upstream error' });
+  }
+};
+
+
+
 // rutele proxy (unde ai și GET-urile):
 app.delete('/api/voluntari/:id', proxyDelete(req => `/volunteers/${req.params.id}`));
+app.delete('/api/d177/:id', proxyDelete(req => `/formulare/d177/${req.params.id}`));
+
+app.put('/api/d177/:id/flags', proxyPut(req => `/formulare/d177/${req.params.id}/flags`));
+
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {

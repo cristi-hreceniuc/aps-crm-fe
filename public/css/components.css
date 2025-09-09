@@ -202,3 +202,22 @@ input:focus,select:focus,textarea:focus{border-color:#d1d5db;box-shadow:0 0 0 4p
 }
 .dg-table td .dg-val.dg-clamp-2{ -webkit-line-clamp:2; }
 .dg-table td .dg-val.dg-clamp-3{ -webkit-line-clamp:3; }
+
+/* Register ca Logout: outline, nu se umple pe hover */
+.btn-outline.no-fill:hover{
+  background: transparent !important;
+  color: var(--brand) !important;
+  box-shadow: 0 2px 8px rgba(239,68,68,.12);
+  border-color: var(--brand);
+}
+.btn-outline.no-fill:active{ transform: translateY(1px); }
+
+/* Scrim: dacă e ascuns, dispare complet și NU mai prinde clickuri */
+.nav-scrim[hidden]{ display:none !important; pointer-events:none !important; }
+
+/* Search: poziționat deasupra oricăror elemente vecine */
+.dg-right .dg-search{
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}

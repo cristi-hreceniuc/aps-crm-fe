@@ -1,4 +1,4 @@
-<%- include('partials/head') %>
+<%- include('partials/head', { title: 'Înregistrare' }) %>
 <%- include('partials/navbar') %>
 
 <section class="container center pad">
@@ -12,15 +12,33 @@
       <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
-    <!-- UN SINGUR FORMULAR -->
-    <form id="regForm" class="form">
-      <label>Email</label>
+    <form id="regForm" class="form" novalidate>
+      <div class="grid two">
+        <div>
+          <label for="regFirst">Prenume</label>
+          <input id="regFirst" name="firstName" type="text" required placeholder="Ionut" />
+        </div>
+        <div>
+          <label for="regLast">Nume</label>
+          <input id="regLast" name="lastName" type="text" required placeholder="Popescu" />
+        </div>
+      </div>
+
+      <label for="regGender">Gen</label>
+      <select id="regGender" name="gender" required>
+        <option value="" selected disabled>— Alege —</option>
+        <option value="MALE">Bărbat</option>
+        <option value="FEMALE">Femeie</option>
+      </select>
+
+      <label for="regEmail">Email</label>
       <input id="regEmail" name="email" type="email" required placeholder="you@example.com" />
-      
-      <label>Parolă</label>
-      <input id="regPass" name="password" type="password" required placeholder="Min. 6 caractere" />
-      
-      <button class="btn btn-primary" type="submit">Creează cont</button>
+
+      <label for="regPass">Parolă</label>
+      <input id="regPass" name="password" type="password" required minlength="6" placeholder="Min. 6 caractere" />
+
+      <!-- ca Logout: outline, nu se umple pe hover -->
+      <button class="btn btn-outline no-fill" type="submit">Creează cont</button>
     </form>
   </div>
 </section>
@@ -28,17 +46,24 @@
 <script>
 document.getElementById('regForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = document.getElementById('regEmail').value.trim();
-  const password = document.getElementById('regPass').value;
+  const firstName = document.getElementById('regFirst').value.trim();
+  const lastName  = document.getElementById('regLast').value.trim();
+  const gender    = document.getElementById('regGender').value; // MALE / FEMALE
+  const email     = document.getElementById('regEmail').value.trim();
+  const password  = document.getElementById('regPass').value;
+
+  if (!firstName || !lastName || !gender || !email || !password) {
+    alert('Te rugăm completează toate câmpurile.');
+    return;
+  }
 
   try {
     const res = await fetch('/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ firstName, lastName, gender, email, password })
     });
 
-    // dacă serverul a returnat HTML (success sau eroare), îl rerandăm
     const html = await res.text();
     document.open(); document.write(html); document.close();
   } catch {

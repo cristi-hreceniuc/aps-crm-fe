@@ -1,4 +1,5 @@
-<section class="card <%= extraClass || '' %>" data-grid data-grid-id="<%= gridId %>">
+<!-- views/partials/datagrid.ejs -->
+<section class="card" data-grid data-grid-id="<%= (typeof gridId !== 'undefined' ? gridId : (typeof grid_id !== 'undefined' ? grid_id : '')) %>">
   <div class="dg-toolbar">
     <div class="dg-left">
       <h2 class="dg-title"><%= title %></h2>
@@ -7,53 +8,65 @@
       <% } %>
     </div>
     <div class="dg-right">
-      <input class="dg-search" type="search" placeholder="<%= searchPlaceholder || 'Căutare…' %>">
+      <input
+        class="dg-search"
+        type="search"
+        inputmode="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="<%= (typeof searchPlaceholder !== 'undefined' && searchPlaceholder) ? searchPlaceholder : 'Caută…' %>"
+        aria-label="Căutare"
+      />
     </div>
   </div>
 
   <div class="dg-scroll">
     <table class="dg-table">
-      <!-- Colgroup: JS va seta width pe aceste <col> -->
       <colgroup>
-        <% (columns || []).forEach(col => { %>
-          <col class="dg-col dg-col-<%= col.key %>">
+        <% (columns || []).forEach(function(c){ %>
+          <col class="dg-col dg-col-<%= c.key %>">
         <% }) %>
       </colgroup>
-
       <thead>
         <tr>
-          <% (columns || []).forEach(col => { %>
-            <th class="col-<%= col.key %>"
-                data-key="<%= col.key %>"
-                <%= col.sortable ? 'data-sortable' : '' %>>
+          <% (columns || []).forEach(function(c){ %>
+            <th
+              class="col-<%= c.key %>"
+              data-key="<%= c.key %>"
+              <% if (c.sortable) { %> data-sortable="true" <% } %>
+            >
               <div class="th-inner">
-                <span class="th-label"><%= col.label %></span>
-                <!-- no .dg-sort button anymore -->
+                <span class="th-label"><%= c.label %></span>
+                <% if (c.sortable) { %>
+                  <button class="dg-sort" title="Sortează" aria-hidden="true">↕</button>
+                <% } %>
               </div>
             </th>
-
           <% }) %>
         </tr>
       </thead>
-      <tbody class="dg-body"></tbody>
+      <tbody class="dg-body">
+        <!-- rândurile se vor randă din JS -->
+      </tbody>
     </table>
   </div>
 
   <div class="dg-pager">
-    <button class="dg-prev btn btn-outline" disabled>&laquo; Înapoi</button>
-    <div class="dg-pages muted"></div>
-    <button class="dg-next btn btn-outline" disabled>Înainte &raquo;</button>
+    <button class="btn-mini outline dg-prev" type="button">← Înapoi</button>
+    <span class="dg-pages">—</span>
+    <button class="btn-mini outline dg-next" type="button">Înainte →</button>
   </div>
 
-  <% const _cfg = {
-       endpoint: (typeof endpoint !== 'undefined') ? endpoint : '',
-       pageSize: (typeof pageSize !== 'undefined') ? pageSize : 10,
-       columns:  Array.isArray(columns) ? columns : [],
-       api:      (typeof api !== 'undefined') ? api : {},
-       response: (typeof response !== 'undefined') ? response : {},
-       auth:     (typeof auth !== 'undefined') ? auth : null,
-       autosize: { enabled:true, minPx:80, maxPx:320 }  // valori default, pot fi suprascrise
-     };
-  %>
-  <script type="application/json" class="dg-config"><%- JSON.stringify(_cfg) %></script>
+  <!-- Config JSON cu fallback-uri SAFE -->
+  <script type="application/json" class="dg-config">
+    <%- JSON.stringify({
+      gridId:   (typeof gridId   !== 'undefined' ? gridId   : (typeof grid_id !== 'undefined' ? grid_id : '')),
+      endpoint: (typeof endpoint !== 'undefined' ? endpoint : ''),
+      pageSize: (typeof pageSize !== 'undefined' ? pageSize : 10),
+      columns:  (typeof columns  !== 'undefined' ? columns  : []),
+      api:      (typeof api      !== 'undefined' ? api      : {}),
+      response: (typeof response !== 'undefined' ? response : {}),
+      auth:     (typeof auth     !== 'undefined' ? auth     : null)
+    }) %>
+  </script>
 </section>

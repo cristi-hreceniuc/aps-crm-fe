@@ -1,13 +1,29 @@
-// public/js/app.js
-// Helpers mici, fără să atingă request-urile gridului.
-// 1. Fix 100vh pe iOS:
 (function(){
-  const setVh = () => {
-    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
-  };
-  window.addEventListener('resize', setVh);
-  setVh();
-})();
+  const sidenav = document.querySelector('.sidenav');
+  const toggle  = document.querySelector('.nav-toggle');
+  const scrim   = document.querySelector('.nav-scrim');
+  if (!sidenav || !toggle || !scrim) return;
 
-// 2. No-op: loc pentru scripturi generale ale aplicației.
-// Grid-ul și meniul sunt în /js/datagrid.js și /js/nav.js.
+  function openNav(){
+    document.body.classList.add('sidenav-open');
+    sidenav.classList.add('open');
+    scrim.removeAttribute('hidden');          // scrim vizibil doar când e meniu deschis
+    window.dispatchEvent(new Event('sidenav-resized'));
+  }
+  function closeNav(){
+    document.body.classList.remove('sidenav-open');
+    sidenav.classList.remove('open');
+    scrim.setAttribute('hidden','');          // ascuns = nu blochează inputuri
+    window.dispatchEvent(new Event('sidenav-resized'));
+  }
+  function toggleNav(){
+    if (sidenav.classList.contains('open')) closeNav(); else openNav();
+  }
+
+  toggle.addEventListener('click', (e)=>{ e.preventDefault(); toggleNav(); });
+  scrim.addEventListener('click', closeNav);
+
+  // La load: pe desktop deschis, pe mobil închis
+  const isMobile = matchMedia('(max-width: 760px)').matches;
+  if (isMobile) closeNav(); else openNav();
+})();
