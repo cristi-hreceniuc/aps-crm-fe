@@ -171,6 +171,29 @@ const proxyGet = (targetPath) => async (req, res) => {
 app.get('/api/voluntari',        proxyGet('/volunteers/search'));
 app.get('/api/voluntari/search', proxyGet('/volunteers/search'));
 
+
+// helper DELETE
+const proxyDelete = (targetPathBuilder) => async (req, res) => {
+  if (!req.session?.token) return res.status(401).json({ message: 'Not authenticated' });
+  const targetPath = (typeof targetPathBuilder === 'function') ? targetPathBuilder(req) : targetPathBuilder;
+  try {
+    const { status, data } = await api.delete(targetPath, {
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+    // Spring poate returna 204 No Content; forwardăm statusul
+    if (status === 204) return res.status(204).end();
+    return res.status(status).json(data);
+  } catch (err) {
+    const s = err.response?.status || 500;
+    const body = err.response?.data || { message: 'Upstream error' };
+    console.error('[proxyDelete]', targetPath, '->', s, body);
+    return res.status(s).json(body);
+  }
+};
+
+// rutele proxy (unde ai și GET-urile):
+app.delete('/api/voluntari/:id', proxyDelete(req => `/volunteers/${req.params.id}`));
+
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {
   res.status(404).render('404', { title: '404' });
@@ -181,3 +204,4 @@ app.listen(PORT, () => {
   console.log(`FE running on http://localhost:${PORT}`);
   console.log(`Proxy to BE: ${API_BASE}`);
 });
+

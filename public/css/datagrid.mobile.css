@@ -24,3 +24,24 @@
 
   .dg-pager{ flex-wrap:wrap; gap:8px; }
 }
+
+@media (max-width: 760px){
+  .dg-table tbody tr{
+    padding: 12px 12px 8px;        /* înainte: 10px 10px 6px */
+  }
+  .dg-table tbody td{
+    padding: 10px 12px;            /* înainte: 8px 10px */
+    row-gap: 6px;                   /* mai mult aer între etichetă și valoare */
+    line-height: 1.45;
+    font-size: 15px;
+  }
+}
+
+@media (max-width:760px){
+  .dg-table tbody td.col-_actions{
+    display:block;
+    grid-template-columns: 110px 1fr;
+  }
+  .dg-table tbody td.col-_actions .dg-actions{ grid-column:2; justify-content:flex-start; gap:10px; }
+}
+

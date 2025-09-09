@@ -39,27 +39,21 @@
         size: 'size',
         total: 'totalElements'
       },
-
+      extraClass: 'dg-compact',
       /* Coloane (cheile corespund DTO-ului din BE) */
       columns: [
         { key: 'id',            label: 'ID',              sortable: true,  width: '7%'  },
+        { key: 'date',          label: 'Dată înrolare',   sortable: true,  width: '10%', type: 'date' },
         { key: 'name',          label: 'Nume',            sortable: true,  width: '14%' },
-        { key: 'date',          label: 'Dată',            sortable: true,  width: '10%', type: 'date' },
-
-        /* texte mai lungi (clamp la 2 linii) */
-        { key: 'postName',      label: 'Nume post',       sortable: true,  width: '16%', clamp: 2 },
-
         { key: 'email',         label: 'Email',           sortable: true,  width: '14%' },
         { key: 'phone',         label: 'Telefon',         sortable: false, width: '11%' },
         { key: 'disponibility', label: 'Disponibilitate', sortable: false, width: '10%' },
-        { key: 'domain',        label: 'Domeniu',         sortable: true,  width: '10%' },
-        { key: 'age',           label: 'Vârstă',          sortable: true,  width: '6%',  type: 'number' },
+        { key: 'domain',        label: 'Domeniu interes', sortable: true,  width: '10%' },
         { key: 'ocupation',     label: 'Ocupație',        sortable: true,  width: '10%' },
-        { key: 'link',          label: 'Link',            sortable: false, width: '7%',  type: 'link' },
-
-        /* texte lungi, clamp + tooltip */
+        { key: 'age',           label: 'Vârstă',          sortable: true,  width: '6%',  type: 'number' },
         { key: 'motivation',    label: 'Motivație',       sortable: true,  clamp: 2 },
-        { key: 'experience',    label: 'Experiență',      sortable: true,  clamp: 2 }
+        { key: 'experience',    label: 'Experiență',      sortable: true,  clamp: 2 },
+        { key: '_actions', label: 'Acțiuni', sortable: false, type: 'actions' }
       ]
     }) %>
   </main>

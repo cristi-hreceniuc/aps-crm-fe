@@ -3,44 +3,51 @@
   --nav-expanded:  240px;
 }
 
+/* nu mai contează dacă .app e flex; sidebar-ul e scos din flux */
 .app{ display:flex; }
 
-/* ===== Sidenav: desktop (auto-collapse on hover) ===== */
+/* DESKTOP */
 .sidenav{
+  position: fixed;
+  top: 0; left: 0;
+  height: 100dvh;
   width: var(--nav-collapsed);
-  transition: width .18s ease;
+  transition: width .32s cubic-bezier(.2,.8,.2,1);
   background:#fff;
   border-right:1px solid #e5e7eb;
-  min-height:100vh;
-  position:sticky; top:0; left:0;
   overflow:hidden;
   z-index:20;
-
-  display:flex; flex-direction:column; /* pt. footer la bază */
+  display:flex; flex-direction:column;
 }
-
-/* expand la hover (desktop) */
 .sidenav:hover{ width: var(--nav-expanded); }
 
-/* Conținut */
+/* conținutul este „împins” la lățimea meniului */
 .content-shell{
   flex:1;
   margin-left: var(--nav-collapsed);
-  transition: margin-left .18s ease;
+  transition: margin-left .32s cubic-bezier(.2,.8,.2,1);
 }
 .sidenav:hover ~ .content-shell{
-  margin-left: var(--nav-expanded);
+  margin-left: var(--nav-expanded);   /* ← împinge tabelul */
 }
 
-/* Brand: doar imagine (textul rămâne ascuns) */
-.nav-header{ padding:12px; }
-.brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
-.brand-logo{ width:28px; height:28px; object-fit:contain; display:block; }
-.sidenav:hover .brand-logo{ width:32px; height:32px; }
-.brand-text{ display:none; } /* ascuns și când e deschis */
+/* Brand */
+.nav-header{ padding:12px; display:flex; justify-content:center; }
+.brand{ display:flex; align-items:center; justify-content:center; gap:10px; text-decoration:none; color:inherit; }
 
-/* Listă linkuri */
-.nav-list{ display:flex; flex-direction:column; gap:6px; padding:6px; flex:1; }
+/* mai mare decât înainte */
+.brand-logo{ width: 34px; height: 34px; object-fit:contain; display:block; }
+.sidenav:hover .brand-logo{ width: 40px; height: 40px; }
+
+.brand-text{ display:none; } /* doar imaginea */
+
+
+/* ===== Lista linkuri ===== */
+.nav-list{
+  display:flex; flex-direction:column; gap:6px;
+  padding:6px; flex:1; min-height:0; /* scroll corect */
+  overflow:auto;
+}
 .nav-link{
   display:flex; align-items:center; gap:12px;
   padding:10px 12px; border-radius:10px; color:#111827; text-decoration:none;
@@ -50,20 +57,19 @@
 .nav-link.active{ background:#fee2e2; color:#b91c1c; }
 .nav-ico{ width:24px; height:24px; display:grid; place-items:center; flex:0 0 24px; }
 
-/* Text link: ascuns la collapsed, vizibil când hover (desktop) sau când meniul e deschis pe mobil */
+/* textul apare doar expanded sau pe mobil deschis */
 .nav-text{ opacity:0; transform: translateX(-6px); transition: opacity .12s, transform .12s; }
 .sidenav:hover .nav-text,
 body.nav-open .nav-text{ opacity:1; transform:none; }
 
-/* ===== Footer user în meniu ===== */
+/* ===== Footer user ===== */
 .nav-footer{
   border-top:1px solid #f1f5f9;
   padding:10px 10px 12px;
   margin-top:auto;
+  background:#fff;
 }
-.user-block{
-  display:flex; align-items:center; gap:10px; margin-bottom:8px;
-}
+.user-block{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
 .avatar{
   width:32px; height:32px; border-radius:50%;
   background:#111827; color:#fff; display:grid; place-items:center; font-weight:700;
@@ -72,32 +78,42 @@ body.nav-open .nav-text{ opacity:1; transform:none; }
 .user-name{ font-weight:600; line-height:1.2; color:#111827; }
 .user-email{ font-size:12px; color:#6b7280; line-height:1.2; }
 
-.sidenav:hover .user-text,
-body.nav-open .user-text{ opacity:1; transform:none; }
+/* Collapsed: doar avatarul centrat; Expanded/Mobile deschis: apar textele + logout */
+.nav-footer .user-text,
+.nav-footer .logout-btn{ display:none; }
+.nav-footer .user-block{ justify-content:center; }
+.nav-footer .avatar{ margin:0 auto; }
 
-/* buton logout compact */
-.logout-btn{ width:100%; }
+.sidenav:hover .nav-footer .user-text,
+.sidenav:hover .nav-footer .logout-btn,
+body.nav-open .nav-footer .user-text,
+body.nav-open .nav-footer .logout-btn{ display:block; }
+.sidenav:hover .nav-footer .user-block,
+body.nav-open .nav-footer .user-block{ justify-content:flex-start; }
+.sidenav:hover .nav-footer .avatar,
+body.nav-open .nav-footer .avatar{ margin:0; }
 
-/* ===== Mobil (<= 1024px): overlay + straturi corecte ===== */
+.logout-form{ display:flex; justify-content:center; }
+.logout-btn{ width:auto; min-width:96px; }
+
+/* ===== MOBILE (<=1024px): overlay complet cu scrim + hamburger ===== */
 @media (max-width: 1024px){
   .sidenav{
-    position:fixed; top:0; left:0; height:100dvh;
     width: var(--nav-expanded);
     transform: translateX(-100%);
-    transition: transform .18s ease;
-    z-index: 30;
+    transition: transform .18s ease, width .18s ease;
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
   }
   body.nav-open .sidenav{ transform: translateX(0); }
 
   .nav-scrim{
     position:fixed; inset:0; background:rgba(0,0,0,.35);
-    opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:25;
+    opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:15;
   }
   body.nav-open .nav-scrim{ opacity:1; pointer-events:auto; }
 
   .nav-toggle{
-    position:fixed; top:12px; left:12px; z-index:35;
+    position:fixed; top:12px; left:12px; z-index:25;
     width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb;
     background:#fff; display:grid; place-items:center;
     box-shadow:0 1px 2px rgba(0,0,0,.06);
@@ -112,6 +128,136 @@ body.nav-open .user-text{ opacity:1; transform:none; }
   .nav-toggle .bar::before{ top:-6px; }
   .nav-toggle .bar::after { top: 6px; }
 
-  /* conținutul să ocupe toată lățimea pe mobil */
-  .content-shell{ margin-left: 0 !important; }
+  /* conținut full width pe mobil */
+  .content-shell{ margin-left: 0; }
 }
+
+/* ====== Footer: fă textul vizibil când meniul e deschis ====== */
+.sidenav:hover .user-text,
+body.nav-open .user-text{
+  opacity: 1;
+  transform: none;
+}
+
+/* limitează și afișează corect nume/email (+ellipsis) */
+.user-text{
+  max-width: calc(var(--nav-expanded) - 110px); /* loc pt. avatar + padding */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ====== Logout button: hover/active evidente ====== */
+.logout-btn{
+  transition: background .15s ease, color .15s ease, border-color .15s ease, transform .02s;
+}
+.logout-btn:hover{
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+  box-shadow: 0 2px 8px rgba(239,68,68,.18);
+}
+.logout-btn:active{
+  transform: translateY(1px);
+}
+
+/* (opțional) puțin spațiu ca să nu pară “tăiat” */
+.nav-footer{ padding: 12px 12px 14px; }
+
+/* —— Footer user: două rânduri (nume pe 1, email pe 2) —— */
+.user-text{
+  display:flex; flex-direction:column; gap:2px;
+  max-width: calc(var(--nav-expanded) - 110px);
+  overflow:hidden; text-overflow:ellipsis;
+}
+.user-name{ font-weight:600; line-height:1.2; color:#111827; }
+.user-email{ font-size:12px; color:#6b7280; line-height:1.2; }
+
+/* fă textul vizibil în expanded (desktop hover / mobil deschis) */
+.sidenav:hover .user-text,
+body.nav-open .user-text{ opacity:1; transform:none; }
+
+/* —— Logout: accent clar la hover, ca la celelalte butoane —— */
+.nav-footer .btn-mini.outline{
+  border:1px solid var(--brand); color:var(--brand); background:#fff;
+  transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .02s;
+}
+.nav-footer .btn-mini.outline:hover{
+  background:var(--brand); color:#fff; border-color:var(--brand);
+  box-shadow:0 2px 8px rgba(239,68,68,.18);
+}
+.nav-footer .btn-mini.outline:active{ transform:translateY(1px); }
+
+:root{
+  --nav-collapsed: 72px;
+  --nav-expanded:  240px;
+}
+
+/* DESKTOP: sidebar fix, împinge conținutul */
+.sidenav{
+  position: fixed;
+  top: 0; left: 0;
+  height: 100dvh;
+  width: var(--nav-collapsed);
+  transition: width .32s cubic-bezier(.2,.8,.2,1);
+  background:#fff;
+  border-right:1px solid #e5e7eb;
+  overflow:hidden;
+  z-index:20;
+  display:flex; flex-direction:column;
+}
+.sidenav:hover{ width: var(--nav-expanded); }
+
+/* 🔴 cheia: content-ul are lățime calculată, nu doar margin-left */
+.content-shell{
+  box-sizing: border-box;
+  width: calc(100% - var(--nav-collapsed));
+  margin-left: var(--nav-collapsed);
+  transition: margin-left .32s cubic-bezier(.2,.8,.2,1), width .32s cubic-bezier(.2,.8,.2,1);
+  min-width: 0; /* previne overflow din flex */
+}
+.sidenav:hover ~ .content-shell{
+  width: calc(100% - var(--nav-expanded));
+  margin-left: var(--nav-expanded);   /* împinge tabelul */
+}
+
+/* Logo puțin mai mare */
+.nav-header{ padding:12px; display:flex; justify-content:center; }
+.brand-logo{ width: 34px; height: 34px; object-fit:contain; display:block; }
+.sidenav:hover .brand-logo{ width: 40px; height: 40px; }
+
+.user-text{
+  display:flex; flex-direction:column; gap:2px;
+  max-width: calc(var(--nav-expanded) - 110px);
+  overflow:hidden; text-overflow:ellipsis;
+  opacity:0; transform: translateX(-6px); transition: opacity .12s, transform .12s;
+}
+.user-name{ font-weight:600; line-height:1.2; color:#111827; }
+.user-email{ font-size:12px; color:#6b7280; line-height:1.2; }
+
+/* devine vizibil doar când meniul e extins/ deschis pe mobil */
+.sidenav:hover .user-text,
+body.nav-open .user-text{ opacity:1; transform:none; }
+
+.nav-footer .btn-mini.outline{
+  border:1px solid var(--brand); color:var(--brand); background:#fff;
+  transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .02s;
+}
+.nav-footer .btn-mini.outline:hover{
+  background:var(--brand); color:#fff; border-color:var(--brand);
+  box-shadow:0 2px 8px rgba(239,68,68,.18);
+}
+.nav-footer .btn-mini.outline:active{ transform:translateY(1px); }
+
+/* MOBIL */
+@media (max-width: 1024px){
+  .sidenav{
+    width: var(--nav-expanded);
+    transform: translateX(-100%);
+    transition: transform .18s ease, width .18s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  body.nav-open .sidenav{ transform: translateX(0); }
+  .content-shell{ width: 100%; margin-left: 0; }
+}
+

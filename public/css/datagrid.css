@@ -50,3 +50,288 @@
   .dg-table thead th.col-postName,
   .dg-table tbody td.col-postName{ display:none; }
 }
+
+/* ===== Compact mode (doar când cardul are .dg-compact) ===== */
+.card.dg-compact{ padding:12px; border-radius:14px; }
+
+.card.dg-compact .dg-toolbar{
+  margin-bottom:6px; gap:10px;
+}
+.card.dg-compact .dg-right{ min-width:200px; }
+.card.dg-compact .dg-right .dg-search{
+  padding:8px 10px; border-radius:10px;
+}
+
+.card.dg-compact .dg-scroll{ border-radius:12px; }
+.card.dg-compact .dg-table{
+  border-spacing: 0 4px;               /* mai puțin spațiu între rânduri */
+  table-layout: fixed;
+}
+
+/* header mai îngust */
+.card.dg-compact .dg-table thead th{
+  padding:8px 10px;
+  font-size:14px;
+}
+
+/* rânduri mai compacte */
+.card.dg-compact .dg-table tbody td{
+  padding:8px 10px;
+  font-size:14px;
+}
+.card.dg-compact .dg-table tbody tr{
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+
+/* paginator mai compact */
+.card.dg-compact .dg-pager{
+  padding-top:8px;
+}
+.card.dg-compact .dg-pager .dg-pages{
+  padding:4px 6px; font-size:14px;
+}
+
+/* opțional: îngustează ușor câteva coloane ca să câștigăm spațiu */
+.card.dg-compact .dg-table thead th.col-id,
+.card.dg-compact .dg-table tbody td.col-id{ width:72px; }
+.card.dg-compact .dg-table thead th.col-age,
+.card.dg-compact .dg-table tbody td.col-age{ width:70px; text-align:left; }
+
+/* păstrează clamp-ul (2 linii) și fă-l un pic mai strâns vizual */
+.card.dg-compact .dg-table td .dg-val.dg-clamp{ -webkit-line-clamp: 2; line-height:1.3; }
+
+/* ===== Compact++ (încă și mai strâns) ===== */
+.card.dg-compact .dg-table{ border-spacing: 0 3px; }           /* spațiu mai mic între rânduri */
+.card.dg-compact .dg-table thead th,
+.card.dg-compact .dg-table tbody td{
+  padding: 6px 8px;                                            /* mai puțin padding stânga/dreapta => coloane mai apropiate */
+  font-size: 14px;
+}
+/* Tabelul rămâne fixed pentru ellipsis, dar lățimile vin din <col> */
+.dg-table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0 8px;
+  table-layout:fixed;           /* important pentru ellipsis */
+}
+
+/* ellipsis + clamp (deja aveai, pun important ca fallback) */
+.dg-table td .dg-val{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.dg-table td .dg-val.dg-clamp{
+  white-space:normal;
+  display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden;
+}
+.dg-table td .dg-val.dg-clamp-2{ -webkit-line-clamp:2; }
+.dg-table td .dg-val.dg-clamp-3{ -webkit-line-clamp:3; }
+
+/* modul compact (dacă îl folosești pe voluntari) */
+.card.dg-compact .dg-table{ border-spacing:0 3px; }
+.card.dg-compact .dg-table thead th,
+.card.dg-compact .dg-table tbody td{ padding:6px 8px; font-size:14px; }
+
+/* === Search bar: longer + subtle red outline === */
+.dg-toolbar{ gap:18px; }
+.dg-right{ min-width: 340px; }                 /* was 220 */
+@media (min-width:1280px){ .dg-right{ min-width: 420px; } }
+
+.dg-right .dg-search{
+  border-color:#fecaca;                        /* light red */
+}
+.dg-right .dg-search:hover{ border-color:#fca5a5; }
+.dg-right .dg-search:focus{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+
+/* === Sort UI: arrow on the right, header turns red === */
+.dg-table thead th{ position:sticky; top:0; z-index:2; }
+.dg-table thead th[data-sortable]{ cursor:pointer; padding-right:26px; } /* space for arrow */
+.dg-table thead th .dg-sort{ display:none !important; }  /* we removed the button anyway */
+
+.dg-table thead th.sort-active .th-label{ color: var(--brand); } /* brand red */
+
+.dg-table thead th.sort-asc::after,
+.dg-table thead th.sort-desc::after{
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  font-size:12px; color: var(--brand);
+  content:'';                                       /* set below */
+}
+.dg-table thead th.sort-asc::after{  content:'▲'; }
+.dg-table thead th.sort-desc::after{ content:'▼'; }
+
+/* optional: subtle vertical hint on sorted column cells */
+.dg-table tbody td.is-sorted{
+  background: #fff9f9;                             /* ultra light red tint */
+}
+
+/* keep compact paddings if you use .dg-compact */
+.card.dg-compact .dg-table thead th,
+.card.dg-compact .dg-table tbody td{ padding:6px 8px; }
+
+/* === Search: puțin mai lat === */
+.dg-toolbar{ gap:18px; }
+.dg-left{ flex:0 1 auto; }
+.dg-right{ flex:0 0 auto; min-width: 420px; }          /* default mai lat */
+@media (min-width:1280px){ .dg-right{ min-width: 500px; } }
+@media (min-width:1536px){ .dg-right{ min-width: 560px; } }
+
+.dg-right .dg-search{
+  border-color:#fecaca;               /* contur roșu fin */
+}
+.dg-right .dg-search:hover{ border-color:#fca5a5; }
+.dg-right .dg-search:focus{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+
+/* === Sort: marchează coloanele sortabile și afișează săgeata în dreapta === */
+.dg-table thead th[data-sortable]{
+  cursor:pointer;
+  padding-right:26px;                 /* spațiu pentru săgeată */
+  position:sticky; top:0;
+}
+
+/* Indicator implicit pentru coloanele sortabile (gri, discret) */
+.dg-table thead th[data-sortable]::after{
+  content:'↕';
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  font-size:12px; color:#9ca3af;
+}
+
+/* La sortare, schimbăm doar forma săgeții; rămâne gri.
+   Numele coloanei (label-ul) este singurul care devine roșu. */
+.dg-table thead th.sort-asc::after  { content:'▲'; color:#9ca3af; }
+.dg-table thead th.sort-desc::after { content:'▼'; color:#9ca3af; }
+
+/* Doar label-ul coloanei sortate devine roșu (nu tot header-ul) */
+.dg-table thead th.sort-active .th-label{
+  color: var(--brand);                /* roșul tău de brand */
+}
+
+/* Dacă anterior body-ul pe col sortat era colorat, anulăm: */
+.dg-table tbody td.is-sorted{ background: transparent !important; }
+
+
+/* === 1) Săgeți sortare: mai mari & mai vizibile === */
+.dg-table thead th[data-sortable]{
+  cursor:pointer;
+  position:sticky; top:0;
+  padding-right: 32px;                /* mai mult loc pentru săgeată */
+}
+.dg-table thead th[data-sortable]::after{
+  content:'↕';
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  font-size: 15px;                     /* mai mare */
+  font-weight: 700;                    /* mai bold */
+  color:#6b7280;                       /* gri vizibil */
+}
+.dg-table thead th.sort-asc::after  { content:'▲'; }
+.dg-table thead th.sort-desc::after { content:'▼'; }
+
+/* doar numele coloanei sortate devine roșu (label) */
+.dg-table thead th.sort-active .th-label{ color: var(--brand); }
+
+/* === 2) Liniile tabelului: mai „late” / vizibile === */
+/* header cu linie de separare mai groasă */
+.card.dg-compact .dg-table thead th{
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* fiecare rând cu contur fin; separatori verticali subtili între celule */
+.card.dg-compact .dg-table tbody tr{
+  border: 1px solid #e5e7eb;          /* contur rând */
+  box-shadow: none;                    /* opțional, scoatem shadow-ul pentru claritate */
+}
+.card.dg-compact .dg-table tbody td{
+  border-right: 1px solid #f1f5f9;    /* separator vertical între coloane */
+}
+.card.dg-compact .dg-table tbody td:last-child{
+  border-right: none;
+}
+
+/* gap-ul dintre rânduri rămâne mic (compact) */
+.card.dg-compact .dg-table{ border-spacing: 0 3px; }
+
+/* === 3) Search: și mai lată (cu fallback responsiv) === */
+.dg-toolbar{ gap:18px; flex-wrap: wrap; }
+.dg-left{ flex: 1 1 auto; min-width: 240px; }
+.dg-right{
+  flex: 0 0 520px;                     /* lățime de bază mai mare */
+}
+@media (min-width: 1280px){
+  .dg-right{ flex-basis: 600px; }
+}
+@media (min-width: 1536px){
+  .dg-right{ flex-basis: 680px; }
+}
+.dg-right .dg-search{ width:100%; }
+
+/* contur roșu fin existent pentru search (păstrat) */
+.dg-right .dg-search{ border-color:#fecaca; }
+.dg-right .dg-search:hover{ border-color:#fca5a5; }
+.dg-right .dg-search:focus{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+}
+
+/* ===== Rânduri mai înalte (desktop) ===== */
+/* variabile ușor de ajustat */
+:root{
+  --dg-row-pad-y: 10px;   /* padding vertical celule */
+  --dg-head-pad-y: 10px;  /* padding vertical header */
+  --dg-row-line: 1.5;     /* line-height celule */
+  --dg-head-line: 1.35;   /* line-height header */
+  --dg-font: 15px;        /* font mai lizibil în tabel */
+}
+
+/* antet */
+.dg-table thead th{
+  padding-top: var(--dg-head-pad-y);
+  padding-bottom: var(--dg-head-pad-y);
+  line-height: var(--dg-head-line);
+  font-size: var(--dg-font);
+}
+
+/* celule */
+.dg-table tbody td{
+  padding-top: var(--dg-row-pad-y);
+  padding-bottom: var(--dg-row-pad-y);
+  line-height: var(--dg-row-line);
+  font-size: var(--dg-font);
+}
+
+/* dacă folosești .dg-compact, păstrează lățimea „strânsă”, dar creștem doar înălțimea */
+.card.dg-compact .dg-table thead th,
+.card.dg-compact .dg-table tbody td{
+  padding-top: var(--dg-row-pad-y);
+  padding-bottom: var(--dg-row-pad-y);
+}
+
+/* – opțional – un pic mai mult spațiu sub paginator pentru respirație */
+.card.dg-compact .dg-pager{ padding-top: 10px; }
+
+/* Acțiuni (ochi + X) */
+.dg-table .dg-actions{
+  display:flex; align-items:center; gap:8px; justify-content:center;
+}
+.icon-btn{
+  width:30px; height:30px; border-radius:8px; border:1px solid #e5e7eb;
+  background:#fff; display:grid; place-items:center; cursor:pointer;
+}
+.icon-btn:hover{ background:#f9fafb; border-color:#d1d5db; }
+.icon-btn .ico{ font-size:14px; line-height:1; }
+.dg-col.dg-col-_actions{ width: 92px; } /* colgroup width hint */
+
+/* containerul de card/tabel să nu depășească niciodată cadrul */
+.card{ max-width: 100%; }
+.dg-scroll{ max-width: 100%; overflow: hidden; }   /* overflow-x îl controlăm din autosize */
+.dg-table{ max-width: 100%; table-layout: fixed; } /* important pt. ellipsis */
+
+/* pe ecrane înguste, lasă un mic padding adaptiv ca să nu atingă muchia */
+.content-shell{ padding-right: clamp(12px, 2vw, 24px); }
+

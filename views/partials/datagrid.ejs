@@ -1,4 +1,4 @@
-<section class="card" data-grid data-grid-id="<%= gridId %>">
+<section class="card <%= extraClass || '' %>" data-grid data-grid-id="<%= gridId %>">
   <div class="dg-toolbar">
     <div class="dg-left">
       <h2 class="dg-title"><%= title %></h2>
@@ -13,20 +13,25 @@
 
   <div class="dg-scroll">
     <table class="dg-table">
+      <!-- Colgroup: JS va seta width pe aceste <col> -->
+      <colgroup>
+        <% (columns || []).forEach(col => { %>
+          <col class="dg-col dg-col-<%= col.key %>">
+        <% }) %>
+      </colgroup>
+
       <thead>
         <tr>
           <% (columns || []).forEach(col => { %>
             <th class="col-<%= col.key %>"
                 data-key="<%= col.key %>"
-                <%= col.sortable ? 'data-sortable' : '' %>
-                style="<%= col.width ? ('width:'+col.width) : '' %>">
+                <%= col.sortable ? 'data-sortable' : '' %>>
               <div class="th-inner">
                 <span class="th-label"><%= col.label %></span>
-                <% if (col.sortable) { %>
-                  <button class="dg-sort" aria-label="Sortează">&#8597;</button>
-                <% } %>
+                <!-- no .dg-sort button anymore -->
               </div>
             </th>
+
           <% }) %>
         </tr>
       </thead>
@@ -46,7 +51,8 @@
        columns:  Array.isArray(columns) ? columns : [],
        api:      (typeof api !== 'undefined') ? api : {},
        response: (typeof response !== 'undefined') ? response : {},
-       auth:     (typeof auth !== 'undefined') ? auth : null
+       auth:     (typeof auth !== 'undefined') ? auth : null,
+       autosize: { enabled:true, minPx:80, maxPx:320 }  // valori default, pot fi suprascrise
      };
   %>
   <script type="application/json" class="dg-config"><%- JSON.stringify(_cfg) %></script>
