@@ -1,9 +1,16 @@
 <!-- views/partials/sidenav.ejs -->
+<%
+// Derivăm safe displayName și inițiala
+const displayName = (user && (user.name || user.fullName || user.displayName || user.email)) || 'Utilizator';
+const emailSafe   = (user && user.email) || '';
+const initial     = (displayName.trim()[0] || 'U').toUpperCase();
+%>
+
 <aside class="sidenav" aria-label="Meniu principal">
   <div class="nav-header">
     <a href="/" class="brand" title="Acțiune pentru Sănătate">
       <!-- doar imaginea (fără text) -->
-      <img class="brand-logo" src="/img/aps-logo.png" alt="APS CRM" />
+      <img class="brand-logo" src="/aps-logo.png" alt="APS CRM" />
       <span class="brand-text" aria-hidden="true">APS CRM</span>
     </a>
   </div>
@@ -37,4 +44,26 @@
       <span class="nav-ico">📈</span><span class="nav-text">Dashboard</span>
     </a>
   </nav>
+
+  <!-- Footer cu utilizatorul -->
+  <div class="nav-footer">
+    <div class="user-block" title="<%= displayName %>">
+      <div class="avatar"><%= initial %></div>
+      <div class="user-text">
+        <div class="user-name"><%= displayName %></div>
+        <% if (emailSafe) { %>
+          <div class="user-email"><%= emailSafe %></div>
+        <% } %>
+      </div>
+    </div>
+    <form method="post" action="/logout">
+      <button class="btn-mini outline logout-btn" type="submit">Logout</button>
+    </form>
+  </div>
 </aside>
+
+<!-- Mobil: buton hamburger + scrim overlay (globale pe toate paginile) -->
+<button class="nav-toggle" aria-label="Deschide meniul" hidden>
+  <span class="bar"></span>
+</button>
+<div class="nav-scrim" hidden></div>
