@@ -103,12 +103,27 @@
       });
 
       if (this.searchEl){
-        this.searchEl.addEventListener('input', debounce(()=>{
-          this.state.q = this.searchEl.value.trim();
-          this.state.page = 0;
-          this.fetch();
-        }));
-      }
+  // Nu lăsăm evenimentele să urce spre document (unde alte handler-e pot bloca tastele)
+  this.searchEl.addEventListener('keydown', (e)=> {
+    e.stopPropagation();
+  }, true);
+
+  // Căutare pe keyup cu debounce (mai tolerant pe hardware/browsere diferite)
+  this.searchEl.addEventListener('keyup', debounce(()=>{
+    const v = this.searchEl.value;      // NU îl mai "trim-uim" aici, doar la fetch
+    if (v === this.state.q) return;     // nu face fetch inutil
+    this.state.q = v;
+    this.state.page = 0;
+    this.fetch();
+  }, 500));
+
+  // Mic quality-of-life
+  this.searchEl.addEventListener('focus', ()=> {
+    // selectează textul existent ca să poți rescrie rapid
+    try { this.searchEl.select(); } catch {}
+  });
+}
+
     }
 
     goto(page){ if (page < 0) page = 0; this.state.page = page; this.fetch(); }
@@ -133,10 +148,13 @@
       } else {
         params.delete(sortParam);
       }
-      if (searchParam){
-        if ((this.state.q||'').length) params.set(searchParam, this.state.q);
-        else params.delete(searchParam);
-      }
+      const rawQ = this.state.q || '';
+const q = rawQ.trim();
+if (searchParam){
+  if (q.length) params.set(searchParam, q);
+  else params.delete(searchParam);
+}
+
 
       // 🔒 preserve search focus & caret across fetch/render
       const hadFocus = (document.activeElement === this.searchEl);
@@ -342,23 +360,26 @@
         const val = !!t.checked;
         this._toggles[stateKey] = val;
 
-        if ((this.gridId || '').toLowerCase() === 'd177'){
-          try{
-            const body = JSON.stringify({ [key]: val });
-            const res = await fetch(`/api/d177/${encodeURIComponent(id)}/flags`, {
-              method: 'PUT',
-              headers: { 'Content-Type':'application/json', 'Accept':'application/json' },
-              credentials: 'same-origin',
-              body
-            });
-            if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
-          } catch(err){
-            console.error('Persist toggle failed', err);
-            t.checked = !val;
-            this._toggles[stateKey] = !val;
-            alert('Nu am putut salva setarea.');
-          }
-        }
+        const grid = (this.gridId || '').toLowerCase();
+if (grid === 'd177' || grid === 'sponsorizare'){
+  try{
+    const body = JSON.stringify({ [key]: val });
+    const url  = `/api/${grid}/${encodeURIComponent(id)}/flags`;
+    const res  = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'Accept':'application/json' },
+      credentials: 'same-origin',
+      body
+    });
+    if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+  } catch(err){
+    console.error('Persist toggle failed', err);
+    t.checked = !val;
+    this._toggles[stateKey] = !val;
+    alert('Nu am putut salva setarea.');
+  }
+}
+
       }, { passive:false });
     }
 

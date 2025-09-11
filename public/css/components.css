@@ -212,12 +212,73 @@ input:focus,select:focus,textarea:focus{border-color:#d1d5db;box-shadow:0 0 0 4p
 }
 .btn-outline.no-fill:active{ transform: translateY(1px); }
 
-/* Scrim: dacă e ascuns, dispare complet și NU mai prinde clickuri */
+/* Scrim: când e ascuns, dispare COMPLET și nu prinde clickuri */
 .nav-scrim[hidden]{ display:none !important; pointer-events:none !important; }
 
-/* Search: poziționat deasupra oricăror elemente vecine */
+/* Asigură-te că inputul primește clickuri/focus chiar lângă headere sticky */
 .dg-right .dg-search{
   position: relative;
-  z-index: 2;
+  z-index: 2000;           /* creștem puțin față de header/table */
+  pointer-events: auto;
+  color: var(--text, #0f172a);
+  -webkit-text-fill-color: currentColor; /* Safari */
+}
+
+
+/* === DataGrid – mobile search fix & styling === */
+@media (max-width: 760px){
+  .dg-toolbar{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .dg-left { order: 0; }
+  .dg-right{ order: 1; width: 100%; }
+
+  .dg-right .dg-search{
+    width: 100%;
+    height: 44px;
+    font-size: 16px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #fecaca;           /* roșu fin */
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    background: #fff;
+  }
+  .dg-right .dg-search::placeholder{ color:#9ca3af; }
+}
+
+/* Când meniul este deschis, inputul stă deasupra și rămâne activ */
+body.sidenav-open .dg-right .dg-search{
+  z-index: 2000 !important;
+  pointer-events: auto !important;
+  opacity: 1;
+  filter: none;
+}
+
+/* Când meniul e închis, inputul rămâne deasupra headerului tabelului */
+body:not(.sidenav-open) .dg-right .dg-search{
+  z-index: 2000;
   pointer-events: auto;
 }
+
+/* Pager buttons ca la Logout */
+.btn-mini{
+  display:inline-block; padding:8px 12px; border-radius:12px;
+  font-weight:700; cursor:pointer; transition:background .15s ease, color .15s ease, transform .02s;
+}
+.btn-mini.outline{
+  background:#fff; border:1.5px solid var(--brand); color:var(--brand);
+}
+.btn-mini.outline:hover{
+  background:var(--brand); color:#fff;
+}
+.btn-mini.outline:active{ transform:translateY(1px); }
+.btn-mini.outline:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(239,68,68,.25); }
+
+/* Stare disabled în pager */
+.dg-pager .btn-mini[disabled]{
+  opacity:.55; cursor:not-allowed; background:#fff; color:#94a3b8; border-color:#e5e7eb;
+}
+.dg-pager .btn-mini[disabled]:hover{ background:#fff; color:#94a3b8; }
+

@@ -19,18 +19,19 @@
       endpoint: '/api/d177',
       endpointSearch: '/api/d177/search',    // ✅ când există q, se folosește automat
       pageSize: 10,
-      api: { pageParam:'page', sizeParam:'size', sortParam:'sort', sortValue:'{key},{dir}', pageBase:0, searchParam:null, searchParam: 'q' },
+      api: { pageParam:'page', sizeParam:'size', sortParam:'sort', sortValue:'{key},{dir}', pageBase:0, searchParam:'q' },
       response: { items:'content', page:'number', size:'size', total:'totalElements' },
       columns: [
-  { key:'companyName',  label:'Nume firmă', sortable:true, sortKey:'companyName', clamp:2 },
-{ key:'fiscalCode',   label:'Cod fiscal', sortable:true, sortKey:'fiscalCode'  },
-{ key:'email',        label:'Email',      sortable:true, sortKey:'email'       },
-{ key:'amount',       label:'Sumă (RON)',               sortable:true,  sortKey:'amountNum' },
-{ key:'contractDate', label:'Data contractului',  sortable:true,  sortKey:'contractDate', type:'date' },
-{ key:'downloaded',   label:'Descărcat',          sortable:true,  sortKey:'downloaded', type:'bool' },
-{ key:'verified',     label:'Verificat',          sortable:true,  sortKey:'verified',   type:'bool' },
-{ key:'corrupt',      label:'Eronat',             sortable:true,  sortKey:'corrupt',    type:'bool' },
-  { key:'_actions',     label:'Acțiuni',            sortable:false, type:'actions' }
+    { key:'companyName',  label:'Nume firmă', sortable:true, sortKey:'companyName', clamp:2 },
+    { key:'fiscalCode',   label:'Cod fiscal', sortable:true, sortKey:'fiscalCode'  },
+    { key:'email',        label:'Email',      sortable:true, sortKey:'email'       },
+    { key: 'phone',        label: 'Telefon',            sortable: true },
+    { key:'amount',       label:'Sumă (RON)',               sortable:true,  sortKey:'amountNum' },
+    { key:'contractDate', label:'Data contractului',  sortable:true,  sortKey:'contractDate', type:'date' },
+    { key:'downloaded',   label:'Descărcat',          sortable:true,  sortKey:'downloaded', type:'bool' },
+    { key:'verified',     label:'Verificat',          sortable:true,  sortKey:'verified',   type:'bool' },
+    { key:'corrupt',      label:'Eronat',             sortable:true,  sortKey:'corrupt',    type:'bool' },
+    { key:'_actions',     label:'Acțiuni',            sortable:false, type:'actions' }
 ]
 
     }) %>

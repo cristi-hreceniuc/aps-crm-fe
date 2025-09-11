@@ -355,3 +355,10 @@
 }
 .icon-btn:hover{ background:#f9fafb; border-color:#d1d5db; }
 .icon-btn .ico{ font-size:14px; line-height:1; }
+
+/* === Patch pentru search bar === */
+.dg-right .dg-search {
+  position: relative;
+  z-index: 2000 !important;   /* asigură că e peste tabel/sidebar */
+  pointer-events: auto !important; /* permite click și focus */
+}

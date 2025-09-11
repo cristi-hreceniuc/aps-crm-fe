@@ -135,12 +135,8 @@ app.use(/^\/(?!login|register|favicon\.ico).*/, requireAuth);
 /* ------------------- Rute pagini (app) ------------------ */
 app.get('/',           (req, res) => res.render('home',      { title: 'Direcționare 20%' }));
 app.get('/voluntari',  (req, res) => res.render('voluntari', { title: 'Voluntari', heading: 'Voluntari' }));
-app.get('/formulare',  (req, res) => res.render('stub',      { title: 'Formulare', heading: 'Formulare' }));
-
-app.get('/d177', (req, res) => {
-  res.render('d177', { title: 'Declarația 177', heading: 'Declarația 177' });
-});
-app.get('/proiecte',   (req, res) => res.render('stub',      { title: 'Proiecte',  heading: 'Proiecte'  }));
+app.get('/d177', (req, res) => {res.render('d177', { title: 'Declarația 177', heading: 'Declarația 177' });});
+app.get('/sponsorizare',   (req, res) => res.render('sponsorizare',      { title: 'Contract sponsorizare',  heading: 'Contract sponsorizare'  }));
 app.get('/cazuri',     (req, res) => res.render('stub',      { title: 'Cazuri',    heading: 'Cazuri'    }));
 app.get('/rapoarte',   (req, res) => res.render('stub',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
 app.get('/setari',     (req, res) => res.render('stub',      { title: 'Setări',    heading: 'Setări'    }));
@@ -174,6 +170,9 @@ app.get('/api/voluntari/search', proxyGet('/volunteers/search'));
 
 app.get('/api/d177',        proxyGet('/formulare/d177/search'));
 app.get('/api/d177/search', proxyGet('/formulare/d177/search')); // dacă vrei să păstrezi formatul grid-ului
+
+app.get('/api/sponsorizare',         proxyGet('/sponsorizare/search'));
+app.get('/api/sponsorizare/search',  proxyGet('/sponsorizare/search'));
 
 /* === Proxy către BE (cu Bearer) === */
 
@@ -213,6 +212,7 @@ app.delete('/api/d177/:id', proxyDelete(req => `/formulare/d177/${req.params.id}
 
 app.put('/api/d177/:id/flags', proxyPut(req => `/formulare/d177/${req.params.id}/flags`));
 
+app.put('/api/sponsorizare/:id/flags', proxyPut(req => `/sponsorizare/${req.params.id}/flags`));
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {
