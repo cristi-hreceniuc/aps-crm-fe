@@ -141,6 +141,8 @@ app.get('/cazuri',     (req, res) => res.render('stub',      { title: 'Cazuri', 
 app.get('/rapoarte',   (req, res) => res.render('stub',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
 app.get('/setari',     (req, res) => res.render('stub',      { title: 'Setări',    heading: 'Setări'    }));
 app.get('/dashboard',  (req, res) => res.render('dashboard', { title: 'Dashboard' }));
+app.get('/f230', requireAuth, (req,res)=> res.render('f230', { title: 'Formular 230 – Formulare' }));
+app.get('/iban-beneficiari', requireAuth, (req,res)=> res.render('iban', { title: 'IBAN Beneficiari' }));
 
 /* ----------------------- Proxy helper ------------------- */
 // GET proxy spre Spring, pasează query-urile + Bearer din sesiune
@@ -174,6 +176,11 @@ app.get('/api/d177/search', proxyGet('/formulare/d177/search')); // dacă vrei s
 app.get('/api/sponsorizare',         proxyGet('/sponsorizare/search'));
 app.get('/api/sponsorizare/search',  proxyGet('/sponsorizare/search'));
 
+app.get('/api/f230',            proxyGet('/f230/search'));
+app.get('/api/f230/search',     proxyGet('/f230/search'));
+
+app.get('/api/iban',           proxyGet('/iban/search'));
+app.get('/api/iban/search',    proxyGet('/iban/search'));
 /* === Proxy către BE (cu Bearer) === */
 
 const proxyDelete = (targetPathBuilder) => async (req, res) => {
@@ -203,16 +210,16 @@ const proxyPut = (pathBuilder) => async (req, res) => {
     return res.status(s).json(err.response?.data || { message:'Upstream error' });
   }
 };
-
-
-
 // rutele proxy (unde ai și GET-urile):
 app.delete('/api/voluntari/:id', proxyDelete(req => `/volunteers/${req.params.id}`));
 app.delete('/api/d177/:id', proxyDelete(req => `/formulare/d177/${req.params.id}`));
+app.delete('/api/f230/:id', proxyDelete(req => `/f230/${req.params.id}`));
+app.delete('/api/iban/:id', proxyDelete(req => `/iban/${req.params.id}`));
 
 app.put('/api/d177/:id/flags', proxyPut(req => `/formulare/d177/${req.params.id}/flags`));
-
+app.put('/api/f230/:id/flags', proxyPut(req => `/f230/${req.params.id}/flags`));
 app.put('/api/sponsorizare/:id/flags', proxyPut(req => `/sponsorizare/${req.params.id}/flags`));
+app.put('/api/iban/:id', proxyPut(req => `/iban/${req.params.id}`));
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {

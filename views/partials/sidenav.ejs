@@ -29,9 +29,20 @@
     <a href="/sponsorizare"   class="nav-link <%= path === '/sponsorizare' ? 'active' : '' %>"   title="Contract sponsorizare">
       <span class="nav-ico">💝</span><span class="nav-text">Contract sponsorizare</span>
     </a>
-    <a href="/f230"  class="nav-link <%= path === '/f230' ? 'active' : '' %>"  title="Formular 230">
-      <span class="nav-ico">📦</span><span class="nav-text">Formular 230</span>
+    <div class="nav-group <%= path.startsWith('/f230') || path.startsWith('/iban-beneficiari') ? 'open' : '' %>">
+  <a href="#" class="nav-link nav-parent" title="Formular 230">
+    <span class="nav-ico">🧾</span><span class="nav-text">Formular 230</span>
+    <span class="caret">▾</span>
+  </a>
+  <div class="nav-children">
+    <a href="/f230" class="nav-link <%= path.startsWith('/f230') ? 'active' : '' %>">
+      <span class="nav-ico">📄</span><span class="nav-text">Formulare</span>
     </a>
+    <a href="/iban-beneficiari" class="nav-link <%= path.startsWith('/iban-beneficiari') ? 'active' : '' %>">
+      <span class="nav-ico">🏦</span><span class="nav-text">IBAN Beneficiari</span>
+    </a>
+  </div>
+</div>
     <a href="/cazuri"    class="nav-link <%= path === '/cazuri' ? 'active' : '' %>"    title="Cazuri">
       <span class="nav-ico">📋</span><span class="nav-text">Cazuri</span>
     </a>

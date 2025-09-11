@@ -1,0 +1,30 @@
+<%- include('partials/head', { title: 'IBAN Beneficiari' }) %>
+<div class="app">
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
+  <main class="content-shell">
+    <header class="content-header">
+      <h1>IBAN Beneficiari</h1>
+      <small class="muted">Listă simplă cu editare și ștergere</small>
+    </header>
+
+    <%- include('partials/datagrid', {
+      gridId: 'iban',
+      title: 'Beneficiari (IBAN)',
+      subtitle: 'wp_posts: post_type = iban_beneficiar',
+      searchPlaceholder: 'Caută după nume, IBAN sau id…',
+      endpoint: '/api/iban',
+      endpointSearch: '/api/iban/search',
+      pageSize: 10,
+      api: { pageParam:'page', sizeParam:'size', sortParam:'sort', sortValue:'{key},{dir}', pageBase:0, searchParam:'q' },
+      response: { items:'content', page:'number', size:'size', total:'totalElements' },
+      columns: [
+        { key:'id',    label:'ID',    sortable:true, sortKey:'id',   type:'number' },
+        { key:'name',  label:'Nume',  sortable:true, sortKey:'name', clamp:2 },
+        { key:'iban',  label:'IBAN',  sortable:true, sortKey:'iban', clamp:1 },
+        { key:'actions', label:'Acțiuni', type:'actions' }
+      ],
+      autosize: { minPx: 90, maxPx: 320 }
+    }) %>
+  </main>
+</div>
+<%- include('partials/footer') %>

@@ -27,3 +27,10 @@
   const isMobile = matchMedia('(max-width: 760px)').matches;
   if (isMobile) closeNav(); else openNav();
 })();
+
+document.addEventListener('click', (e)=>{
+  const parent = e.target.closest('.nav-parent');
+  if (!parent) return;
+  e.preventDefault();
+  parent.closest('.nav-group')?.classList.toggle('open');
+});

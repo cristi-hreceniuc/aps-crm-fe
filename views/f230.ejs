@@ -1,0 +1,40 @@
+<%- include('partials/head', { title: 'Formular 230 – Formulare' }) %>
+<div class="app">
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
+  <main class="content-shell">
+    <header class="content-header">
+      <h1>Formular 230 – Formulare</h1>
+      <small class="muted">Listă paginată, sortabilă, cu căutare</small>
+    </header>
+
+    <%- include('partials/datagrid', {
+      gridId: 'f230',
+      title: 'Formulare 230',
+      subtitle: 'Metadate extrase din WordPress',
+      searchPlaceholder: 'Caută după nume, prenume, email, IBAN, an…',
+      endpoint: '/api/f230',
+      endpointSearch: '/api/f230/search',
+      pageSize: 10,
+      api: { pageParam:'page', sizeParam:'size', sortParam:'sort', sortValue:'{key},{dir}', pageBase:0, searchParam:'q' },
+      response: { items:'content', page:'number', size:'size', total:'totalElements' },
+      columns: [
+        { key:'id',            label:'Nr',              sortable:true,  sortKey:'id',          type:'number' },
+        { key:'year',          label:'An fiscal',       sortable:true,  sortKey:'anFiscal'     },
+        { key:'submittedAt',   label:'Trimis pe',       sortable:true,  sortKey:'submittedAt', type:'date'  },
+        { key:'period',        label:'Perioadă',        sortable:true,  sortKey:'period'       },
+        { key:'iban',          label:'IBAN',            sortable:true,  sortKey:'iban',        clamp:1      },
+        { key:'beneficiary',   label:'Beneficiar',      sortable:true,  sortKey:'beneficiary', clamp:2      },
+        { key:'emailContrib',  label:'Email contribuabil', sortable:true, sortKey:'emailContrib', clamp:1   },
+        { key:'acordEmail',    label:'Acord email',     type:'bool',    sortable:true,  sortKey:'acordEmail' },
+        { key:'nrBorderou',    label:'Nr Borderou'                                      },
+        { key:'downloaded',    label:'Descărcat',       type:'bool',    sortable:true,  sortKey:'downloaded' },
+        { key:'verified',      label:'Verificat',       type:'bool',    sortable:true,  sortKey:'verified'   },
+        { key:'corrupt',       label:'Eronat',          type:'bool',    sortable:true,  sortKey:'corrupt'    },
+        { key:'acordDate',     label:'Acord date identificare', type:'bool'                               },
+        { key:'actions',       label:'Acțiuni',         type:'actions' }
+      ],
+      autosize: { minPx: 90, maxPx: 340 }
+    }) %>
+  </main>
+</div>
+<%- include('partials/footer') %>

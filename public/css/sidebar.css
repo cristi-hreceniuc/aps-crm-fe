@@ -261,3 +261,9 @@ body.nav-open .user-text{ opacity:1; transform:none; }
   .content-shell{ width: 100%; margin-left: 0; }
 }
 
+.nav-group{ position: relative; }
+.nav-group .nav-children{ display:none; padding-left:6px; }
+.nav-group.open .nav-children{ display:block; }
+.nav-parent{ display:flex; align-items:center; justify-content:space-between; }
+.nav-parent .caret{ margin-left:auto; font-size:12px; opacity:.6; }
+.sidenav:hover .nav-group:not(.open):hover .nav-children{ display:block; } /* hover open */

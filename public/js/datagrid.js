@@ -103,27 +103,20 @@
       });
 
       if (this.searchEl){
-  // Nu lăsăm evenimentele să urce spre document (unde alte handler-e pot bloca tastele)
-  this.searchEl.addEventListener('keydown', (e)=> {
-    e.stopPropagation();
-  }, true);
+        this.searchEl.addEventListener('keydown', (e)=> { e.stopPropagation(); }, true);
 
-  // Căutare pe keyup cu debounce (mai tolerant pe hardware/browsere diferite)
-  this.searchEl.addEventListener('keyup', debounce(()=>{
-    const v = this.searchEl.value;      // NU îl mai "trim-uim" aici, doar la fetch
-    if (v === this.state.q) return;     // nu face fetch inutil
-    this.state.q = v;
-    this.state.page = 0;
-    this.fetch();
-  }, 500));
+        this.searchEl.addEventListener('keyup', debounce(()=>{
+          const v = this.searchEl.value;
+          if (v === this.state.q) return;
+          this.state.q = v;
+          this.state.page = 0;
+          this.fetch();
+        }, 500));
 
-  // Mic quality-of-life
-  this.searchEl.addEventListener('focus', ()=> {
-    // selectează textul existent ca să poți rescrie rapid
-    try { this.searchEl.select(); } catch {}
-  });
-}
-
+        this.searchEl.addEventListener('focus', ()=> {
+          try { this.searchEl.select(); } catch {}
+        });
+      }
     }
 
     goto(page){ if (page < 0) page = 0; this.state.page = page; this.fetch(); }
@@ -149,18 +142,10 @@
         params.delete(sortParam);
       }
       const rawQ = this.state.q || '';
-const q = rawQ.trim();
-if (searchParam){
-  if (q.length) params.set(searchParam, q);
-  else params.delete(searchParam);
-}
-
-
-      // 🔒 preserve search focus & caret across fetch/render
-      const hadFocus = (document.activeElement === this.searchEl);
-      let sel = null;
-      if (hadFocus && this.searchEl && typeof this.searchEl.selectionStart === 'number') {
-        sel = { s: this.searchEl.selectionStart, e: this.searchEl.selectionEnd };
+      const q = rawQ.trim();
+      if (searchParam){
+        if (q.length) params.set(searchParam, q);
+        else params.delete(searchParam);
       }
 
       try{
@@ -178,14 +163,6 @@ if (searchParam){
         if (this.pagesEl) this.pagesEl.textContent = '—';
         if (this.prevBtn) this.prevBtn.disabled = true;
         if (this.nextBtn) this.nextBtn.disabled = true;
-      } finally {
-        // ♻️ restore focus & caret dacă userul scria
-        if (hadFocus && this.searchEl) {
-          this.searchEl.focus({ preventScroll:true });
-          if (sel) {
-            try { this.searchEl.setSelectionRange(sel.s, sel.e); } catch {}
-          }
-        }
       }
     }
 
@@ -269,18 +246,66 @@ if (searchParam){
               </label>
             `;
             titleStr = checked ? 'da' : 'nu';
-          } else if (c.type === 'actions'){
-            const viewUrl = row.detail || row.link || row.adminEdit || '';
-            const docUrl  = row.docUrl || row.documentUrl || '';
-            const nameForConfirm = row.name || row.companyName || row.title || '';
-            innerHTML = `
-              <div class="dg-actions">
-                <button class="icon-btn btn-open"  title="Vezi" data-id="${escapeAttr(row.id)}" ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}><span class="ico">👁️</span></button>
-                <button class="icon-btn btn-pdf"   title="Descarcă" data-id="${escapeAttr(row.id)}" ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
-                <button class="icon-btn btn-del"   title="Șterge" data-id="${escapeAttr(row.id)}" data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
-              </div>`;
-            titleStr = '';
-          } else {
+          } else if (c.type === 'actions') {
+  const gid = (this.gridId || '').toLowerCase();
+  const viewUrl = row.detail || row.link || row.adminEdit || '';
+  const docUrl  = row.docUrl || row.documentUrl || row.pdfUrl || '';
+  const nameForConfirm = row.name || row.companyName || row.title || '';
+
+  switch (gid) {
+    case 'voluntari':
+      innerHTML = `
+        <div class="dg-actions">
+          <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
+                  ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}><span class="ico">👁️</span></button>
+          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+        </div>`;
+      break;
+
+    case 'd177':
+    case 'sponsorizare':
+      innerHTML = `
+        <div class="dg-actions">
+          <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
+                  ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
+          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+        </div>`;
+      break;
+
+    case 'f230':
+      innerHTML = `
+        <div class="dg-actions">
+          <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
+                  ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}><span class="ico">👁️</span></button>
+          <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
+                  ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
+          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+        </div>`;
+      break;
+
+    case 'iban':
+      innerHTML = `
+        <div class="dg-actions">
+          <button class="icon-btn btn-edit" title="Editează" data-id="${escapeAttr(row.id)}"
+                  data-name="${escapeAttr(row.name||'')}" data-iban="${escapeAttr(row.iban||'')}"><span class="ico">✎</span></button>
+          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+        </div>`;
+      break;
+
+    default:
+      innerHTML = `
+        <div class="dg-actions">
+          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+        </div>`;
+  }
+
+  titleStr = '';
+} else {
             if (raw == null) raw = '';
             if (Array.isArray(raw)) raw = raw.join(', ');
             const s = String(raw);
@@ -314,13 +339,15 @@ if (searchParam){
       this.pagesEl.textContent = `Pagina ${page + 1} din ${pages} • ${total} rezultate`;
     }
 
-    _bindRowActions(){
+    async _bindRowActions(){
       if (this._actionsBound) return;
       this._actionsBound = true;
       this.tbody.addEventListener('click', async (e)=>{
         const openBtn = e.target.closest('.btn-open');
         const pdfBtn  = e.target.closest('.btn-pdf');
         const delBtn  = e.target.closest('.btn-del');
+        const editBtn = e.target.closest('.btn-edit');
+
         if (openBtn){
           const link = openBtn.getAttribute('data-link');
           const id   = openBtn.getAttribute('data-id');
@@ -330,6 +357,24 @@ if (searchParam){
           const link = pdfBtn.getAttribute('data-link');
           const id   = pdfBtn.getAttribute('data-id');
           return link ? window.open(link, '_blank', 'noopener') : alert(`Nu există document pentru #${id}`);
+        }
+        if (editBtn){
+          const id   = editBtn.getAttribute('data-id');
+          const name = prompt('Nume beneficiar:', editBtn.getAttribute('data-name') || '');
+          if (name === null) return;
+          const iban = prompt('IBAN:', editBtn.getAttribute('data-iban') || '');
+          if (iban === null) return;
+          try{
+            const res = await fetch(`/api/iban/${encodeURIComponent(id)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type':'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ name, iban })
+            });
+            if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+            this.fetch();
+          } catch(err){ alert('Nu am putut salva.'); }
+          return;
         }
         if (delBtn){
           const id   = delBtn.getAttribute('data-id');
@@ -361,25 +406,24 @@ if (searchParam){
         this._toggles[stateKey] = val;
 
         const grid = (this.gridId || '').toLowerCase();
-if (grid === 'd177' || grid === 'sponsorizare'){
-  try{
-    const body = JSON.stringify({ [key]: val });
-    const url  = `/api/${grid}/${encodeURIComponent(id)}/flags`;
-    const res  = await fetch(url, {
-      method: 'PUT',
-      headers: { 'Content-Type':'application/json', 'Accept':'application/json' },
-      credentials: 'same-origin',
-      body
-    });
-    if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
-  } catch(err){
-    console.error('Persist toggle failed', err);
-    t.checked = !val;
-    this._toggles[stateKey] = !val;
-    alert('Nu am putut salva setarea.');
-  }
-}
-
+        if (grid === 'd177' || grid === 'sponsorizare' || grid === 'f230'){
+          try{
+            const body = JSON.stringify({ [key]: val });
+            const url  = `/api/${grid}/${encodeURIComponent(id)}/flags`;
+            const res  = await fetch(url, {
+              method: 'PUT',
+              headers: { 'Content-Type':'application/json', 'Accept':'application/json' },
+              credentials: 'same-origin',
+              body
+            });
+            if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+          } catch(err){
+            console.error('Persist toggle failed', err);
+            t.checked = !val;
+            this._toggles[stateKey] = !val;
+            alert('Nu am putut salva setarea.');
+          }
+        }
       }, { passive:false });
     }
 
@@ -397,7 +441,7 @@ if (grid === 'd177' || grid === 'sponsorizare'){
       if (!this.table || !this.colgroup) return;
 
       const colsCfg = this.cfg.columns || [];
-      const minPx = Number(this.cfg.autosize?.minPx ?? 80);
+      const minPx = Number(this.cfg.autosize?.minPx ?? 150);
       const maxPx = Number(this.cfg.autosize?.maxPx ?? 340);
 
       const canvas = document.createElement('canvas');
