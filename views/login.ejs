@@ -1,16 +1,16 @@
-<%- include('partials/head', { title: 'Login' }) %>
+<%- include('partials/head', { title: 'Autentificare' }) %>
+<div class="login-page">
+  <div class="login-wrapper">
+    <div class="intro-card">
+      <img src="/img/aps-logo.png" alt="Logo" class="login-logo">
+      <h1>Acțiune pentru Sănătate – CRM</h1>
+      <p>
+        Platformă CRM dedicată asociațiilor: gestionează voluntari, donații,
+        cazuri sociale, rapoarte și formulare fiscale (<b>230</b>, <b>177</b>, sponsorizări).
+      </p>
+    </div>
 
-<section class="login-page">
-  <div class="intro-card">
-    <img class="login-logo" src="/img/aps-logo.png" alt="Acțiune pentru Sănătate">
-    <h1>Acțiune pentru Sănătate – CRM</h1>
-    <p>
-      Platformă CRM dedicată asociațiilor: gestionează voluntari, donații, cazuri sociale,
-      rapoarte și formulare fiscale <strong>(230, 177, sponsorizări)</strong>.
-    </p>
-  </div>
-
-  <div class="login-card">
+    <div class="login-card">
     <h2>Autentificare</h2>
     <form id="loginForm" class="form">
       <label>Email</label>
@@ -20,8 +20,10 @@
       <button class="btn-primary" type="submit">🔑 Autentificare</button>
     </form>
   </div>
-</section>
+  </div>
 
+  <%- include('partials/footer') %>
+</div>
 
 
 <script>
@@ -43,11 +45,11 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 
     const html = await res.text();
-    document.open(); document.write(html); document.close();
+    document.open();
+    document.write(html);
+    document.close();
   } catch {
     alert('Eroare la conectare');
   }
 });
 </script>
-
-<%- include('partials/footer') %>
