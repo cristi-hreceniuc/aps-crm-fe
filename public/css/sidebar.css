@@ -280,3 +280,21 @@ body.nav-open .nav-group .nav-children .nav-link {
   padding-left: 14px;      /* mai mult padding la copii */
   font-size: 0.95em;       /* opțional: puțin mai mic textul */
 }
+
+/* ===== Corectare z-index pentru mobile ===== */
+
+/* Meniul lateral trebuie să fie mereu deasupra */
+.sidenav {
+  z-index: 3000 !important;
+}
+
+/* Overlay-ul (scrim) sub meniu */
+.nav-scrim {
+  z-index: 2500 !important;
+}
+
+/* Search bar-ul să fie întotdeauna sub meniu */
+.dg-right .dg-search {
+  position: relative;
+  z-index: 100 !important;
+}
