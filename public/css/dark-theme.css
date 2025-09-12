@@ -1,0 +1,114 @@
+/* Dark mode variables */
+body.dark {
+  background:#1f2937;
+  color:#f3f4f6;
+}
+
+/* Carduri & forme */
+body.dark .card,
+body.dark .auth-card,
+body.dark .login-card,
+body.dark .mini-card {
+  background:#374151;
+  color:#f3f4f6;
+}
+
+/* Footer */
+body.dark .footer {
+  color:#9ca3af;
+  border-top:1px solid #4b5563;
+}
+
+/* Login background */
+body.dark .login-page {
+  background:linear-gradient(to bottom, #111827 0%, #1f2937 100%);
+}
+
+/* Inputuri */
+body.dark input,
+body.dark select,
+body.dark textarea {
+  background:#1f2937;
+  border:1px solid #4b5563;
+  color:#f3f4f6;
+}
+body.dark input:focus,
+body.dark select:focus,
+body.dark textarea:focus {
+  border-color:#9ca3af;
+  box-shadow:0 0 0 3px #374151;
+}
+
+/* Navbar & sidenav */
+body.dark .sidenav { background:#111827; }
+body.dark .nav-link { color:#f3f4f6; }
+body.dark .nav-link.active { background:#dc2626; color:#fff; }
+body.dark .nav-link:hover { background:#1f2937; }
+
+/* Header */
+body.dark .content-header { border-bottom:1px solid #4b5563; color:#f3f4f6; }
+body.dark .content-header small { color:#9ca3af; }
+
+/* Datagrid */
+body.dark .dg-table thead th {
+  background:#374151;
+  color:#f3f4f6;
+  border-bottom:1px solid #4b5563;
+}
+body.dark .dg-table tbody tr {
+  background:#374151;
+  color:#f3f4f6;
+}
+body.dark .dg-table tbody tr:hover {
+  box-shadow:0 3px 8px rgba(255,255,255,.08);
+}
+body.dark .dg-search {
+  background:#1f2937;
+  border:1px solid #4b5563;
+  color:#f3f4f6;
+}
+body.dark .dg-pager .dg-pages { color:#9ca3af; }
+
+/* ===== Sidenav Dark Theme ===== */
+body.dark .sidenav {
+  background: #111827; /* aproape negru */
+  color: #f3f4f6;
+}
+
+body.dark .sidenav .nav-link {
+  color: #d1d5db;
+}
+
+body.dark .sidenav .nav-link.active,
+body.dark .sidenav .nav-link:hover {
+  background: #1f2937;
+  color: #fff;
+}
+
+body.dark .sidenav .nav-group .nav-children {
+  background: #1f2937;
+}
+
+body.dark .nav-footer {
+  border-top: 1px solid #374151;
+  background: #111827;
+}
+
+body.dark .user-block {
+  color: #e5e7eb;
+}
+
+body.dark .user-block .user-email {
+  color: #9ca3af;
+}
+
+body.dark .btn-mini.outline.logout-btn {
+  border-color: #f87171;
+  color: #f87171;
+  background: transparent;
+}
+
+body.dark .btn-mini.outline.logout-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}

@@ -267,3 +267,16 @@ body.nav-open .user-text{ opacity:1; transform:none; }
 .nav-parent{ display:flex; align-items:center; justify-content:space-between; }
 .nav-parent .caret{ margin-left:auto; font-size:12px; opacity:.6; }
 .sidenav:hover .nav-group:not(.open):hover .nav-children{ display:block; } /* hover open */
+
+/* ===== Submeniuri: indent doar în expanded ===== */
+.sidenav:hover .nav-group .nav-children,
+body.nav-open .nav-group .nav-children {
+  margin-left: 8px;        /* spațiu față de părinte */
+  padding-left: 14px;      /* împinge iconița și textul */
+}
+
+.sidenav:hover .nav-group .nav-children .nav-link,
+body.nav-open .nav-group .nav-children .nav-link {
+  padding-left: 14px;      /* mai mult padding la copii */
+  font-size: 0.95em;       /* opțional: puțin mai mic textul */
+}

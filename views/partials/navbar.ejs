@@ -7,7 +7,6 @@
       <a href="/">Home</a>
       <% if (!isLogged) { %>
         <a href="/login">Login</a>
-        <a class="btn btn-outline" href="/register">Register</a>
       <% } else { %>
         <form action="/logout" method="post" style="display:inline">
           <button class="btn btn-danger" type="submit">Logout</button>

@@ -1,54 +1,60 @@
 <%- include('partials/head', { title: 'Înregistrare' }) %>
-<%- include('partials/navbar') %>
 
-<section class="container center pad">
-  <div class="auth-card">
-    <h1>Înregistrare</h1>
+<div class="app">
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
+  <main class="content-shell">
+    <header class="content-header">
+      <h1>Înregistrare</h1>
+      <small class="muted">Creează un cont nou pentru CRM</small>
+    </header>
 
-    <% if (message) { %>
-      <div class="alert alert-success"><%= message %></div>
-    <% } %>
-    <% if (error) { %>
-      <div class="alert alert-danger"><%= error %></div>
-    <% } %>
+    <section class="auth-card">
+      <% if (message) { %>
+        <div class="alert alert-success"><%= message %></div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
 
-    <form id="regForm" class="form" novalidate>
-      <div class="grid two">
-        <div>
-          <label for="regFirst">Prenume</label>
-          <input id="regFirst" name="firstName" type="text" required placeholder="Ionut" />
+      <form id="regForm" class="form" novalidate>
+        <div class="grid two">
+          <div>
+            <label for="regFirst">Prenume</label>
+            <input id="regFirst" name="firstName" type="text" required placeholder="Ionut" />
+          </div>
+          <div>
+            <label for="regLast">Nume</label>
+            <input id="regLast" name="lastName" type="text" required placeholder="Popescu" />
+          </div>
         </div>
-        <div>
-          <label for="regLast">Nume</label>
-          <input id="regLast" name="lastName" type="text" required placeholder="Popescu" />
-        </div>
-      </div>
 
-      <label for="regGender">Gen</label>
-      <select id="regGender" name="gender" required>
-        <option value="" selected disabled>— Alege —</option>
-        <option value="MALE">Bărbat</option>
-        <option value="FEMALE">Femeie</option>
-      </select>
+        <label for="regGender">Gen</label>
+        <select id="regGender" name="gender" required>
+          <option value="" selected disabled>— Alege —</option>
+          <option value="MALE">Bărbat</option>
+          <option value="FEMALE">Femeie</option>
+        </select>
 
-      <label for="regEmail">Email</label>
-      <input id="regEmail" name="email" type="email" required placeholder="you@example.com" />
+        <label for="regEmail">Email</label>
+        <input id="regEmail" name="email" type="email" required placeholder="you@example.com" />
 
-      <label for="regPass">Parolă</label>
-      <input id="regPass" name="password" type="password" required minlength="6" placeholder="Min. 6 caractere" />
+        <label for="regPass">Parolă</label>
+        <input id="regPass" name="password" type="password" required minlength="6" placeholder="Min. 6 caractere" />
 
-      <!-- ca Logout: outline, nu se umple pe hover -->
-      <button class="btn btn-outline no-fill" type="submit">Creează cont</button>
-    </form>
-  </div>
-</section>
+        <button class="btn btn-outline no-fill" type="submit">Creează cont</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<%- include('partials/footer') %>
 
 <script>
 document.getElementById('regForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const firstName = document.getElementById('regFirst').value.trim();
   const lastName  = document.getElementById('regLast').value.trim();
-  const gender    = document.getElementById('regGender').value; // MALE / FEMALE
+  const gender    = document.getElementById('regGender').value;
   const email     = document.getElementById('regEmail').value.trim();
   const password  = document.getElementById('regPass').value;
 
@@ -71,5 +77,3 @@ document.getElementById('regForm').addEventListener('submit', async (e) => {
   }
 });
 </script>
-
-<%- include('partials/footer') %>

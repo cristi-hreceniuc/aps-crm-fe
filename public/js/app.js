@@ -34,3 +34,26 @@ document.addEventListener('click', (e)=>{
   e.preventDefault();
   parent.closest('.nav-group')?.classList.toggle('open');
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.querySelector(".theme-toggle input");
+  const body = document.body;
+
+  // Citește preferința din localStorage
+  if (localStorage.getItem("theme") === "dark") {
+    body.classList.add("dark");
+    if (toggle) toggle.checked = true;
+  }
+
+  if (toggle) {
+    toggle.addEventListener("change", () => {
+      if (toggle.checked) {
+        body.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+      } else {
+        body.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+      }
+    });
+  }
+});

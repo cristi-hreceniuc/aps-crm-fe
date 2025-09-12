@@ -1,284 +1,272 @@
 /* ========= Buttons ========= */
-.btn{
-  display:inline-block;padding:12px 18px;border-radius:14px;
-  background:var(--brand);color:#fff;border:none;cursor:pointer;
-  text-decoration:none;transition:filter .15s ease, transform .02s
+.btn {
+  display:inline-block;
+  padding:12px 18px;
+  border-radius:14px;
+  background:var(--brand);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  text-decoration:none;
+  transition:filter .15s ease, transform .02s;
 }
-.btn:hover{filter:brightness(.96)}
-.btn:active{transform:translateY(1px)}
-.btn-outline{border:1px solid var(--brand);color:var(--brand);background:transparent}
-.btn-outline:hover{background:var(--brand);color:#fff}
-.btn-danger{background:#ef4444}
-.btn-primary{background:var(--brand)}
-.btn-mini{display:inline-block;padding:8px 10px;border-radius:10px;background:var(--brand);color:#fff;font-weight:700}
-.btn-mini.outline{background:#fff;border:1px solid var(--brand);color:var(--brand)}
+.btn:hover { filter:brightness(.96); }
+.btn:active { transform:translateY(1px); }
+
+.btn-outline {
+  border:1px solid var(--brand);
+  color:var(--brand);
+  background:transparent;
+}
+.btn-outline:hover { background:var(--brand); color:#fff; }
+
+.btn-danger { background:#ef4444; }
+
+.btn-mini {
+  display:inline-block;
+  padding:8px 10px;
+  border-radius:10px;
+  background:var(--brand);
+  color:#fff;
+  font-weight:700;
+}
+.btn-mini.outline {
+  background:#fff;
+  border:1px solid var(--brand);
+  color:var(--brand);
+}
+
+/* Primary gradient */
+.btn-primary {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-primary:hover {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
+}
 
 /* ========= Forms & Alerts ========= */
-.auth-card{max-width:420px;margin:40px auto;background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:26px}
-.form{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-label{font-weight:600}
-input,select,textarea{
-  width:100%;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;outline:none
+.auth-card {
+  max-width:420px;
+  margin:40px auto;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:26px;
 }
-input:focus,select:focus,textarea:focus{border-color:#d1d5db;box-shadow:0 0 0 4px #f3f4f6}
-.alert{padding:10px 12px;border-radius:10px;margin:8px 0}
-.alert-danger{background:#fee2e2;color:#991b1b}
-.alert-success{background:#dcfce7;color:#166534}
-
-/* ========= Cards / Grid / Charts ========= */
-.grid{display:grid; gap:18px}
-.grid.two{grid-template-columns:1fr}
-.grid.three{grid-template-columns:1fr}
-@media (max-width: 760px){
-  .dg-scroll{ border-radius:0; background:transparent; }
-  .dg-table thead{ display:none; }
-  .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ display:block; width:100%; }
-  .dg-table tbody{ padding:4px; }
-  .dg-table tbody tr{
-    background:#fff; border-radius:12px;
-    box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    margin-bottom:12px; padding:10px 10px 6px;
-  }
-  .dg-table tbody td{
-    padding:8px 10px;
-    border-bottom:none;
-    display:grid; grid-template-columns: 110px 1fr; column-gap:10px; row-gap:4px;
-    white-space:normal; overflow:visible; text-overflow:clip;
-  }
-  .dg-table tbody td::before{
-    content: attr(data-label);
-    font-weight:600; color:#6b7280;
-  }
-  /* valoarea în coloana a 2-a, cu clamp dacă există */
-  .dg-table tbody td .dg-val{ grid-column: 2; }
-  .dg-table tbody td a{ grid-column:2; word-break: break-word; }
-
-  /* ascunde coloane mai puțin critice pe mobil (ajustează după preferință) */
-  .dg-table tbody td.col-disponibility,
-  .dg-table tbody td.col-link{ display:none; }
-
-  .dg-pager{ flex-wrap:wrap; gap:8px; }
+.form {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
 }
-.card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px}
-.card.tall{min-height:280px}
-.mini-card{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:14px}
-.chart-placeholder{
-  height:220px; border:2px dashed #e5e7eb; border-radius:12px;
-  display:flex; align-items:center; justify-content:center; color:#94a3b8;
+label { font-weight:600; }
+input,select,textarea {
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#fff;
+  outline:none;
+}
+input:focus,select:focus,textarea:focus {
+  border-color:#d1d5db;
+  box-shadow:0 0 0 4px #f3f4f6;
+}
+.alert { padding:10px 12px; border-radius:10px; margin:8px 0; }
+.alert-danger { background:#fee2e2; color:#991b1b; }
+.alert-success { background:#dcfce7; color:#166534; }
+
+/* ========= Cards ========= */
+.card {
+  background:#fff;
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+.card.tall { min-height:280px; }
+.mini-card {
+  background:#fff;
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+.chart-placeholder {
+  height:220px;
+  border:2px dashed #e5e7eb;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#94a3b8;
 }
 
 /* ========= Hero panel ========= */
-.hero-panel{
+.hero-panel {
   background:radial-gradient(130% 120% at 0% 0%, var(--rose-75) 0%, var(--rose-50) 55%, #fff 100%);
   border:1px solid var(--rose-100);
   border-radius:28px;
   box-shadow:0 22px 40px rgba(15,16,18,.06), 0 18px 44px rgba(229,57,53,.08);
   padding:42px 36px;
 }
-.headline-xl{
-  font-family:Poppins; font-size:48px; font-weight:800; letter-spacing:-.02em; color:var(--brand); margin:0 0 16px 0;
+.headline-xl {
+  font-family:Poppins;
+  font-size:48px;
+  font-weight:800;
+  letter-spacing:-.02em;
+  color:var(--brand);
+  margin:0 0 16px 0;
 }
-.hero-lead{font-size:20px; color:var(--muted); line-height:1.6}
-.accent-underline{
-  width:86px;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--brand),#ff6b6b);margin:18px auto 0
+.hero-lead { font-size:20px; color:var(--muted); line-height:1.6; }
+.accent-underline {
+  width:86px;
+  height:6px;
+  border-radius:6px;
+  background:linear-gradient(90deg,var(--brand),#ff6b6b);
+  margin:18px auto 0;
 }
 
 /* ========= Footer ========= */
-.footer{padding:28px 0;color:#6b7280}
-
-/* ========= DataGrid generic ========= */
-.dg-toolbar{
-  display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:12px;
-}
-.dg-title{ margin:0; }
-.dg-right{ min-width:220px; }
-.dg-right .dg-search{
-  width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:12px;
-  background:#fff; outline:none;
-}
-.dg-right .dg-search:focus{ border-color:#d1d5db; box-shadow:0 0 0 4px #f3f4f6; }
-
-/* Container + masă */
-.dg-scroll{ overflow:auto; background:#f8fafc; border-radius:14px; }
-.dg-table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0 8px;          /* spațiu între rânduri */
-  table-layout:fixed;            /* ca să meargă ellipsis */
+.footer { padding:28px 0; color:#6b7280; }
+/* ========= Intro card (logo + descriere) ========= */
+.intro-card {
+  max-width: 640px;
+  background: #fff;
+  padding: 36px 40px;
+  margin: 0 auto 30px auto;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
-/* ===== Header: etichetă vizibilă + sort ===== */
-.dg-table thead th{
-  position:sticky; top:0; z-index:2;
-  background:#fff; padding:12px 14px; border-bottom:1px solid #e5e7eb;
-  text-align:left;
+.intro-card .login-logo {
+  width: 160px;              /* logo mai mare */
+  margin: -10px auto 18px;   /* puțin mai sus */
+  display: block;
 }
-.dg-table thead th .th-inner{ display:flex; align-items:center; gap:8px; }
-.dg-table thead th .th-label{
-  flex:1; min-width:0;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  color:#111827; font-weight:600;
-}
-.dg-table thead th[data-sortable]{ cursor:pointer; user-select:none; }
-.dg-table thead th .dg-sort{
-  margin-left:0; border:0; background:transparent; cursor:pointer; font-size:14px; line-height:1; opacity:.7;
-}
-.dg-table thead th.sort-active{ color:var(--brand); }
-.dg-table thead th.sort-asc::after{ content:" ▲"; font-size:11px; }
-.dg-table thead th.sort-desc::after{ content:" ▼"; font-size:11px; }
 
-/* ===== Celule + rânduri aerisite ===== */
-.dg-table th, .dg-table td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.dg-table tbody tr{
+.intro-card h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--brand);
+  margin-bottom: 12px;
+}
+
+.intro-card p {
+  font-size: 16px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* ========= Login ========= */
+.login-page {
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
+  padding:20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 640px;       /* la fel ca intro-card */
+  padding: 32px 36px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  text-align: left;
+  margin: 0 auto;
+}
+
+.login-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--brand);
+  text-align: center;      /* centrat la mijloc */
+}
+
+.login-card .form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-card input {
+  font-size: 15px;
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+
+.login-card button {
+  margin-top: 12px;
+  width: 100%;
+  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+/* ========= Theme toggle ========= */
+.theme-toggle {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+}
+.theme-toggle input { display:none; }
+.theme-toggle .slider {
+  width:42px;
+  height:22px;
+  background:#ddd;
+  border-radius:999px;
+  position:relative;
+  transition:background 0.2s;
+}
+.theme-toggle .slider::after {
+  content:"";
+  width:18px;
+  height:18px;
   background:#fff;
-  box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  border-radius:50%;
+  position:absolute;
+  top:2px;
+  left:2px;
+  transition:left 0.2s;
 }
-.dg-table tbody td{ padding:12px 14px; border-bottom:none; }
-.dg-table tbody tr td:first-child{ border-top-left-radius:12px; border-bottom-left-radius:12px; }
-.dg-table tbody tr td:last-child { border-top-right-radius:12px; border-bottom-right-radius:12px; }
-.dg-table tbody tr:hover{ box-shadow:0 3px 8px rgba(0,0,0,.08); }
+.theme-toggle input:checked + .slider { background:#ef4444; }
+.theme-toggle input:checked + .slider::after { left:22px; }
 
-/* Paginator */
-.dg-pager{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding-top:12px;
-}
-.dg-pager .dg-pages{ padding:6px 10px; }
-
-/* Ascunde "Nume post" pe ecrane mai înguste ca să facem loc altora */
-@media (max-width:1600px){
-  .dg-table thead th.col-postName,
-  .dg-table tbody td.col-postName{ display:none; }
+/* ========= Grid ========= */
+.grid {
+  display: grid;
+  gap: 20px;
 }
 
-/* ===== DataGrid: mobile cards ===== */
-@media (max-width: 760px){
-  .dg-scroll{ border-radius:0; background:transparent; }
-  .dg-table thead{ display:none; }
-  .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ display:block; width:100%; }
-  .dg-table tbody{ padding:4px; }
-  .dg-table tbody tr{
-    background:#fff;
-    border-radius:12px;
-    box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    margin-bottom:12px; padding:10px 10px 6px;
-  }
-  /* Etichetă + valoare pe același rând: 120px / rest */
-  .dg-table tbody td{
-    padding:8px 10px;
-    white-space:normal; overflow:visible; text-overflow:clip;
-    display:grid; grid-template-columns: 120px 1fr; column-gap:10px; row-gap:4px;
-    border-bottom:none;
-  }
-  .dg-table tbody td::before{
-    content: attr(data-label);
-    font-weight:600; color:#6b7280;
-  }
-  /* sparge email/URL pe mobil ca să nu "împingă" cardul */
-  .dg-table tbody td a{ word-break: break-all; }
-
-  /* ascunde coloane mai puțin critice */
-  .dg-table tbody td.col-disponibility,
-  .dg-table tbody td.col-link{ display:none; }  /* poți scoate asta dacă le vrei */
-
-  /* paginator compact */
-  .dg-pager{ flex-wrap:wrap; gap:8px; }
+.grid.two {
+  grid-template-columns: 1fr 1fr;
 }
 
-/* ---- Valoarea din celulă (pt. clamp/ellipsis) ---- */
-.dg-table td .dg-val{
-  display:block;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;           /* implicit: 1 linie, cu … */
+.grid.three {
+  grid-template-columns: repeat(3, 1fr);
 }
-
-/* Clamp multi-linie (ex. 2) – și pe mobil */
-.dg-table td .dg-val.dg-clamp{
-  white-space:normal;           /* permite mai multe linii */
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-.dg-table td .dg-val.dg-clamp-2{ -webkit-line-clamp:2; }
-.dg-table td .dg-val.dg-clamp-3{ -webkit-line-clamp:3; }
-
-/* Register ca Logout: outline, nu se umple pe hover */
-.btn-outline.no-fill:hover{
-  background: transparent !important;
-  color: var(--brand) !important;
-  box-shadow: 0 2px 8px rgba(239,68,68,.12);
-  border-color: var(--brand);
-}
-.btn-outline.no-fill:active{ transform: translateY(1px); }
-
-/* Scrim: când e ascuns, dispare COMPLET și nu prinde clickuri */
-.nav-scrim[hidden]{ display:none !important; pointer-events:none !important; }
-
-/* Asigură-te că inputul primește clickuri/focus chiar lângă headere sticky */
-.dg-right .dg-search{
-  position: relative;
-  z-index: 2000;           /* creștem puțin față de header/table */
-  pointer-events: auto;
-  color: var(--text, #0f172a);
-  -webkit-text-fill-color: currentColor; /* Safari */
-}
-
-
-/* === DataGrid – mobile search fix & styling === */
-@media (max-width: 760px){
-  .dg-toolbar{
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .dg-left { order: 0; }
-  .dg-right{ order: 1; width: 100%; }
-
-  .dg-right .dg-search{
-    width: 100%;
-    height: 44px;
-    font-size: 16px;
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 1px solid #fecaca;           /* roșu fin */
-    box-shadow: 0 2px 8px rgba(0,0,0,.04);
-    background: #fff;
-  }
-  .dg-right .dg-search::placeholder{ color:#9ca3af; }
-}
-
-/* Când meniul este deschis, inputul stă deasupra și rămâne activ */
-body.sidenav-open .dg-right .dg-search{
-  z-index: 2000 !important;
-  pointer-events: auto !important;
-  opacity: 1;
-  filter: none;
-}
-
-/* Când meniul e închis, inputul rămâne deasupra headerului tabelului */
-body:not(.sidenav-open) .dg-right .dg-search{
-  z-index: 2000;
-  pointer-events: auto;
-}
-
-/* Pager buttons ca la Logout */
-.btn-mini{
-  display:inline-block; padding:8px 12px; border-radius:12px;
-  font-weight:700; cursor:pointer; transition:background .15s ease, color .15s ease, transform .02s;
-}
-.btn-mini.outline{
-  background:#fff; border:1.5px solid var(--brand); color:var(--brand);
-}
-.btn-mini.outline:hover{
-  background:var(--brand); color:#fff;
-}
-.btn-mini.outline:active{ transform:translateY(1px); }
-.btn-mini.outline:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(239,68,68,.25); }
-
-/* Stare disabled în pager */
-.dg-pager .btn-mini[disabled]{
-  opacity:.55; cursor:not-allowed; background:#fff; color:#94a3b8; border-color:#e5e7eb;
-}
-.dg-pager .btn-mini[disabled]:hover{ background:#fff; color:#94a3b8; }
-

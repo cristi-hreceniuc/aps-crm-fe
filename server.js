@@ -65,6 +65,13 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
 /* ------------------------ Auth gate --------------------- */
 function requireAuth(req, res, next) {
   if (req.session?.token) return next();
@@ -105,7 +112,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  if (req.session.token) return res.redirect('/');
+  if (!req.session.token) return res.redirect('/login'); // doar logați au voie
   res.render('register', { title: 'Înregistrare', message: null, error: null });
 });
 
@@ -124,8 +131,18 @@ app.post('/register', async (req, res) => {
   }
 });
 
+app.use((req, res, next) => {
+  res.locals.isLogged = !!req.session.token;   // true / false
+  res.locals.user = req.session.user || null;  // dacă ai user salvat în sesiune
+  next();
+});
+
+
 app.post('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/login'));
+  req.session.destroy(() => {
+    res.set('Cache-Control', 'no-store');
+    res.redirect('/login');
+  });
 });
 
 /* --------- Gate: protejează TOT ce urmează (exceptând public) --------- */
@@ -139,7 +156,7 @@ app.get('/d177', (req, res) => {res.render('d177', { title: 'Declarația 177', h
 app.get('/sponsorizare',   (req, res) => res.render('sponsorizare',      { title: 'Contract sponsorizare',  heading: 'Contract sponsorizare'  }));
 app.get('/cazuri',     (req, res) => res.render('stub',      { title: 'Cazuri',    heading: 'Cazuri'    }));
 app.get('/rapoarte',   (req, res) => res.render('stub',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
-app.get('/setari',     (req, res) => res.render('stub',      { title: 'Setări',    heading: 'Setări'    }));
+app.get('/setari',     (req, res) => res.render('setari',      { title: 'Setări',    heading: 'Setări'    }));
 app.get('/dashboard',  (req, res) => res.render('dashboard', { title: 'Dashboard' }));
 app.get('/f230', requireAuth, (req,res)=> res.render('f230', { title: 'Formular 230 – Formulare' }));
 app.get('/iban-beneficiari', requireAuth, (req,res)=> res.render('iban', { title: 'IBAN Beneficiari' }));
