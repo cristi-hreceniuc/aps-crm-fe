@@ -140,5 +140,49 @@
     });
   });
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panes = document.querySelectorAll('.tab-pane');
+
+    // citește tab-ul salvat ultima dată
+    const savedTab = localStorage.getItem('cause-active-tab') || 'grid-cause';
+
+    function activateTab(tabId) {
+      tabs.forEach(x => x.classList.remove('active'));
+      panes.forEach(x => x.classList.remove('active'));
+
+      const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+      const pane = document.getElementById(tabId);
+
+      if (btn && pane) {
+        btn.classList.add('active');
+        pane.classList.add('active');
+
+        // salvează tab-ul curent
+        localStorage.setItem('cause-active-tab', tabId);
+
+        // dacă e tab-ul offline → reload datagrid
+        if (tabId === 'grid-offline') {
+          const offlineGrid = document.querySelector('[data-grid="offline"]');
+          offlineGrid?.dispatchEvent(new CustomEvent('dg-reload', { bubbles: true }));
+        }
+
+        window.dispatchEvent(new Event('resize'));
+      }
+    }
+
+    // setează tab-ul salvat
+    activateTab(savedTab);
+
+    // handler pentru click
+    tabs.forEach(b => {
+      b.addEventListener('click', () => {
+        activateTab(b.dataset.tab);
+      });
+    });
+  });
+</script>
+
 
 <%- include('partials/footer') %>

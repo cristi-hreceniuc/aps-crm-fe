@@ -297,7 +297,7 @@
       break;
 
     case 'offline':
-  if ((row.status || '').toLowerCase() === 'online-paid') {
+  if ((row.status || '') === 'Plătit online') {
     innerHTML = `<div class="dg-actions muted">—</div>`; // nimic, doar un dash
   } else {
     innerHTML = `

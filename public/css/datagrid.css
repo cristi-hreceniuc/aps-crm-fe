@@ -374,3 +374,43 @@
   z-index: 2000 !important;   /* asigură că e peste tabel/sidebar */
   pointer-events: auto !important; /* permite click și focus */
 }
+
+
+/* Folosește stilurile existente pentru btn-mini */
+.btn-mini {
+  display:inline-block;
+  padding:8px 12px;
+  border-radius:10px;
+  background:var(--brand);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition: filter .15s ease, transform .02s;
+}
+.btn-mini:hover:not(:disabled) {
+  filter:brightness(.96);
+}
+.btn-mini:active:not(:disabled) {
+  transform:translateY(1px);
+}
+
+/* Varianta outline (ca la Logout) */
+.btn-mini.outline {
+  background:#fff;
+  border:1px solid var(--brand);
+  color:var(--brand);
+}
+.btn-mini.outline:hover:not(:disabled) {
+  background:var(--brand);
+  color:#fff;
+}
+
+/* Disabled state */
+.btn-mini:disabled,
+.btn-mini[disabled] {
+  opacity:0.5;
+  cursor:not-allowed;
+  pointer-events:none;
+  filter:none;
+  transform:none;
+}
