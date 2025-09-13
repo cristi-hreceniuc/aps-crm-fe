@@ -3,8 +3,11 @@
   <%- include('partials/sidenav', { path, isLogged, user }) %>
   <main class="content-shell">
     <header class="content-header">
-      <h1>IBAN Beneficiari</h1>
-      <small class="muted">Listă simplă cu editare și ștergere</small>
+      <div>
+        <h1>IBAN Beneficiari</h1>
+        <small class="muted">Listă simplă cu editare și ștergere</small>
+      </div>
+      <button class="btn btn-primary" id="addIbanBtn">+ Adaugă IBAN</button>
     </header>
 
     <%- include('partials/datagrid', {
@@ -28,3 +31,31 @@
   </main>
 </div>
 <%- include('partials/footer') %>
+
+<script>
+document.getElementById("addIbanBtn").addEventListener("click", async () => {
+  const name = prompt("Introduceți numele beneficiarului:");
+  if (!name) return;
+
+  const iban = prompt("Introduceți IBAN-ul beneficiarului:");
+  if (!iban) return;
+
+  try {
+    const res = await fetch("/api/iban", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, iban })
+    });
+
+    if (res.ok) {
+      alert("IBAN adăugat cu succes!");
+      location.reload();
+    } else {
+      alert("Eroare la adăugare IBAN!");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Eroare la server.");
+  }
+});
+</script>

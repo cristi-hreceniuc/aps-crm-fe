@@ -270,3 +270,48 @@ input:focus,select:focus,textarea:focus {
 .grid.three {
   grid-template-columns: repeat(3, 1fr);
 }
+
+/* Skeleton loader */
+.skeleton {
+  display: inline-block;
+  height: 14px;
+  width: 80px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+.skeleton.circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.tab-btn {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}

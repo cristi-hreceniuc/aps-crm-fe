@@ -1,0 +1,144 @@
+<%- include('partials/head', { title: 'Cauze' }) %>
+
+<%- include('partials/head', { title: 'Cauze' }) %>
+
+<div class="app">
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
+
+  <main class="content-shell">
+    <header class="content-header">
+      <h1>Cauze</h1>
+      <small class="muted">Listă paginată, sortabilă și cu căutare</small>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="grid-cause">Cauze susținere</button>
+      <button class="tab-btn" data-tab="grid-offline">Plăți offline</button>
+    </div>
+
+    <!-- Grid 1: Cauze susținere -->
+    <section id="grid-cause" class="tab-pane active">
+      <%- include('partials/datagrid', {
+        gridId: 'cause',
+        title: 'Cauze',
+        subtitle: 'Campanii & obiective',
+        searchPlaceholder: 'Caută în titlu sau rezumat…',
+        endpoint: '/api/cause',
+        pageSize: 10,
+        api: { pageParam:'page', sizeParam:'size', sortParam:'sort', sortValue:'{key},{dir}', pageBase:0, searchParam:'q' },
+        response: { items:'content', page:'number', size:'size', total:'totalElements' },
+        columns: [
+          { key:'id',      label:'ID',                sortable:true,  type:'number' },
+          { key:'date',    label:'Dată start',        sortable:true,  type:'date'   },
+          { key:'title',   label:'Titlu',             sortable:true,  clamp:2       },
+          { key:'excerpt', label:'Rezumat',           sortable:true,  clamp:2       },
+          { key:'goal',    label:'Obiectiv',          sortable:true,  type:'number' },
+          { key:'donors',  label:'Donatori',          sortable:true,  type:'number' },
+          { key:'donated', label:'Strâns (RON)',      sortable:true,  type:'number' },
+          { key:'guid',    label:'Link',              type:'link' }
+        ],
+        autosize: { minPx: 90, maxPx: 280 }
+      }) %>
+    </section>
+
+    <!-- Grid 2: Plăți offline -->
+    <section id="grid-offline" class="tab-pane">
+      <%- include('partials/datagrid', {
+        gridId: 'offline',
+        title: 'Plăți offline',
+        subtitle: 'Comenzi din wp_frmaster_order',
+        searchPlaceholder: 'Caută după titlu, status, metodă sau ID…',
+        endpoint: '/api/offline-payments',
+        pageSize: 10,
+        api: { pageParam:'page', sizeParam:'size', sortParam:'sort', sortValue:'{key},{dir}', pageBase:0, searchParam:'q' },
+        response: { items:'content', page:'number', size:'size', total:'totalElements' },
+        columns: [
+          { key:'id',            label:'ID',              sortable:true, type:'number' },
+          { key:'bookingDate',   label:'Dată întocmire',  sortable:true, type:'date'   },
+          { key:'causeTitle',    label:'Cauză',           sortable:true, clamp:2       },
+          { key:'status',        label:'Status',          sortable:true                 },
+          { key:'amount',        label:'Suma',            sortable:true, type:'number' },
+          { key:'paymentDate',   label:'Dată plată',      sortable:true, type:'date'   },
+          { key:'paymentMethod', label:'Metodă plată',    sortable:true                 },
+          { key:'_actions', label:'Acțiuni', sortable:false, type:'actions' }
+        ],
+        autosize: { minPx: 90, maxPx: 320 },
+        renderRowExtraJs: `
+  const disabled = (row.status || '').toLowerCase() === 'online-paid' ? 'disabled' : '';
+  html.actions = '<div class="dg-actions">'
+    + '<button class="btn-mini ok" data-act="approve" data-id="'+row.id+'" '+disabled+'>Accept</button>'
+    + '<button class="btn-mini warn" data-act="reject" data-id="'+row.id+'" '+disabled+'>Respinge</button>'
+    + '<button class="btn-mini danger" data-act="delete" data-id="'+row.id+'" '+disabled+'>Șterge</button>'
+    + '</div>';
+        `,
+        afterMountJs: `
+          const grid = document.querySelector('[data-grid="offline"]');
+          grid?.addEventListener('click', async (e)=>{
+            const btn = e.target.closest('button[data-act]');
+            if (!btn) return;
+            const id = btn.getAttribute('data-id');
+            const act = btn.getAttribute('data-act');
+            try{
+              if (act === 'approve'){
+                await fetch('/api/offline-payments/' + id + '/status', {
+                  method:'PUT', headers:{'Content-Type':'application/json'},
+                  body: JSON.stringify({ status:'approved' })
+                });
+              } else if (act === 'reject'){
+                await fetch('/api/offline-payments/' + id + '/status', {
+                  method:'PUT', headers:{'Content-Type':'application/json'},
+                  body: JSON.stringify({ status:'rejected' })
+                });
+              } else if (act === 'delete'){
+                if (!confirm('Sigur ștergi această înregistrare?')) return;
+                await fetch('/api/offline-payments/' + id, { method:'DELETE' });
+              }
+              grid.dispatchEvent(new CustomEvent('dg-reload', {bubbles:true}));
+            }catch(err){
+              alert('Eroare acțiune: ' + (err?.message||''));
+            }
+          });
+
+          // Tabs
+          document.querySelectorAll('.tab-btn').forEach(b=>{
+            b.addEventListener('click', ()=>{
+              document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+              document.querySelectorAll('.tab-pane').forEach(x=>x.classList.remove('active'));
+              b.classList.add('active');
+              document.getElementById(b.dataset.tab).classList.add('active');
+              window.dispatchEvent(new Event('resize'));
+            });
+          });
+        `
+      }) %>
+    </section>
+  </main>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tab-btn').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        // scoate active din toate
+        document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(x=>x.classList.remove('active'));
+
+        // adaugă pe cel curent
+        b.classList.add('active');
+        document.getElementById(b.dataset.tab).classList.add('active');
+
+        // dacă e tab-ul offline, forțează reload pe datagrid
+        if (b.dataset.tab === 'grid-offline') {
+          const offlineGrid = document.querySelector('[data-grid="offline"]');
+          offlineGrid?.dispatchEvent(new CustomEvent('dg-reload', { bubbles:true }));
+        }
+
+        // resize la grid
+        window.dispatchEvent(new Event('resize'));
+      });
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>

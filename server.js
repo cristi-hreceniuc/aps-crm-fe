@@ -154,13 +154,12 @@ app.get('/',           (req, res) => res.render('home',      { title: 'Direcțio
 app.get('/voluntari',  (req, res) => res.render('voluntari', { title: 'Voluntari', heading: 'Voluntari' }));
 app.get('/d177', (req, res) => {res.render('d177', { title: 'Declarația 177', heading: 'Declarația 177' });});
 app.get('/sponsorizare',   (req, res) => res.render('sponsorizare',      { title: 'Contract sponsorizare',  heading: 'Contract sponsorizare'  }));
-app.get('/cazuri',     (req, res) => res.render('stub',      { title: 'Cazuri',    heading: 'Cazuri'    }));
 app.get('/rapoarte',   (req, res) => res.render('stub',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
 app.get('/setari',     (req, res) => res.render('setari',      { title: 'Setări',    heading: 'Setări'    }));
-app.get('/dashboard',  (req, res) => res.render('dashboard', { title: 'Dashboard' }));
+app.get('/offline-payments',  (req, res) => res.render('offline-payments', { title: 'Plati offline' }));
 app.get('/f230', requireAuth, (req,res)=> res.render('f230', { title: 'Formular 230 – Formulare' }));
 app.get('/iban-beneficiari', requireAuth, (req,res)=> res.render('iban', { title: 'IBAN Beneficiari' }));
-
+app.get('/cause', (req, res) =>res.render('cause', { title: 'Cauze', heading: 'Cauze' }));
 /* ----------------------- Proxy helper ------------------- */
 // GET proxy spre Spring, pasează query-urile + Bearer din sesiune
 const proxyGet = (targetPath) => async (req, res) => {
@@ -198,6 +197,10 @@ app.get('/api/f230/search',     proxyGet('/f230/search'));
 
 app.get('/api/iban',           proxyGet('/iban/search'));
 app.get('/api/iban/search',    proxyGet('/iban/search'));
+
+app.get('/api/kpi',    proxyGet('/kpi'));
+app.get('/api/offline-payments',    proxyGet('/offline-payments'));
+
 /* === Proxy către BE (cu Bearer) === */
 
 const proxyDelete = (targetPathBuilder) => async (req, res) => {
@@ -227,16 +230,99 @@ const proxyPut = (pathBuilder) => async (req, res) => {
     return res.status(s).json(err.response?.data || { message:'Upstream error' });
   }
 };
+
+const proxyPost = (pathBuilder) => async (req, res) => {
+  if (!req.session?.token) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  const targetPath = (typeof pathBuilder === 'function') ? pathBuilder(req) : pathBuilder;
+
+  try {
+    const { status, data } = await api.post(targetPath, req.body, {
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+    return res.status(status).json(data);
+  } catch (err) {
+    console.error('Proxy POST error:', err.message);
+    const s = err.response?.status || 500;
+    return res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+};
+// --- PROXY API (trimite Bearer spre BE) ---
+app.get('/api/cause', async (req, res) => {
+  try {
+    const { token } = req.session;
+    const { data } = await api.get('/cause', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      params: req.query
+    });
+    res.json(data);
+  } catch (err) {
+    const status = err.response?.status || 500;
+    res.status(status).json({ message: 'Proxy cause error' });
+  }
+});
+
+// server.js (sau unde ai celelalte proxy-uri)
+const ensureAuth = (req,res,next)=> req.session?.token ? next() : res.status(401).json({message:'Not authenticated'});
+
+// list/search
+app.get('/api/offline-payments', async (req,res)=>{
+  try{
+    const { token } = req.session;
+    const { data, status } = await api.get('/offline-payments', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      params: req.query
+    });
+    res.status(status).json(data);
+  }catch(err){
+    res.status(err.response?.status||500).json({message:'Proxy offline-payments error'});
+  }
+});
+
+// update status
+app.put('/api/offline-payments/:id/status', ensureAuth, async (req,res)=>{
+  try{
+    const { token } = req.session;
+    const { id } = req.params;
+    const { data, status } = await api.put(`/offline-payments/${id}/status`, req.body, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  }catch(err){
+    res.status(err.response?.status||500).json(err.response?.data||{message:'Proxy update status error'});
+  }
+});
+
+// delete
+app.delete('/api/offline-payments/:id', ensureAuth, async (req,res)=>{
+  try{
+    const { token } = req.session;
+    const { id } = req.params;
+    const { data, status } = await api.delete(`/offline-payments/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  }catch(err){
+    res.status(err.response?.status||500).json({message:'Proxy delete offline-payment error'});
+  }
+});
+
+
 // rutele proxy (unde ai și GET-urile):
 app.delete('/api/voluntari/:id', proxyDelete(req => `/volunteers/${req.params.id}`));
 app.delete('/api/d177/:id', proxyDelete(req => `/formulare/d177/${req.params.id}`));
 app.delete('/api/f230/:id', proxyDelete(req => `/f230/${req.params.id}`));
 app.delete('/api/iban/:id', proxyDelete(req => `/iban/${req.params.id}`));
+app.delete('/api/offline-payments/:id', proxyDelete(req => `/offline-payments/${req.params.id}/status`));
 
 app.put('/api/d177/:id/flags', proxyPut(req => `/formulare/d177/${req.params.id}/flags`));
 app.put('/api/f230/:id/flags', proxyPut(req => `/f230/${req.params.id}/flags`));
 app.put('/api/sponsorizare/:id/flags', proxyPut(req => `/sponsorizare/${req.params.id}/flags`));
 app.put('/api/iban/:id', proxyPut(req => `/iban/${req.params.id}`));
+app.put('/api/offline-payments/:id/status', proxyPut(req => `/offline-payments/${req.params.id}/status`));
+app.post('/api/iban', proxyPost('/iban'));
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {

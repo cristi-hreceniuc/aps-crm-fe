@@ -296,6 +296,19 @@
         </div>`;
       break;
 
+    case 'offline':
+  if ((row.status || '').toLowerCase() === 'online-paid') {
+    innerHTML = `<div class="dg-actions muted">—</div>`; // nimic, doar un dash
+  } else {
+    innerHTML = `
+      <div class="dg-actions">
+        <button class="icon-btn btn-approve" title="Acceptă" data-id="${escapeAttr(row.id)}"><span class="ico">✔️</span></button>
+        <button class="icon-btn btn-reject" title="Respinge" data-id="${escapeAttr(row.id)}"><span class="ico">🚫</span></button>
+        <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"><span class="ico">✖</span></button>
+      </div>`;
+  }
+  break;
+
     default:
       innerHTML = `
         <div class="dg-actions">
@@ -392,7 +405,34 @@
             alert('Nu am putut șterge.');
           }
         }
+      
+        const approveBtn = e.target.closest('.btn-approve');
+const rejectBtn  = e.target.closest('.btn-reject');
+
+if (approveBtn){
+  const id = approveBtn.getAttribute('data-id');
+  await fetch('/api/offline-payments/' + id + '/status', {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({ status:'approved' })
+  });
+  this.fetch();
+  return;
+}
+if (rejectBtn){
+  const id = rejectBtn.getAttribute('data-id');
+  await fetch('/api/offline-payments/' + id + '/status', {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({ status:'rejected' })
+  });
+  this.fetch();
+  return;
+}
       });
+
     }
 
     _bindToggles(){

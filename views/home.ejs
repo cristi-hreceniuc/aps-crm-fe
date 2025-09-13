@@ -1,47 +1,124 @@
-<%- include('partials/head') %>
+<%- include('partials/head', { title: 'Direcționare 20%' }) %>
 
 <div class="app">
-  <%- include('partials/sidenav') %>
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
 
   <main class="content-shell">
-    <section class="hero-panel">
-  <h1 class="headline-xl">Despre Asociația Acțiune pentru Sănătate</h1>
-  <p class="hero-lead">
-    Sprijin pentru recuperare fizică și psihică, integrare socială și schimbarea mentalității față de persoanele cu nevoi speciale.
-  </p>
-  <div class="accent-underline"></div>
-</section>
-
     <header class="content-header">
-      <h1>Deals by stage</h1>
-      <small class="muted">Last updated just now</small>
+      <h1>Panou KPI</h1>
+      <small class="muted">Indicatori rapizi din Voluntari, 177, Sponsorizare, 230, IBAN, Cauze și Utilizatori</small>
     </header>
 
-    <!-- Example content grid (replace with your real charts/cards) -->
-    <section class="grid two">
-      <div class="card tall">
-        <h2>Deals by stage</h2>
-        <div class="chart-placeholder">Chart</div>
+    <section class="grid three" id="kpi-grid">
+      <!-- Voluntari -->
+      <div class="mini-card">
+        <h3>Voluntari</h3>
+        <div class="kpi-line"><span>Total</span><strong id="kpi-v-total">—</strong></div>
+        <div class="kpi-line"><span>Vârsta medie</span><strong id="kpi-v-age">—</strong></div>
+        <div class="kpi-line"><span>Disponibilitate medie (ore)</span><strong id="kpi-v-hrs">—</strong></div>
       </div>
-      <div class="card tall">
-        <h2>Deals by quarter</h2>
-        <div class="chart-placeholder">Chart</div>
+
+      <!-- 177 -->
+      <div class="mini-card">
+        <h3>Declarația 177</h3>
+        <div class="kpi-line"><span>Firme</span><strong id="kpi-177-comp">—</strong></div>
+        <div class="kpi-line"><span>Suma totală (RON)</span><strong id="kpi-177-sum">—</strong></div>
+        <div class="kpi-line"><span>Trimise luna trecută</span><strong id="kpi-177-last">—</strong></div>
       </div>
-    </section>
 
-    <section class="block-title">
-      <h2>Accounts</h2>
-    </section>
+      <!-- Sponsorizare -->
+      <div class="mini-card">
+        <h3>Sponsorizare</h3>
+        <div class="kpi-line"><span>Total strâns (RON)</span><strong id="kpi-sp-sum">—</strong></div>
+        <div class="kpi-line"><span>Luna trecută (RON)</span><strong id="kpi-sp-last">—</strong></div>
+      </div>
 
-    <section class="grid three">
-      <div class="mini-card"><strong>Vandelay Industries</strong><div class="muted">Manufacturing</div></div>
-      <div class="mini-card"><strong>Gekko Capital Group</strong><div class="muted">Finance</div></div>
-      <div class="mini-card"><strong>Pied Piper Promotions</strong><div class="muted">Marketing</div></div>
-      <div class="mini-card"><strong>Korben Systems</strong><div class="muted">Software</div></div>
-      <div class="mini-card"><strong>Jurassic Labs</strong><div class="muted">Healthcare</div></div>
-      <div class="mini-card"><strong>Hawkins General Store</strong><div class="muted">Retail</div></div>
+      <!-- 230 -->
+      <div class="mini-card">
+        <h3>Formular 230</h3>
+        <div class="kpi-line"><span>1 an</span><strong id="kpi-230-1y">—</strong></div>
+        <div class="kpi-line"><span>2 ani</span><strong id="kpi-230-2y">—</strong></div>
+        <div class="kpi-line"><span>Expiră anul acesta</span><strong id="kpi-230-exp">—</strong></div>
+        <div class="kpi-line"><span>Luna curentă</span><strong id="kpi-230-month">—</strong></div>
+      </div>
+
+      <!-- IBAN -->
+      <div class="mini-card">
+        <h3>IBAN Beneficiari</h3>
+        <div class="kpi-line"><span>Total IBAN-uri</span><strong id="kpi-iban-tot">—</strong></div>
+      </div>
+
+      <!-- Cauze -->
+      <div class="mini-card">
+        <h3>Cauze</h3>
+        <div class="kpi-line"><span>Total cauze</span><strong id="kpi-cau-tot">—</strong></div>
+        <div class="kpi-line"><span>Obiective atinse</span><strong id="kpi-cau-ok">—</strong></div>
+        <div class="kpi-line"><span>Media progres (%)</span><strong id="kpi-cau-avg">—</strong></div>
+        <div class="kpi-line"><span>Următoarea campanie</span><strong id="kpi-cau-next">—</strong></div>
+      </div>
+
+      <!-- Utilizatori -->
+      <div class="mini-card">
+        <h3>Persoane</h3>
+        <div class="kpi-line"><span>Utilizatori</span><strong id="kpi-persoane-users">—</strong></div>
+        <div class="kpi-line"><span>Administratori</span><strong id="kpi-persoane-admins">—</strong></div>
+      </div>
     </section>
   </main>
 </div>
+
+<script>
+(function(){
+  const nfmt = (n) => (n==null || isNaN(n)) ? '—' : new Intl.NumberFormat('ro-RO').format(n);
+  const dfmt = (s) => !s ? '—' : new Date(s).toLocaleString('ro-RO', { dateStyle:'medium' });
+
+  fetch('/api/kpi', { headers:{'Accept':'application/json'} })
+    .then(r => r.json())
+    .then(k => {
+      // Voluntari
+      document.getElementById('kpi-v-total').textContent = nfmt(k?.volunteers?.total);
+      document.getElementById('kpi-v-age').textContent   = nfmt(k?.volunteers?.avgAge?.toFixed?.(1) ?? k?.volunteers?.avgAge);
+      document.getElementById('kpi-v-hrs').textContent   = nfmt(k?.volunteers?.avgDisponibilityHours?.toFixed?.(1) ?? k?.volunteers?.avgDisponibilityHours);
+
+      // 177
+      document.getElementById('kpi-177-comp').textContent = nfmt(k?.f177?.companies);
+      document.getElementById('kpi-177-sum').textContent  = nfmt(k?.f177?.totalAmount);
+      document.getElementById('kpi-177-last').textContent = nfmt(k?.f177?.lastMonthAmount);
+
+      // Sponsorizare
+      document.getElementById('kpi-sp-sum').textContent  = nfmt(k?.sponsorship?.totalAmount);
+      document.getElementById('kpi-sp-last').textContent = nfmt(k?.sponsorship?.lastMonthAmount);
+
+      // 230
+      document.getElementById('kpi-230-1y').textContent   = nfmt(k?.f230?.total1y);
+      document.getElementById('kpi-230-2y').textContent   = nfmt(k?.f230?.total2y);
+      document.getElementById('kpi-230-exp').textContent  = nfmt(k?.f230?.expiringThisYear);
+      document.getElementById('kpi-230-month').textContent= nfmt(k?.f230?.thisMonth);
+
+      // IBAN
+      document.getElementById('kpi-iban-tot').textContent = nfmt(k?.iban?.total);
+
+      // Cauze
+      document.getElementById('kpi-cau-tot').textContent  = nfmt(k?.causes?.total);
+      document.getElementById('kpi-cau-ok').textContent   = nfmt(k?.causes?.reachedGoal);
+      document.getElementById('kpi-cau-avg').textContent  = nfmt(k?.causes?.avgProgressPct?.toFixed?.(1) ?? k?.causes?.avgProgressPct);
+      document.getElementById('kpi-cau-next').textContent = dfmt(k?.causes?.nextCampaignDate);
+
+      // Utilizatori
+      document.getElementById('kpi-persoane-users').textContent = nfmt(k?.persoane?.users);
+      document.getElementById('kpi-persoane-admins').textContent = nfmt(k?.persoane?.admins);
+    })
+    .catch(()=>{/* lasă "—" pe carduri */});
+})();
+</script>
+
+<style>
+/* mici ajustări pentru KPI-uri (se sprijină pe .mini-card / .grid existente) */
+#kpi-grid .mini-card h3{ margin:0 0 8px 0; }
+.kpi-line{ display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #f1f5f9; }
+.kpi-line:last-child{ border-bottom:0; }
+.kpi-line span{ color:#6b7280; font-size:14px; }
+.kpi-line strong{ font-size:18px; }
+</style>
 
 <%- include('partials/footer') %>
