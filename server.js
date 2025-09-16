@@ -200,6 +200,8 @@ app.get('/api/iban/search',    proxyGet('/iban/search'));
 
 app.get('/api/kpi',    proxyGet('/kpi'));
 app.get('/api/offline-payments',    proxyGet('/offline-payments'));
+
+app.get('/api/settings/xml',    proxyGet('settings/xml'));
 /* === Proxy către BE (cu Bearer) === */
 
 const proxyDelete = (targetPathBuilder) => async (req, res) => {
@@ -362,15 +364,19 @@ app.delete('/api/voluntari/:id', proxyDelete(req => `/volunteers/${req.params.id
 app.delete('/api/d177/:id', proxyDelete(req => `/formulare/d177/${req.params.id}`));
 app.delete('/api/f230/:id', proxyDelete(req => `/f230/${req.params.id}`));
 app.delete('/api/iban/:id', proxyDelete(req => `/iban/${req.params.id}`));
-app.delete('/api/offline-payments/:id', proxyDelete(req => `/offline-payments/${req.params.id}/status`));
+app.delete('/api/offline-payments/:id', proxyDelete(req => `/offline-payments/${req.params.id}`));
+app.delete('/api/sponsorizare/:id', proxyDelete(req => `/sponsorizare/${req.params.id}`));
+app.delete('/api/settings/:id', proxyDelete(req => `/settings/${req.params.id}`));
 
 app.put('/api/d177/:id/flags', proxyPut(req => `/formulare/d177/${req.params.id}/flags`));
 app.put('/api/f230/:id/flags', proxyPut(req => `/f230/${req.params.id}/flags`));
 app.put('/api/sponsorizare/:id/flags', proxyPut(req => `/sponsorizare/${req.params.id}/flags`));
 app.put('/api/iban/:id', proxyPut(req => `/iban/${req.params.id}`));
 app.put('/api/offline-payments/:id/status', proxyPut(req => `/offline-payments/${req.params.id}/status`));
-app.post('/api/iban', proxyPost('/iban'));
+app.put('/api/settings/:id', proxyPut(req => `/settings/${req.params.id}`));
 
+app.post('/api/settings/:id/reset', proxyPost(req => `/settings/${req.params.id}/reset`));
+app.post('/api/iban', proxyPost('/iban'));
 app.post('/api/f230/borderou', proxyPost('/f230/borderou'));
 
 

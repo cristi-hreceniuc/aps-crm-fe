@@ -1,34 +1,48 @@
 <%- include('partials/head', { title: 'Setări' }) %>
-<div class="app">
-  <%- include('partials/sidenav', { path, isLogged, user }) %>
-  <main class="content-shell">
-    <header class="content-header">
-      <h1>Setări</h1>
-      <small class="muted">Preferințe și cont</small>
-    </header>
+  <div class="app">
+    <%- include('partials/sidenav', { path, isLogged, user }) %>
 
-    <section class="grid two">
-      <div class="card">
-  <h2>Setări cont</h2>
-  <div style="margin-top:12px;">
-    <% if (isLogged) { %>
-      <a href="/register" class="btn btn-outline">➕ Creează cont nou</a>
-    <% } else { %>
-      <p class="muted">Conectează-te pentru a crea conturi noi.</p>
-    <% } %>
+      <main class="content-shell">
+        <header class="content-header">
+          <h1>Setări</h1>
+          <small class="muted">Preferințe și configurări aplicație</small>
+        </header>
+
+        <section class="grid two">
+          <div class="card">
+            <h2>Setări cont</h2>
+            <div style="margin-top:12px;">
+              <% if (isLogged) { %>
+                <a href="/register" class="btn btn-outline">➕ Creează cont nou</a>
+                <% } else { %>
+                  <p class="muted">Conectează-te pentru a crea conturi noi.</p>
+                  <% } %>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Preferințe</h2>
+            <label class="theme-toggle" style="margin-top:12px;">
+              <input type="checkbox" id="darkThemeToggle">
+              <span class="slider"></span> Dark Theme
+            </label>
+          </div>
+        </section>
+
+        <!-- ===== Setări XML (borderou 230) ===== -->
+        <section class="card xml-settings">
+          <h2>Setări XML (Formular 230)</h2>
+          <p class="muted" style="margin:8px 0 14px">
+            Actualizează valorile folosite la generarea borderourilor (xmlns, schema, lună, an, denumire, CUI, CIF).
+          </p>
+
+          <div id="settings-root" class="settings-list">
+            <!-- rândurile vin din /js/settings.js -->
+          </div>
+        </section>
+      </main>
   </div>
-</div>
+  <%- include('partials/footer') %>
 
-
-
-      <div class="card">
-        <h2>Preferințe</h2>
-        <label class="theme-toggle" style="margin-top:12px;">
-          <input type="checkbox" id="darkThemeToggle">
-          <span class="slider"></span> Dark Theme
-        </label>
-      </div>
-    </section>
-  </main>
-</div>
-<%- include('partials/footer') %>
+    <!-- logica UI pentru setările XML -->
+    <script src="/js/settings.js"></script>

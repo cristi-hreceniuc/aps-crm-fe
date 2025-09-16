@@ -416,3 +416,22 @@ th.col-select::before, th.col-select::after { content: none !important; }
     inset 0 2px 0 rgba(239,68,68,.35),   /* top */
     inset 0 -2px 0 rgba(239,68,68,.35);  /* bottom */
 }
+
+/* ===== Setări XML ===== */
+.settings-list { display:grid; gap:12px; }
+.setting-row{
+  display:grid;
+  grid-template-columns: 240px 1fr auto auto;
+  gap:10px;
+  align-items:center;
+  padding:12px;
+  border:1px solid #f1f5f9;
+  border-radius:12px;
+}
+.setting-row .name-select{ width:100%; }
+.setting-row .val-input{ width:100%; }
+.setting-row .btn{ padding:8px 12px; border-radius:10px; }
+
+.xml-settings {
+  margin-top: 20px;  /* sau cât spațiu vrei */
+}
