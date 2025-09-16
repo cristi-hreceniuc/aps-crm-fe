@@ -1,5 +1,8 @@
 <!-- views/partials/datagrid.ejs -->
-<section class="card" data-grid data-grid-id="<%= (typeof gridId !== 'undefined' ? gridId : (typeof grid_id !== 'undefined' ? grid_id : '')) %>">
+<section class="card"
+         data-grid
+         data-grid-id="<%= (typeof gridId !== 'undefined' ? gridId : (typeof grid_id !== 'undefined' ? grid_id : '')) %>">
+
   <div class="dg-toolbar">
     <div class="dg-left">
       <h2 class="dg-title"><%= title %></h2>
@@ -8,33 +11,41 @@
       <% } %>
     </div>
     <div class="dg-right">
-      <input
-        class="dg-search"
-        type="search"
-        inputmode="search"
-        autocomplete="off"
-        spellcheck="false"
-        placeholder="<%= (typeof searchPlaceholder !== 'undefined' && searchPlaceholder) ? searchPlaceholder : 'Caută…' %>"
-        aria-label="Căutare"
-      />
+      <input class="dg-search"
+             type="search"
+             inputmode="search"
+             autocomplete="off"
+             spellcheck="false"
+             placeholder="<%= (typeof searchPlaceholder !== 'undefined' && searchPlaceholder) ? searchPlaceholder : 'Caută…' %>"
+             aria-label="Căutare" />
     </div>
   </div>
 
   <div class="dg-scroll">
     <table class="dg-table">
       <colgroup>
+        <% if (typeof selectable !== 'undefined' && selectable) { %>
+          <col class="dg-col dg-col-select">
+        <% } %>
         <% (columns || []).forEach(function(c){ %>
           <col class="dg-col dg-col-<%= c.key %>">
         <% }) %>
       </colgroup>
+
       <thead>
         <tr>
+          <% if (typeof selectable !== 'undefined' && selectable) { %>
+            <th class="col-select">
+              <label class="dg-check" title="Selectează toate">
+                <input type="checkbox" class="dg-check-all">
+                <span class="box"></span>
+                <span class="vh">Selectează toate</span>
+              </label>
+            </th>
+          <% } %>
+
           <% (columns || []).forEach(function(c){ %>
-            <th
-              class="col-<%= c.key %>"
-              data-key="<%= c.key %>"
-              <% if (c.sortable) { %> data-sortable="true" <% } %>
-            >
+            <th class="col-<%= c.key %>" data-key="<%= c.key %>" <% if (c.sortable) { %> data-sortable="true" <% } %>>
               <div class="th-inner">
                 <span class="th-label"><%= c.label %></span>
                 <% if (c.sortable) { %>
@@ -45,29 +56,43 @@
           <% }) %>
         </tr>
       </thead>
-      <tbody class="dg-body">
-        <!-- rândurile se vor randă din JS -->
-      </tbody>
+
+      <tbody class="dg-body"><!-- rows from JS --></tbody>
     </table>
   </div>
 
+<div class="dg-footer">
+  <% if (typeof selectable !== 'undefined' && selectable) { %>
+    <div class="dg-bulk">
+      <input type="date" class="dg-bulk-date" aria-label="Data borderou">
+      <button type="button" class="btn-mini outline dg-bulk-btn" disabled>Generează XML</button>
+    </div>
+  <% } else { %>
+    <div class="dg-spacer"></div>
+  <% } %>
+
   <div class="dg-pager">
-  <button type="button" class="btn-mini outline dg-prev">« Înapoi</button>
-  <span class="dg-pages">—</span>
-  <button type="button" class="btn-mini outline dg-next">Înainte »</button>
+    <button type="button" class="btn-mini outline dg-prev">« Înapoi</button>
+    <span class="dg-pages">—</span>
+    <button type="button" class="btn-mini outline dg-next">Înainte »</button>
+  </div>
+
+  <div class="dg-spacer"></div>
 </div>
 
 
-  <!-- Config JSON cu fallback-uri SAFE -->
+  <!-- Config JSON -->
   <script type="application/json" class="dg-config">
     <%- JSON.stringify({
       gridId:   (typeof gridId   !== 'undefined' ? gridId   : (typeof grid_id !== 'undefined' ? grid_id : '')),
       endpoint: (typeof endpoint !== 'undefined' ? endpoint : ''),
+      endpointSearch: (typeof endpointSearch !== 'undefined' ? endpointSearch : null),
       pageSize: (typeof pageSize !== 'undefined' ? pageSize : 10),
       columns:  (typeof columns  !== 'undefined' ? columns  : []),
       api:      (typeof api      !== 'undefined' ? api      : {}),
       response: (typeof response !== 'undefined' ? response : {}),
-      auth:     (typeof auth     !== 'undefined' ? auth     : null)
+      auth:     (typeof auth     !== 'undefined' ? auth     : null),
+      selectable: !!(typeof selectable !== 'undefined' && selectable)
     }) %>
   </script>
 </section>

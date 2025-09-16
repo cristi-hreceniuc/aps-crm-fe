@@ -4,12 +4,12 @@
       <img src="/img/aps-logo.png" alt="Acțiune pentru Sănătate" />
     </a>
     <div class="nav-links">
-      <a href="/">Home</a>
+      <a href="/">Acasă</a>
       <% if (!isLogged) { %>
-        <a href="/login">Login</a>
+        <a href="/login">Autentifică-te</a>
       <% } else { %>
         <form action="/logout" method="post" style="display:inline">
-          <button class="btn btn-danger" type="submit">Logout</button>
+          <button class="btn btn-danger" type="submit">Deconectează-te</button>
         </form>
       <% } %>
     </div>

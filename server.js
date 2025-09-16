@@ -154,7 +154,7 @@ app.get('/',           (req, res) => res.render('home',      { title: 'Direcțio
 app.get('/voluntari',  (req, res) => res.render('voluntari', { title: 'Voluntari', heading: 'Voluntari' }));
 app.get('/d177', (req, res) => {res.render('d177', { title: 'Declarația 177', heading: 'Declarația 177' });});
 app.get('/sponsorizare',   (req, res) => res.render('sponsorizare',      { title: 'Contract sponsorizare',  heading: 'Contract sponsorizare'  }));
-app.get('/rapoarte',   (req, res) => res.render('stub',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
+app.get('/rapoarte',   (req, res) => res.render('rapoarte',      { title: 'Rapoarte',  heading: 'Rapoarte'  }));
 app.get('/setari',     (req, res) => res.render('setari',      { title: 'Setări',    heading: 'Setări'    }));
 app.get('/offline-payments',  (req, res) => res.render('offline-payments', { title: 'Plati offline' }));
 app.get('/f230', requireAuth, (req,res)=> res.render('f230', { title: 'Formular 230 – Formulare' }));
@@ -200,7 +200,6 @@ app.get('/api/iban/search',    proxyGet('/iban/search'));
 
 app.get('/api/kpi',    proxyGet('/kpi'));
 app.get('/api/offline-payments',    proxyGet('/offline-payments'));
-
 /* === Proxy către BE (cu Bearer) === */
 
 const proxyDelete = (targetPathBuilder) => async (req, res) => {
@@ -216,6 +215,54 @@ const proxyDelete = (targetPathBuilder) => async (req, res) => {
     res.status(s).json(err.response?.data || { message:'Upstream error' });
   }
 };
+
+// Generate XML borderou (F230)
+app.post('/api/f230/borderou', requireAuth, async (req, res) => {
+  try {
+    const { token } = req.session;
+    const { data, headers, status } = await api.post('/f230/borderou', req.body, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        'Accept': 'application/xml'
+      },
+      responseType: 'arraybuffer'  // pentru a forward-a fișierul
+    });
+    res.set('Content-Type', headers['content-type'] || 'application/xml');
+    if (headers['content-disposition']) res.set('Content-Disposition', headers['content-disposition']);
+    res.status(status || 200).send(data);
+  } catch (e) {
+    const s = e.response?.status || 500;
+    res.status(s).json({ message: e.response?.data?.message || e.message });
+  }
+});
+
+
+app.get('/api/reports/export', async (req, res) => {
+  if (!req.session?.token) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+  try {
+    const { dataset } = req.query;
+    const response = await api.get(`/reports/export`, {
+      params: { dataset },
+      headers: { Authorization: `Bearer ${req.session.token}` },
+      responseType: 'arraybuffer'   // <-- important
+    });
+
+    res.setHeader('Content-Disposition', `attachment; filename="${dataset}.csv"`);
+    res.setHeader(
+      'Content-Type',
+      'text/csv; charset=UTF-8'
+    );
+
+    res.send(Buffer.from(response.data));   // trimite binar, nu .json()
+  } catch (err) {
+    console.error('Export proxy error:', err.message);
+    res.status(err.response?.status || 500)
+       .json(err.response?.data || { message: 'Upstream error at export' });
+  }
+});
+
 
 const proxyPut = (pathBuilder) => async (req, res) => {
   if (!req.session?.token) return res.status(401).json({ message: 'Not authenticated' });
@@ -323,6 +370,9 @@ app.put('/api/sponsorizare/:id/flags', proxyPut(req => `/sponsorizare/${req.para
 app.put('/api/iban/:id', proxyPut(req => `/iban/${req.params.id}`));
 app.put('/api/offline-payments/:id/status', proxyPut(req => `/offline-payments/${req.params.id}/status`));
 app.post('/api/iban', proxyPost('/iban'));
+
+app.post('/api/f230/borderou', proxyPost('/f230/borderou'));
+
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {

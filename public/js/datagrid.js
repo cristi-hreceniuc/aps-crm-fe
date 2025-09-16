@@ -30,26 +30,38 @@
       const cfgEl = $('.dg-config', section);
       this.cfg = cfgEl ? JSON.parse(cfgEl.textContent || '{}') : {};
 
-      this.gridId   = this.cfg.gridId || this.el.getAttribute('data-grid-id') || '';
+      this.gridId   = (this.cfg.gridId || this.el.getAttribute('data-grid-id') || '').toLowerCase();
       this.tbody    = $('.dg-body', section);
       this.thead    = $('thead', section);
       this.table    = $('.dg-table', section);
       this.colgroup = $('colgroup', section);
+
       this.prevBtn  = $('.dg-prev', section);
       this.nextBtn  = $('.dg-next', section);
       this.pagesEl  = $('.dg-pages', section);
       this.searchEl = $('.dg-search', section);
 
+      // footer / bulk
+      this.footer   = $('.dg-footer', section) || section;
+      this.bulkBox  = $('.dg-bulk', section);
+      this.bulkDate = $('.dg-bulk-date', section);
+      this.bulkBtn  = $('.dg-bulk-btn', section);
+      this.footer   = this.el.querySelector('.dg-footer');
+      this.bulkWrap = this.el.querySelector('.dg-bulk');
+
+
       const size = Number(this.cfg.pageSize || 10);
       const firstSorted = (this.cfg.columns || []).find(c => c.defaultSort);
 
       this.state = {
-        page: 0,
-        size,
+        page: 0, size,
         sortKey: firstSorted ? firstSorted.key : null,
         sortDir: firstSorted ? (firstSorted.dir || 'asc') : 'asc',
         q: ''
       };
+
+      // selecții
+      this.selected = new Set();
 
       this._toggles = {};
       this._actionsBound = false;
@@ -59,6 +71,23 @@
 
       window.addEventListener('resize', debounce(()=> this._autosizeColumns(), 150));
       this._setupObservers();
+
+      // data implicită în bulk (astăzi) – doar pe f230
+      // data implicită în bulk (astăzi) – doar pe f230
+if (this.gridId === 'f230' && this.bulkDate && !this.bulkDate.value) {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  if (this.bulkDate.type === 'date') {
+    // pentru <input type="date">
+    this.bulkDate.value = `${yyyy}-${mm}-${dd}`;
+  } else {
+    // pentru input text
+    this.bulkDate.value = `${dd}.${mm}.${yyyy}`;
+  }
+}
+
     }
 
     /* endpoint normal vs. endpointSearch când există q */
@@ -75,6 +104,7 @@
     }
 
     _bind(){
+      // sortare
       if (this.thead){
         this.thead.addEventListener('click', (e)=>{
           const th = e.target.closest('th[data-sortable]');
@@ -89,8 +119,17 @@
           this.state.page = 0;
           this.fetch();
         });
+
+        // select-all (dacă avem col select)
+        this.thead.addEventListener('change', (e)=>{
+          const t = e.target;
+          if (!t.classList.contains('dg-check-all')) return;
+          const checked = !!t.checked;
+          this._setAllSelection(checked);
+        });
       }
 
+      // pager
       if (this.prevBtn) this.prevBtn.addEventListener('click', (e)=>{
         e.preventDefault();
         if (this.prevBtn.disabled) return;
@@ -102,9 +141,9 @@
         this.goto(this.state.page + 1);
       });
 
+      // căutare
       if (this.searchEl){
         this.searchEl.addEventListener('keydown', (e)=> { e.stopPropagation(); }, true);
-
         this.searchEl.addEventListener('keyup', debounce(()=>{
           const v = this.searchEl.value;
           if (v === this.state.q) return;
@@ -112,10 +151,86 @@
           this.state.page = 0;
           this.fetch();
         }, 500));
+        this.searchEl.addEventListener('focus', ()=> { try { this.searchEl.select(); } catch {} });
+      }
 
-        this.searchEl.addEventListener('focus', ()=> {
-          try { this.searchEl.select(); } catch {}
+      // bulk – generează XML (doar pe f230)
+      if (this.bulkBtn){
+        this.bulkBtn.addEventListener('click', async ()=>{
+          if (this.bulkBtn.disabled) return;
+          if (this.gridId !== 'f230') return;
+
+          const ids  = Array.from(this.selected);
+          const date = (this.bulkDate && this.bulkDate.value) || '';
+
+          try{
+            const res = await fetch('/api/f230/borderou', {
+              method:'POST',
+              headers: {
+                'Content-Type':'application/json',
+                'Accept':'application/octet-stream,application/xml,application/json'
+              },
+              credentials:'same-origin',
+              body: JSON.stringify({ ids, date })
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+
+            // încercăm să luăm id-ul borderoului din header sau json pt nume fișier
+            let borderouId = res.headers.get('X-Borderou-Id') || res.headers.get('X-APS-Borderou');
+
+            const ct = (res.headers.get('content-type') || '').toLowerCase();
+            if (ct.includes('application/json')) {
+              const data = await res.json();
+              if (!borderouId) borderouId = data.borderouId || data.id;
+              if (data.url) {
+                window.open(data.url, '_blank', 'noopener');
+              } else if (data.filename && data.xml) {
+                const blob = new Blob([data.xml], { type:'application/xml' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = data.filename;
+                a.click();
+                setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+              }
+            } else {
+              const blob = await res.blob();
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              const ymd = (date || new Date().toISOString().slice(0,10)).replace(/[^0-9]/g,'');
+              const fname = borderouId ? `borderou_${borderouId}.xml` : `borderou_${ymd}.xml`;
+              a.download = fname;
+              a.click();
+              setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+            }
+
+            // după generare: debifează tot + reîncarcă pagina curentă
+            this._clearSelection();
+            await this.fetch();
+          } catch(err){
+            console.error(err);
+            alert('Nu am putut genera XML.');
+          }
         });
+      }
+
+      // selectare pe rânduri (change pe tbody)
+      if (this.tbody){
+        this.tbody.addEventListener('change', (e)=>{
+          const t = e.target;
+          if (!t.classList.contains('dg-row-check')) return;
+          const id = t.getAttribute('data-id');
+          const checked = !!t.checked;
+          this._toggleSelection(id, checked);
+
+          // actualizează select-all din header
+          const allCb = this.thead?.querySelector('.dg-check-all');
+          if (allCb) {
+            const pageCbs = $$('.dg-row-check', this.tbody);
+            const allChecked = pageCbs.length && pageCbs.every(x=> x.checked);
+            allCb.indeterminate = !allChecked && pageCbs.some(x=> x.checked);
+            allCb.checked = allChecked;
+          }
+        }, { passive:false });
       }
     }
 
@@ -159,7 +274,7 @@
       } catch(err){
         console.error('DataGrid fetch error:', err);
         if (this.tbody)
-          this.tbody.innerHTML = `<tr><td colspan="${(this.cfg.columns||[]).length}" class="muted" style="text-align:center;padding:22px">Eroare la încărcare.</td></tr>`;
+          this.tbody.innerHTML = `<tr><td colspan="${(this.cfg.columns||[]).length + (this.cfg.selectable?1:0)}" class="muted" style="text-align:center;padding:22px">Eroare la încărcare.</td></tr>`;
         if (this.pagesEl) this.pagesEl.textContent = '—';
         if (this.prevBtn) this.prevBtn.disabled = true;
         if (this.nextBtn) this.nextBtn.disabled = true;
@@ -176,6 +291,13 @@
       const col = (this.cfg.columns || []).find(c => c.key === uiKey);
       return (col && col.sortKey) ? col.sortKey : uiKey;
     }
+
+    _updateFooterVisibility(){
+  if (!this.footer) return;
+  // afișează bulk (fără a mișca pagerul) doar dacă există selecții
+  const hasSel = this.selected && this.selected.size > 0;
+  this.footer.classList.toggle('has-bulk', !!hasSel);
+}
 
     _consumeResponse(data){
       const resp = this.cfg.response || {};
@@ -216,12 +338,25 @@
 
     _renderRows(items){
       const cols = this.cfg.columns || [];
-      if(!items.length){
-        this.tbody.innerHTML = `<tr><td colspan="${cols.length}" class="muted" style="text-align:center;padding:22px">Nicio înregistrare.</td></tr>`;
+      if (!items.length){
+        const colspan = cols.length + (this.cfg.selectable ? 1 : 0);
+        this.tbody.innerHTML = `<tr><td colspan="${colspan}" class="muted" style="text-align:center;padding:22px">Nicio înregistrare.</td></tr>`;
+        this._updateBulkBtn(); // ascunde butonul dacă e cazul
         return;
       }
 
       const html = items.map(row=>{
+        const id = row.id != null ? String(row.id) : '';
+        const selectCell = this.cfg.selectable ? `
+          <td class="col-select">
+            <label class="dg-check">
+              <input type="checkbox" class="dg-row-check" data-id="${escapeAttr(id)}" ${this.selected.has(id) ? 'checked' : ''}>
+              <span class="box"></span>
+              <span class="vh">Selectează</span>
+            </label>
+          </td>
+        ` : '';
+
         const tds = cols.map(c=>{
           let raw = row[c.key];
           let innerHTML = '';
@@ -247,78 +382,64 @@
             `;
             titleStr = checked ? 'da' : 'nu';
           } else if (c.type === 'actions') {
-  const gid = (this.gridId || '').toLowerCase();
-  const viewUrl = row.detail || row.link || row.adminEdit || '';
-  const docUrl  = row.docUrl || row.documentUrl || row.pdfUrl || '';
-  const nameForConfirm = row.name || row.companyName || row.title || '';
+            const gid = (this.gridId || '');
+            const viewUrl = row.detail || row.link || row.adminEdit || '';
+            const docUrl  = row.docUrl || row.documentUrl || row.pdfUrl || '';
+            const nameForConfirm = row.name || row.companyName || row.title || '';
 
-  switch (gid) {
-    case 'voluntari':
-      innerHTML = `
-        <div class="dg-actions">
-          <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
-                  ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}><span class="ico">👁️</span></button>
-          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
-        </div>`;
-      break;
+            switch (gid) {
+              case 'voluntari':
+                innerHTML = `
+                  <div class="dg-actions">
+                    <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
+                            ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}><span class="ico">👁️</span></button>
+                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+                  </div>`;
+                break;
 
-    case 'd177':
-    case 'sponsorizare':
-      innerHTML = `
-        <div class="dg-actions">
-          <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
-                  ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
-          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
-        </div>`;
-      break;
+              case 'd177':
+              case 'sponsorizare':
+                innerHTML = `
+                  <div class="dg-actions">
+                    <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
+                            ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
+                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+                  </div>`;
+                break;
 
-    case 'f230':
-      innerHTML = `
-        <div class="dg-actions">
-          <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
-                  ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}><span class="ico">👁️</span></button>
-          <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
-                  ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
-          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
-        </div>`;
-      break;
+              case 'f230':
+                innerHTML = `
+                  <div class="dg-actions">
+                    <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
+                            ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}><span class="ico">👁️</span></button>
+                    <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
+                            ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
+                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+                  </div>`;
+                break;
 
-    case 'iban':
-      innerHTML = `
-        <div class="dg-actions">
-          <button class="icon-btn btn-edit" title="Editează" data-id="${escapeAttr(row.id)}"
-                  data-name="${escapeAttr(row.name||'')}" data-iban="${escapeAttr(row.iban||'')}"><span class="ico">✎</span></button>
-          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
-        </div>`;
-      break;
+              case 'iban':
+                innerHTML = `
+                  <div class="dg-actions">
+                    <button class="icon-btn btn-edit" title="Editează" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(row.name||'')}" data-iban="${escapeAttr(row.iban||'')}"><span class="ico">✎</span></button>
+                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+                  </div>`;
+                break;
 
-    case 'offline':
-  if ((row.status || '') === 'Plătit online') {
-    innerHTML = `<div class="dg-actions muted">—</div>`; // nimic, doar un dash
-  } else {
-    innerHTML = `
-      <div class="dg-actions">
-        <button class="icon-btn btn-approve" title="Acceptă" data-id="${escapeAttr(row.id)}"><span class="ico">✔️</span></button>
-        <button class="icon-btn btn-reject" title="Respinge" data-id="${escapeAttr(row.id)}"><span class="ico">🚫</span></button>
-        <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"><span class="ico">✖</span></button>
-      </div>`;
-  }
-  break;
-
-    default:
-      innerHTML = `
-        <div class="dg-actions">
-          <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                  data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
-        </div>`;
-  }
-
-  titleStr = '';
-} else {
+              default:
+                innerHTML = `
+                  <div class="dg-actions">
+                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+                  </div>`;
+            }
+            titleStr = '';
+          } else {
             if (raw == null) raw = '';
             if (Array.isArray(raw)) raw = raw.join(', ');
             const s = String(raw);
@@ -327,18 +448,18 @@
           }
 
           const clampClass = c.clamp ? ` dg-clamp dg-clamp-${c.clamp}` : '';
-          const val = (c.type === 'link')
-            ? innerHTML
-            : `<span class="dg-val${clampClass}">${innerHTML}</span>`;
-
+          const val = (c.type === 'link') ? innerHTML : `<span class="dg-val${clampClass}">${innerHTML}</span>`;
           return `<td class="col-${escapeAttr(c.key)}" data-label="${escapeAttr(c.label)}" title="${escapeAttr(titleStr)}">${val}</td>`;
         }).join('');
-        return `<tr>${tds}</tr>`;
+
+        const selClass = this.selected.has(id) ? ' dg-selected' : '';
+        return `<tr class="${selClass}">${selectCell}${tds}</tr>`;
       }).join('');
 
       this.tbody.innerHTML = html;
       this._bindRowActions();
       this._bindToggles();
+      this._updateBulkBtn();
     }
 
     _renderPager(){
@@ -389,50 +510,7 @@
           } catch(err){ alert('Nu am putut salva.'); }
           return;
         }
-        if (delBtn){
-          const id   = delBtn.getAttribute('data-id');
-          const name = delBtn.getAttribute('data-name') || `#${id}`;
-          if (!confirm(`Ștergi înregistrarea ${name}?`)) return;
-          try{
-            const epRaw = (this.cfg.endpoint || '/api');
-            const base  = epRaw.replace(/\/search(?:\?.*)?$/,'').replace(/\/+$/,'');
-            const url   = `${base}/${encodeURIComponent(id)}`;
-            const res   = await fetch(url, { method: 'DELETE', credentials:'same-origin' });
-            if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
-            this.fetch();
-          } catch(err){
-            console.error('DELETE error', err);
-            alert('Nu am putut șterge.');
-          }
-        }
-      
-        const approveBtn = e.target.closest('.btn-approve');
-const rejectBtn  = e.target.closest('.btn-reject');
-
-if (approveBtn){
-  const id = approveBtn.getAttribute('data-id');
-  await fetch('/api/offline-payments/' + id + '/status', {
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    credentials:'same-origin',
-    body: JSON.stringify({ status:'approved' })
-  });
-  this.fetch();
-  return;
-}
-if (rejectBtn){
-  const id = rejectBtn.getAttribute('data-id');
-  await fetch('/api/offline-payments/' + id + '/status', {
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    credentials:'same-origin',
-    body: JSON.stringify({ status:'rejected' })
-  });
-  this.fetch();
-  return;
-}
       });
-
     }
 
     _bindToggles(){
@@ -445,11 +523,10 @@ if (rejectBtn){
         const val = !!t.checked;
         this._toggles[stateKey] = val;
 
-        const grid = (this.gridId || '').toLowerCase();
-        if (grid === 'd177' || grid === 'sponsorizare' || grid === 'f230'){
+        if (['d177','sponsorizare','f230'].includes(this.gridId)){
           try{
             const body = JSON.stringify({ [key]: val });
-            const url  = `/api/${grid}/${encodeURIComponent(id)}/flags`;
+            const url  = `/api/${this.gridId}/${encodeURIComponent(id)}/flags`;
             const res  = await fetch(url, {
               method: 'PUT',
               headers: { 'Content-Type':'application/json', 'Accept':'application/json' },
@@ -465,6 +542,47 @@ if (rejectBtn){
           }
         }
       }, { passive:false });
+    }
+
+    // -------- Selecții ----------
+    _toggleSelection(id, checked){
+      if (!id) return;
+      if (checked) this.selected.add(id); else this.selected.delete(id);
+      // marcare vizuală
+      const tr = this.tbody?.querySelector(`input.dg-row-check[data-id="${cssEsc(id)}"]`)?.closest('tr');
+      if (tr) tr.classList.toggle('dg-selected', checked);
+      this._updateBulkBtn();
+    }
+    _setAllSelection(checked){
+      const inputs = $$('.dg-row-check', this.tbody);
+      this.selected.clear();
+      inputs.forEach(inp => {
+        inp.checked = checked;
+        const id = inp.getAttribute('data-id');
+        if (checked && id) this.selected.add(id);
+        const tr = inp.closest('tr'); if (tr) tr.classList.toggle('dg-selected', checked);
+      });
+      this._updateBulkBtn();
+    }
+    _clearSelection(){
+      // debifează header
+      const headCb = this.thead?.querySelector('.dg-check-all');
+      if (headCb){ headCb.checked = false; headCb.indeterminate = false; }
+      // debifează rândurile
+      this.tbody?.querySelectorAll('.dg-row-check').forEach(cb=>{
+        cb.checked = false;
+        const tr = cb.closest('tr'); if (tr) tr.classList.remove('dg-selected');
+      });
+      // goleşte setul
+      this.selected.clear();
+      this._updateBulkBtn();
+      this._updateFooterVisibility();
+    }
+    _updateBulkBtn(){
+      if (!this.bulkBtn || !this.footer) return;
+      const hasSel = this.selected.size > 0;
+      this.bulkBtn.disabled = !hasSel;
+      this.footer.classList.toggle('has-bulk', hasSel);
     }
 
     _setupObservers(){
@@ -524,9 +642,19 @@ if (rejectBtn){
       const available = container.clientWidth || this.table.clientWidth || 0;
       const sum = widths.reduce((a,b)=> a+b, 0) || 1;
 
-      const cols = $$('.dg-col', this.colgroup);
-      cols.forEach((colEl, i)=>{
-        const px = Math.round(widths[i] * available / sum);
+      // + 1 col dacă avem select
+      const allCols = $$('.dg-col', this.colgroup);
+      const offset = this.cfg.selectable ? 1 : 0;
+
+      allCols.forEach((colEl, i)=>{
+        // dacă e prima coloană și avem selectable, lăsăm lățimea fixă mică
+        if (this.cfg.selectable && i === 0){
+          colEl.style.width = '56px';
+          return;
+        }
+        const dataIndex = i - offset;
+        if (dataIndex < 0) return;
+        const px = Math.round(widths[dataIndex] * available / sum);
         colEl.style.width = `${px}px`;
       });
     }

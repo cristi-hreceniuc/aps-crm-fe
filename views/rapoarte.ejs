@@ -1,0 +1,51 @@
+<%- include('partials/head', { title: 'Rapoarte' }) %>
+
+<div class="app">
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
+
+  <main class="content-shell">
+    <header class="content-header">
+      <h1>Rapoarte</h1>
+      <small class="muted">Exportă date din sistem</small>
+    </header>
+
+    <div class="card" style="max-width:500px;">
+      <form id="export-form" method="GET" action="/api/reports/export">
+        <label for="dataset">Selectează tabel:</label>
+        <select id="dataset" name="dataset" required>
+          <option value="">— alege —</option>
+          <option value="voluntari">Voluntari</option>
+          <option value="d177">Declarația 177</option>
+          <option value="sponsorizare">Contract sponsorizare</option>
+          <option value="f230">Formulare 230</option>
+          <option value="iban">IBAN Beneficiari</option>
+          <option value="cause">Cauze</option>
+        </select>
+
+        <button id="exportBtn" type="submit" class="btn-primary" style="margin-top:14px;">
+          📊 Exportă date
+        </button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+document.getElementById('exportBtn').addEventListener('click', async () => {
+  const dataset = document.getElementById('datasetSelect').value; // dropdown-ul tău
+  const res = await fetch(`/api/reports/export?dataset=${dataset}`);
+  const blob = await res.blob();
+
+  // creează link temporar
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${dataset}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+});
+</script>
+
+<%- include('partials/footer') %>
