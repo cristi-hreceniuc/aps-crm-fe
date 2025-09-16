@@ -523,6 +523,48 @@ if (this.gridId === 'f230' && this.bulkDate && !this.bulkDate.value) {
           } catch(err){ alert('Nu am putut salva.'); }
           return;
         }
+        if (delBtn){
+          const id   = delBtn.getAttribute('data-id');
+          const name = delBtn.getAttribute('data-name') || `#${id}`;
+          if (!confirm(`Ștergi înregistrarea ${name}?`)) return;
+          try{
+            const epRaw = (this.cfg.endpoint || '/api');
+            const base  = epRaw.replace(/\/search(?:\?.*)?$/,'').replace(/\/+$/,'');
+            const url   = `${base}/${encodeURIComponent(id)}`;
+            const res   = await fetch(url, { method: 'DELETE', credentials:'same-origin' });
+            if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+            this.fetch();
+          } catch(err){
+            console.error('DELETE error', err);
+            alert('Nu am putut șterge.');
+          }
+        }
+      
+        const approveBtn = e.target.closest('.btn-approve');
+const rejectBtn  = e.target.closest('.btn-reject');
+
+if (approveBtn){
+  const id = approveBtn.getAttribute('data-id');
+  await fetch('/api/offline-payments/' + id + '/status', {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({ status:'approved' })
+  });
+  this.fetch();
+  return;
+}
+if (rejectBtn){
+  const id = rejectBtn.getAttribute('data-id');
+  await fetch('/api/offline-payments/' + id + '/status', {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({ status:'rejected' })
+  });
+  this.fetch();
+  return;
+        }
       });
     }
 
