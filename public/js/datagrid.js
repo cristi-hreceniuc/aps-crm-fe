@@ -420,6 +420,19 @@ if (this.gridId === 'f230' && this.bulkDate && !this.bulkDate.value) {
                             data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
                   </div>`;
                 break;
+              
+                 case 'offline':
+                if ((row.status || '') === 'Plătit online') {
+                  innerHTML = `<div class="dg-actions muted">—</div>`;
+                } else {
+                  innerHTML = `
+                    <div class="dg-actions">
+                      <button class="icon-btn btn-approve" title="Acceptă" data-id="${escapeAttr(row.id)}"><span class="ico">✔️</span></button>
+                      <button class="icon-btn btn-reject"  title="Respinge" data-id="${escapeAttr(row.id)}"><span class="ico">🚫</span></button>
+                      <button class="icon-btn btn-del"     title="Șterge" data-id="${escapeAttr(row.id)}"><span class="ico">✖</span></button>
+                    </div>`;
+                }
+                break;
 
               case 'iban':
                 innerHTML = `
