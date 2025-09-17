@@ -418,20 +418,25 @@ th.col-select::before, th.col-select::after { content: none !important; }
 }
 
 /* ===== Setări XML ===== */
-.settings-list { display:grid; gap:12px; }
+.settings-list { display:block; }  /* doar un singur rând */
 .setting-row{
-  display:grid;
-  grid-template-columns: 240px 1fr auto auto;
+  display:flex;
   gap:10px;
   align-items:center;
   padding:12px;
   border:1px solid #f1f5f9;
   border-radius:12px;
 }
-.setting-row .name-select{ width:100%; }
-.setting-row .val-input{ width:100%; }
-.setting-row .btn{ padding:8px 12px; border-radius:10px; }
-
-.xml-settings {
-  margin-top: 20px;  /* sau cât spațiu vrei */
+.setting-row select,
+.setting-row input {
+  flex:1;       /* inputurile se întind */
+  min-width:120px;
+}
+.setting-row .btn {
+  padding:8px 12px;
+  border-radius:10px;
+  white-space:nowrap;
+}
+section.card {
+  margin-top: 20px;
 }

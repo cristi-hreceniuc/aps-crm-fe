@@ -53,10 +53,11 @@
         response: { items:'content', page:'number', size:'size', total:'totalElements' },
         columns: [
           { key:'id',            label:'ID',              sortable:true, type:'number' },
+          { key:'causeId',       label:'Cause ID',        sortable:true, type:'number' },
           { key:'bookingDate',   label:'Dată întocmire',  sortable:true, type:'date'   },
           { key:'causeTitle',    label:'Cauză',           sortable:true, clamp:2       },
           { key:'status',        label:'Status',          sortable:true                 },
-          { key:'amount',        label:'Sumă (RON)',            sortable:true, type:'number' },
+          { key:'amount',        label:'Sumă (RON)',      sortable:true, type:'number' },
           { key:'paymentDate',   label:'Dată plată',      sortable:true, type:'date'   },
           { key:'paymentMethod', label:'Metodă plată',    sortable:true                 },
           { key:'_actions', label:'Acțiuni', sortable:false, type:'actions' }
