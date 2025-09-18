@@ -88,8 +88,47 @@
         }
       }
       this.el._dgInstance = this;
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') this._closeModal();
+      });
 
     }
+
+    _esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    _fmtTxt(s) { const t = (s ?? '').trim(); return t ? this._esc(t) : '—'; }
+    _fmtMultiline(s) { const t = (s ?? '').trim(); return t ? this._esc(t).replace(/\n/g, '<br>') : '—'; }
+    _fmtDate(iso) {
+      if (!iso) return '—';
+      try { const d = new Date(iso); if (!isNaN(d)) return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; }
+      catch (e) { }
+      return this._esc(iso);
+    }
+
+    // pune asta în datagrid.js, în clasa DataGrid
+    _showModal(html) {
+      let root = document.getElementById('dg-modal-root');
+      if (!root) {
+        root = document.createElement('div');
+        root.id = 'dg-modal-root';
+        root.className = 'dg-modal-root';
+        document.body.appendChild(root);
+      }
+      // injectează ca HTML, nu text!
+      root.innerHTML = html;
+
+      const closeBtn = root.querySelector('.dg-modal-close');
+      const card = root.querySelector('.dg-modal-card');
+
+      const close = () => { root.innerHTML = ''; root.classList.remove('open'); };
+
+      root.classList.add('open');
+      root.addEventListener('click', (e) => { if (e.target === root) close(); });
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      // previne închiderea când dai click în card
+      if (card) card.addEventListener('click', e => e.stopPropagation());
+    }
+
+
 
     /* endpoint normal vs. endpointSearch când există q */
     _currentEndpointPath() {
@@ -399,18 +438,9 @@
                   </div>`;
                 break;
 
+              case 'f230':
               case 'd177':
               case 'sponsorizare':
-                innerHTML = `
-                  <div class="dg-actions">
-                    <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
-                            ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}><span class="ico">⬇️</span></button>
-                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                            data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
-                  </div>`;
-                break;
-
-              case 'f230':
                 innerHTML = `
                   <div class="dg-actions">
                     <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
@@ -497,21 +527,113 @@
         const editBtn = e.target.closest('.btn-edit');
 
         if (openBtn) {
-          const link = openBtn.getAttribute('data-link');
           const id = openBtn.getAttribute('data-id');
-          return link ? window.open(link, '_blank', 'noopener') : alert(`Nu există link pentru #${id}`);
+          const link = openBtn.getAttribute('data-link');
+
+          if (this.gridId === 'f230') {
+            this._openF230(id);
+            return;
+          }
+          if (this.gridId === 'sponsorizare') {
+            this._openSponsorizare(id);
+            return;
+          }
+          if (this.gridId === 'd177') {
+            this._openD177(id);
+            return;
+          }
+          if (this.gridId === 'voluntari') {
+            try {
+              const res = await fetch(`/api/voluntari/${encodeURIComponent(id)}`, {
+                headers: { 'Accept': 'application/json' },
+                credentials: 'same-origin'
+              });
+              const raw = await res.text();
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              if (!raw) throw new Error('empty body');
+              let data; try { data = JSON.parse(raw); } catch { throw new Error('bad json'); }
+
+              const esc = s => (s == null ? '' : String(s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#039;'));
+
+              const rows = (pairs) => pairs.map(([k, v]) => `
+      <div class="dg-row"><div class="k">${esc(k)}</div><div class="v">${v}</div></div>
+    `).join('');
+
+              const r = data || {};
+              const mail = r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : '';
+              const tel = r.phone ? `<a href="tel:${esc(r.phone)}">${esc(r.phone)}</a>` : '';
+
+              const bodyHtml = rows([
+                ['Nume', esc(r.lastName || r.nume || r.name || '')],
+                ['Prenume', esc(r.firstName || r.prenume || '')],
+                ['Dată înrolare', esc(r.date || '')],
+                ['Email', mail],
+                ['Telefon', tel],
+                ['Vârstă', esc(r.age ?? '')],
+                ['Ocupație', esc(r.ocupation || r.ocupatie || '')],
+                ['Domeniu', esc(r.domain || r.domeniu || '')],
+                ['Disponibilitate', esc(r.disponibility || r.disponibilitate || '')],
+                ['Motivație', esc(r.motivation || r.motivatie || '')],
+                ['Experiență', esc(r.experience || r.experienta || '')],
+                ['Acord GDPR', esc(r.gdpr ? 'Da' : (r.gdpr === 0 ? 'Nu' : (r.gdpr || '')))]
+              ]);
+
+              // ✅ apel corect: (titlu, html)
+              this._showModal(`Voluntar #${esc(id)}`, bodyHtml);
+              return;
+            } catch (err) {
+              console.error('voluntar details error:', err);
+              alert('Nu am putut încărca detaliile voluntarului.');
+              return;
+            }
+          }
         }
+
         if (pdfBtn) {
-          const link = pdfBtn.getAttribute('data-link');
           const id = pdfBtn.getAttribute('data-id');
-          return link ? window.open(link, '_blank', 'noopener') : alert(`Nu există document pentru #${id}`);
+
+          // pentru D177 folosim proxy-ul nostru -> blob download
+          if (this.gridId === 'd177') {
+            try {
+              const r = await fetch(`/api/d177/${encodeURIComponent(id)}/doc`, { credentials: 'same-origin' });
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              const blob = await r.blob();
+              const fname = r.headers.get('X-Filename') || `contract_${id}.doc`;
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = fname;
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+            } catch (e) {
+              console.error(e);
+              alert('Nu am putut descărca documentul.');
+            }
+            return; // IMPORTANT: nu mai continua la window.open
+          }
+
+          // fallback pentru alte grid-uri
+          const link = pdfBtn.getAttribute('data-link');
+          return link ? window.open(link.replace(/^http:/, 'https:'), '_blank', 'noopener')
+            : alert(`Nu există document pentru #${id}`);
         }
         if (editBtn) {
           const id = editBtn.getAttribute('data-id');
+
           const name = prompt('Nume beneficiar:', editBtn.getAttribute('data-name') || '');
           if (name === null) return;
-          const iban = prompt('IBAN:', editBtn.getAttribute('data-iban') || '');
+
+          let iban = prompt('IBAN:', editBtn.getAttribute('data-iban') || '');
           if (iban === null) return;
+
+          // ✅ validare IBAN
+          if (!isValidIban(iban)) {
+            alert('IBAN invalid. Verificați formatul (ex: RO...) și controlul mod 97.');
+            return;
+          }
+          iban = normalizeIban(iban);
+
           try {
             const res = await fetch(`/api/iban/${encodeURIComponent(id)}`, {
               method: 'PUT',
@@ -520,10 +642,14 @@
               body: JSON.stringify({ name, iban })
             });
             if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
-            this.fetch();
-          } catch (err) { alert('Nu am putut salva.'); }
+            this.fetch(); // reîncarcă grila
+          } catch (err) {
+            console.error(err);
+            alert('Nu am putut salva.');
+          }
           return;
         }
+
         if (delBtn) {
           const id = delBtn.getAttribute('data-id');
           const name = delBtn.getAttribute('data-name') || `#${id}`;
@@ -602,6 +728,158 @@
         }
       }, { passive: false });
     }
+
+    /* === Helpers pentru modal și escape === */
+    _ensureModalCss() {
+      if (this._modalCssInjected) return;
+      const css = `
+  .dg-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999;}
+  .dg-modal{background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:980px;width:calc(100vw - 48px);max-height:85vh;overflow:auto}
+  .dg-modal .dg-modal-hd{padding:16px 18px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;background:#fff;z-index:1}
+  .dg-modal .dg-modal-hd h3{margin:0;font-size:18px}
+  .dg-modal .dg-modal-bd{padding:16px 18px}
+  .dg-modal .close{border:none;background:transparent;font-size:22px;line-height:1;cursor:pointer}
+  .dg-kv{display:grid;grid-template-columns:220px 1fr;gap:8px 14px;margin:6px 0}
+  .dg-kv .k{color:#6b7280}
+  .dg-imgs{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+  .dg-imgs img{max-height:90px;border-radius:8px;border:1px solid #eee;display:block}
+  .dg-card{border:1px solid #eee;border-radius:12px;padding:12px 14px;margin:10px 0}
+  .dg-card h4{margin:0 0 8px 0;font-size:15px}
+  `;
+      const style = document.createElement('style');
+      style.textContent = css;
+      document.head.appendChild(style);
+      this._modalCssInjected = true;
+    }
+    _openModal(title, html) {
+      this._ensureModalCss();
+      const wrap = document.createElement('div');
+      wrap.className = 'dg-modal-backdrop';
+      wrap.innerHTML = `
+    <div class="dg-modal" role="dialog" aria-modal="true">
+      <div class="dg-modal-hd">
+        <h3>${escapeHtml(title || 'Detalii')}</h3>
+        <button class="close" aria-label="Închide">×</button>
+      </div>
+      <div class="dg-modal-bd">${html || ''}</div>
+    </div>`;
+      const kill = () => wrap.remove();
+      wrap.addEventListener('click', e => { if (e.target === wrap) kill(); });
+      wrap.querySelector('.close').addEventListener('click', kill);
+      document.body.appendChild(wrap);
+    }
+    _fmtMoney(x) {
+      if (x == null) return '';
+      const n = Number(String(x).replace(/[^\d.-]/g, ''));
+      if (isNaN(n)) return String(x);
+      return n.toLocaleString('ro-RO');
+    }
+    /* === View details for D177 === */
+    async _viewD177(id) {
+      try {
+        const res = await fetch(`/api/formulare/d177/${encodeURIComponent(id)}`, {
+          headers: { 'Accept': 'application/json' },
+          credentials: 'same-origin'
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const d = await res.json();
+
+        // câmpuri așteptate de la BE (nume sugestive):
+        // d.firma { denumire,cui,regcom,adresa,judet,oras }
+        // d.coresp { adresa,judet,oras }
+        // d.reprez { nume,prenume,email,tel,pozitie }
+        // d.contract { data, suma }
+        // d.emailTo, d.docHtml, d.docUrl, d.sigUrl, d.docId, d.sigId, d.emailSent
+
+        // extragem imagini din docHtml (inclusiv base64)
+        const imgs = [];
+        if (d.docHtml) {
+          const rx = /<img[^>]+src=["']([^"']+)["']/gi;
+          let m; while ((m = rx.exec(d.docHtml))) { imgs.push(m[1]); }
+        }
+        if (d.sigUrl) imgs.push(d.sigUrl); // dacă BE îți dă separat
+
+        const imgHtml = imgs.length ? (
+          `<div class="dg-card">
+         <h4>Imagini / semnături</h4>
+         <div class="dg-imgs">
+           ${imgs.map(src => {
+            const esc = escapeAttr(src);
+            return `<a href="${esc}" target="_blank" rel="noopener">
+                       <img src="${esc}" alt="">
+                     </a>`;
+          }).join('')}
+         </div>
+       </div>`
+        ) : '';
+
+        const firma = d.firma || {};
+        const coresp = d.coresp || {};
+        const rep = d.reprez || {};
+        const contract = d.contract || {};
+
+        const html = `
+      <div class="dg-card">
+        <h4>Firma (Sponsor)</h4>
+        <div class="dg-kv">
+          <div class="k">Denumire</div><div>${escapeHtml(firma.denumire || '')}</div>
+          <div class="k">CUI</div><div>${escapeHtml(firma.cui || '')}</div>
+          <div class="k">Reg. Com.</div><div>${escapeHtml(firma.regcom || '')}</div>
+          <div class="k">Adresă</div><div>${escapeHtml(firma.adresa || '')}</div>
+          <div class="k">Județ</div><div>${escapeHtml(firma.judet || '')}</div>
+          <div class="k">Oraș</div><div>${escapeHtml(firma.oras || '')}</div>
+        </div>
+      </div>
+
+      <div class="dg-card">
+        <h4>Adresă corespondență</h4>
+        <div class="dg-kv">
+          <div class="k">Adresă</div><div>${escapeHtml(coresp.adresa || '')}</div>
+          <div class="k">Județ</div><div>${escapeHtml(coresp.judet || '')}</div>
+          <div class="k">Oraș</div><div>${escapeHtml(coresp.oras || '')}</div>
+        </div>
+      </div>
+
+      <div class="dg-card">
+        <h4>Reprezentant</h4>
+        <div class="dg-kv">
+          <div class="k">Nume</div><div>${escapeHtml(rep.nume || '')}</div>
+          <div class="k">Prenume</div><div>${escapeHtml(rep.prenume || '')}</div>
+          <div class="k">Email</div><div>${escapeHtml(rep.email || '')}</div>
+          <div class="k">Telefon</div><div>${escapeHtml(rep.tel || '')}</div>
+          <div class="k">Poziție</div><div>${escapeHtml(rep.pozitie || '')}</div>
+        </div>
+      </div>
+
+      <div class="dg-card">
+        <h4>Contract</h4>
+        <div class="dg-kv">
+          <div class="k">Data</div><div>${escapeHtml(contract.data || '')}</div>
+          <div class="k">Sumă</div><div>${this._fmtMoney(contract.suma || '')}</div>
+        </div>
+      </div>
+
+      <div class="dg-card">
+        <h4>Alte detalii</h4>
+        <div class="dg-kv">
+          <div class="k">Email către</div><div>${escapeHtml(d.emailTo || '')}</div>
+          <div class="k">Doc ID</div><div>${escapeHtml(String(d.docId || ''))}</div>
+          <div class="k">Semnătură ID</div><div>${escapeHtml(String(d.sigId || ''))}</div>
+          <div class="k">Email trimis</div><div>${d.emailSent ? 'Da' : 'Nu'}</div>
+          ${d.docUrl ? `<div class="k">Document</div><div><a href="${escapeAttr(d.docUrl)}" target="_blank" rel="noopener">Deschide</a></div>` : ''}
+        </div>
+      </div>
+
+      ${imgHtml}
+    `;
+
+        this._openModal(`Declarația 177 – #${id}`, html);
+      } catch (err) {
+        console.error(err);
+        alert('Nu am putut încărca detaliile.');
+      }
+    }
+
 
     // -------- Selecții ----------
     _toggleSelection(id, checked) {
@@ -717,8 +995,276 @@
         colEl.style.width = `${px}px`;
       });
     }
+
+    _ensureModalShell() {
+      if (!document.getElementById('dg-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'dg-overlay';
+        overlay.addEventListener('click', () => this._closeModal());
+        document.body.appendChild(overlay);
+      }
+      if (!document.getElementById('dg-modal')) {
+        const modal = document.createElement('div');
+        modal.id = 'dg-modal';
+        modal.innerHTML = `
+      <div class="dg-modal-head">
+        <div class="dg-modal-title"></div>
+        <button class="dg-modal-close" aria-label="Închide">×</button>
+      </div>
+      <div class="dg-modal-body"></div>
+    `;
+        modal.querySelector('.dg-modal-close').addEventListener('click', () => this._closeModal());
+        document.body.appendChild(modal);
+      }
+    }
+
+    _showModal(title, html) {
+      this._ensureModalShell();
+      const o = document.getElementById('dg-overlay');
+      const m = document.getElementById('dg-modal');
+
+      m.querySelector('.dg-modal-title').textContent = title || '';
+      m.querySelector('.dg-modal-body').innerHTML = html || '';
+
+      // compensează lățimea scrollbar-ului -> fără „zoom/salt”
+      const sbw = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.setProperty('--sbw', `${sbw}px`);
+      document.body.classList.add('dg-modal-open');
+
+      o.classList.add('is-open');
+      m.classList.add('is-open');
+    }
+
+    _closeModal() {
+      const o = document.getElementById('dg-overlay');
+      const m = document.getElementById('dg-modal');
+      if (o) o.classList.remove('is-open');
+      if (m) m.classList.remove('is-open');
+      document.body.classList.remove('dg-modal-open');
+      document.body.style.removeProperty('--sbw');
+    }
+
+    async _openVolunteer(id) {
+      try {
+        const r = await fetch(`/api/voluntari/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const v = await r.json();
+
+        const row = (k, val) => `
+      <div class="dg-row">
+        <div class="k">${k}</div>
+        <div class="v">${val ?? '—'}</div>
+      </div>`;
+
+        const html = `
+  <div class="dg-modal-backdrop"></div>
+  <div class="dg-modal">
+    <div class="dg-modal-card">
+      <div class="dg-modal-head">
+        <h3>Voluntar #${escapeHtml(id)}</h3>
+        <button class="dg-modal-close" aria-label="Închide">×</button>
+      </div>
+      <div class="dg-modal-body">
+        ${rowsHtml}   <!-- AICI folosește escapeHtml DOAR pe valori, nu pe tot stringul -->
+      </div>
+      <div class="dg-modal-foot">
+        <button class="btn-mini outline dg-modal-close">Închide</button>
+      </div>
+    </div>
+  </div>
+`;
+
+        this._showModal(html);
+      } catch (err) {
+        console.error(err);
+        alert('Nu am putut încărca detaliile voluntarului.');
+      }
+    }
+
+    async _openSponsorizare(id) {
+      try {
+        const res = await fetch(`/api/sponsorizare/${encodeURIComponent(id)}`, {
+          headers: { 'Accept': 'application/json' },
+          credentials: 'same-origin'
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const d = await res.json();
+
+        const esc = s => (s == null ? '' : String(s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#039;'));
+        const nz = v => (v && String(v).trim()) ? esc(v) : '—';
+
+        const firmaHtml = `
+      <div class="dg-card">
+        <h4>Firmă (Sponsor)</h4>
+        <div class="dg-kv">
+          <div class="k">Denumire</div><div>${nz(d.companyName)}</div>
+          <div class="k">CUI</div><div>${nz(d.fiscalCode)}</div>
+          <div class="k">Reg. Comerț</div><div>${nz(d.companyRegCom)}</div>
+          <div class="k">Adresă</div><div>${nz(d.companyAddress)}</div>
+          <div class="k">Județ</div><div>${nz(d.companyCounty)}</div>
+          <div class="k">Oraș</div><div>${nz(d.companyCity)}</div>
+        </div>
+      </div>`;
+
+        const repHtml = `
+      <div class="dg-card">
+        <h4>Reprezentant</h4>
+        <div class="dg-kv">
+          <div class="k">Nume</div><div>${[d.repLastName, d.repFirstName].filter(Boolean).map(esc).join(' ') || '—'}</div>
+          <div class="k">Poziție</div><div>${nz(d.repRole)}</div>
+          <div class="k">Email</div><div>${d.email ? `<a href="mailto:${esc(d.email)}">${esc(d.email)}</a>` : '—'}</div>
+          <div class="k">Telefon</div><div>${d.phone ? `<a href="tel:${esc(d.phone)}">${esc(d.phone)}</a>` : '—'}</div>
+        </div>
+      </div>`;
+
+        const corespHtml = `
+      <div class="dg-card">
+        <h4>Corespondență</h4>
+        <div class="dg-kv">
+          <div class="k">Adresă</div><div>${nz(d.corrAddress)}</div>
+          <div class="k">Județ</div><div>${nz(d.corrCounty)}</div>
+          <div class="k">Oraș</div><div>${nz(d.corrCity)}</div>
+        </div>
+      </div>`;
+
+        const bancaContractHtml = `
+      <div class="dg-card">
+        <h4>Bancă & Contract</h4>
+        <div class="dg-kv">
+          <div class="k">Banca</div><div>${nz(d.bankName)}</div>
+          <div class="k">IBAN</div><div><span class="mono">${nz(d.iban)}</span></div>
+          <div class="k">Sumă</div><div>${d.amount ? `${this._fmtMoney(d.amount)} RON` : '—'}</div>
+          <div class="k">Data</div><div>${nz(d.contractDate)}</div>
+        </div>
+      </div>`;
+
+        // DOAR documentul – fără JSON, fără semnătură
+        const linksHtml = `
+      <div class="dg-card">
+        <h4>Fișier</h4>
+        <div class="dg-kv">
+          <div class="k">Document</div>
+          <div>${d.docUrl ? `<a href="${esc(d.docUrl)}" target="_blank" rel="noopener">Descarcă</a>` : '—'}</div>
+        </div>
+      </div>`;
+
+        const html = firmaHtml + repHtml + corespHtml + bancaContractHtml + linksHtml;
+        this._showModal(`Sponsorizare — #${esc(id)}`, html);
+      } catch (err) {
+        console.error(err);
+        alert('Nu am putut încărca detaliile sponsorizării.');
+      }
+    }
+
+
+    async _openF230(id) {
+      try {
+        const res = await fetch(`/api/f230/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const d = await res.json();
+
+        const fullName = [d.firstName, d.lastName].filter(Boolean).join(' ');
+        const twoYears = (d.distrib2 || '') === '1';
+        const acord = (d.acordEmail || '') === '1';
+        const address = [
+          [d.street, d.number].filter(Boolean).join(' '),
+          ['Bl.', d.block].filter(Boolean).join(' '),
+          ['Sc.', d.staircase].filter(Boolean).join(' '),
+          ['Et.', d.floor].filter(Boolean).join(' '),
+          ['Ap.', d.apartment].filter(Boolean).join(' ')
+        ].filter(s => s && /\S/.test(s)).join(', ');
+        const locality = [d.city, d.county, d.postalCode].filter(Boolean).join(', ');
+
+        const body = `
+      <dl class="dg-kv">
+        <dt>An fiscal</dt><dd>${d.year || ''}</dd>
+        <dt>Trimis pe</dt><dd>${(d.postDateIso || '').replace('T', ' ')}</dd>
+        <dt>Perioadă</dt><dd>${twoYears ? '2 ani' : '1 an'}</dd>
+        <dt>Nume</dt><dd>${fullName || ''}</dd>
+        <dt>Inițială</dt><dd>${d.initiala || ''}</dd>
+        <dt>CNP</dt><dd>${d.cnp || ''}</dd>
+        <dt>Adresă</dt><dd>${address || ''}</dd>
+        <dt>Localitate</dt><dd>${locality || ''}</dd>
+        <dt>Telefon</dt><dd>${d.phone || ''}</dd>
+        <dt>Fax</dt><dd>${d.fax || ''}</dd>
+        <dt>Email</dt><dd>${d.email || ''}</dd>
+        <dt>IBAN</dt><dd>${d.iban || ''}</dd>
+        <dt>Acord date identificare</dt><dd>${acord ? 'Da' : 'Nu'}</dd>
+        <dt>Nr. borderou</dt><dd>${d.nrBorderou ?? ''}</dd>
+      </dl>
+      ${d.pdfUrl ? `<div class="dg-modal-actions"><a class="btn btn-mini outline" href="${esc(d.pdfUrl)}" target="_blank" rel="noopener">Descarcă PDF</a></div>` : ''}
+    `;
+
+        this._showModal(`${fullName || '(fără nume)'} — #${id}`, body);
+      } catch (e) {
+        console.error(e);
+        alert('Nu pot încărca detaliile.');
+      }
+    }
+
+
+    async _openD177(id) {
+      try {
+        const res = await fetch(`/api/d177/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+
+        const f = data.firma || {};
+        const co = data.corespondenta || {};
+        const r = data.reprezentant || {};
+        const ct = data.contract || {};
+
+        const body = `
+      <div class="dg-meta">
+        <div class="k">Firmă</div><div><strong>${esc(f.denumire || data.title || '—')}</strong></div>
+        <div class="k">CUI</div><div>${esc(f.cui || '—')}</div>
+        <div class="k">Reg. Com.</div><div>${esc(f.regcom || '—')}</div>
+        <div class="k">Adresă</div><div>${esc(f.adresa || '—')}</div>
+        <div class="k">Județ / Oraș</div><div>${esc(f.judet || '—')} / ${esc(f.oras || '—')}</div>
+
+        <div class="k">Corespondență</div><div>${esc(co.adresa || '—')} ${esc(co.judet || '')} ${esc(co.oras || '')}</div>
+
+        <div class="k">Reprezentant</div><div>${esc(r.nume || '')} ${esc(r.prenume || '')}</div>
+        <div class="k">Email</div><div>${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : '—'}</div>
+        <div class="k">Telefon</div><div>${r.tel ? `<a href="tel:${esc(r.tel)}">${esc(r.tel)}</a>` : '—'}</div>
+        <div class="k">Funcție</div><div>${esc(r.pozitie || '—')}</div>
+
+        <div class="k">Contract</div><div>Data: ${esc(ct.data || '—')} • Sumă: ${esc(ct.suma || '—')} RON</div>
+
+        <div class="k">Document</div><div>${data.docUrl ? `<a href="${esc(data.docUrl)}" target="_blank" rel="noopener">Descarcă</a>` : '—'}</div>
+        <div class="k">Semnătură</div><div>${data.sigUrl ? `<a href="${esc(data.sigUrl)}" target="_blank" rel="noopener"><img class="dg-sign" src="${esc(data.sigUrl)}" alt="Semnătură"></a>` : '—'}</div>
+      </div>
+      ${data.docHtml ? `<details style="margin-top:12px;"><summary>Vezi HTML contract</summary><div style="margin-top:10px;border:1px solid #eee;border-radius:10px;padding:12px;max-height:55vh;overflow:auto;">${data.docHtml}</div></details>` : ''}
+    `;
+        this._showModal(`Detalii 177 — #${id}`, body);
+        const b = document.getElementById(`dg-doc-btn-${id}`);
+        if (b) {
+          b.addEventListener('click', async () => {
+            try {
+              const r = await fetch(`/api/d177/${encodeURIComponent(id)}/doc`, { credentials: 'same-origin' });
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              const blob = await r.blob();
+              const fname = r.headers.get('X-Filename') || `contract_${id}.doc`;
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = fname;
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+            } catch (e) { alert('Nu am putut descărca documentul.'); }
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Nu am putut încărca detaliile.');
+      }
+    }
+
+
   }
 
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
 
 
   window.addEventListener('DOMContentLoaded', () => {

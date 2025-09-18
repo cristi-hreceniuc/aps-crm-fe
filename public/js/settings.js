@@ -51,7 +51,7 @@
     const btnReset = document.createElement('button');
     btnReset.type = 'button';
     btnReset.className = 'btn btn-mini outline';
-    btnReset.textContent = 'Reset la default';
+    btnReset.textContent = 'Reseteaza';
 
     // adăugăm în linie
     row.appendChild(selectKey);

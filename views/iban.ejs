@@ -13,7 +13,7 @@
     <%- include('partials/datagrid', {
       gridId: 'iban',
       title: 'Beneficiari (IBAN)',
-      subtitle: 'wp_posts: post_type = iban_beneficiar',
+      subtitle: 'Lista cu IBAN-urile beneficiarilor',
       searchPlaceholder: 'Caută după nume, IBAN sau id…',
       endpoint: '/api/iban',
       endpointSearch: '/api/iban/search',
@@ -33,12 +33,57 @@
 <%- include('partials/footer') %>
 
 <script>
+// ---------- IBAN helpers ----------
+function normalizeIban(s){ return (s||'').replace(/\s+/g,'').toUpperCase(); }
+
+function ibanMod97(iban){
+  // calculează restul mod 97 conform standardului
+  const rearr = iban.slice(4) + iban.slice(0,4);
+  // expandăm literele în cifre (A=10 ... Z=35)
+  let expanded = '';
+  for (const ch of rearr){
+    if (ch >= 'A' && ch <= 'Z') expanded += (ch.charCodeAt(0) - 55).toString();
+    else expanded += ch;
+  }
+  // mod 97 pe șirul numeric mare
+  let rem = 0;
+  for (let i = 0; i < expanded.length; i++){
+    rem = (rem * 10 + (expanded.charCodeAt(i) - 48)) % 97;
+  }
+  return rem;
+}
+
+function isValidIban(iban){
+  const x = normalizeIban(iban);
+  // format general
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(x)) return false;
+  // (opțional) lungime per țară – pentru RO impunem 24
+  const lengths = { RO: 24 };
+  const L = lengths[x.slice(0,2)];
+  if (L && x.length !== L) return false;
+  // mod 97 = 1
+  return ibanMod97(x) === 1;
+}
+// -----------------------------------
+</script>
+
+
+<script>
 document.getElementById("addIbanBtn").addEventListener("click", async () => {
   const name = prompt("Introduceți numele beneficiarului:");
   if (!name) return;
 
-  const iban = prompt("Introduceți IBAN-ul beneficiarului:");
-  if (!iban) return;
+  let iban = prompt("Introduceți IBAN-ul beneficiarului:");
+  if (iban == null) return; // cancel
+
+  // ✅ validare înainte de POST
+  if (!isValidIban(iban)) {
+    alert("IBAN invalid. Verificați și reîncercați (ex: RO.. cu mod 97 corect).");
+    return;
+  }
+
+  // (opțional) normalizează la uppercase fără spații
+  iban = normalizeIban(iban);
 
   try {
     const res = await fetch("/api/iban", {
@@ -51,7 +96,8 @@ document.getElementById("addIbanBtn").addEventListener("click", async () => {
       alert("IBAN adăugat cu succes!");
       location.reload();
     } else {
-      alert("Eroare la adăugare IBAN!");
+      const msg = (await res.json()).message || "Eroare la adăugare IBAN!";
+      alert(msg);
     }
   } catch (err) {
     console.error(err);
@@ -59,3 +105,54 @@ document.getElementById("addIbanBtn").addEventListener("click", async () => {
   }
 });
 </script>
+
+
+<script>
+function normalizeIban(s) {
+  return (s || '').replace(/\s+/g, '').toUpperCase();
+}
+
+function ibanMod97(iban) {
+  // calculează mod 97 incremental (fără BigInt)
+  const s = iban.slice(4) + iban.slice(0, 4);
+  let remainder = 0;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    const val = (ch >= 'A' && ch <= 'Z') ? (ch.charCodeAt(0) - 55) : Number(ch);
+    // concatenează cifrele, dar păstrează numărul mic făcând mod la fiecare pas
+    remainder = Number(String(remainder) + String(val)) % 97;
+  }
+  return remainder;
+}
+
+function isValidIban(iban) {
+  const x = normalizeIban(iban);
+  // format IBAN generic: 2 litere (țară), 2 cifre (check), 11-30 alfanumerice
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(x)) return false;
+
+  // (opțional) verificare de lungime pe țări comune
+  const lengths = {
+    RO:24, DE:22, ES:24, FR:27, IT:27, NL:18, GB:22, BE:16, AT:20, BG:22, CY:28,
+    CZ:24, DK:18, EE:20, FI:18, GR:27, HR:21, HU:28, IE:22, LT:20, LU:20, LV:21,
+    MT:31, PL:28, PT:25, SE:24, SI:19, SK:24
+  };
+  const L = lengths[x.slice(0,2)];
+  if (L && x.length !== L) return false;
+
+  // regulă IBAN: mod 97 trebuie să fie 1
+  return ibanMod97(x) === 1;
+}
+
+// variantă strictă pentru România (dacă vrei)
+function isValidIbanRO(iban) {
+  const x = normalizeIban(iban);
+  if (!/^RO\d{2}[A-Z]{4}[A-Z0-9]{16}$/.test(x)) return false; // RO + 2 cifre + 4 litere bancă + 16 alfanum
+  return ibanMod97(x) === 1;
+}
+
+// (opțional) pentru afișare frumos în UI
+function prettyIban(iban) {
+  return normalizeIban(iban).replace(/(.{4})/g, '$1 ').trim();
+}
+</script>
+
