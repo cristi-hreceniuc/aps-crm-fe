@@ -537,6 +537,71 @@ app.put('/api/iban/:id', ensureAuth, async (req, res) => {
   }
 });
 
+app.get('/aplicatie-logopedica', (req,res)=> {
+  res.render('logopedie', { title: 'Aplicație Logopedică', heading: 'Aplicație Logopedică' });
+});
+
+// LIST / SEARCH
+app.get('/api/logopedie/users', async (req,res)=>{
+  if (!req.session?.token) return res.status(401).json({ message:'Not authenticated' });
+  try {
+    const { data, status } = await api.get('/users/search', {
+      headers: { Authorization: `Bearer ${req.session.token}` },
+      params: req.query
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message:'Upstream error' });
+  }
+});
+
+// UPDATE STATUS
+app.put('/api/logopedie/users/:id/status', ensureAuth, async (req,res)=>{
+  try{
+    const { token } = req.session;
+    const { id } = req.params;
+    const { status } = req.body || {};
+    if (!['PENDING','ACTIVE','INACTIVE'].includes(String(status || '').toUpperCase()))
+      return res.status(400).json({ message:'Status invalid' });
+
+    const { status:code } = await api.put(`/users/${encodeURIComponent(id)}/status`,
+      { status: String(status).toUpperCase() },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    res.status(code).end();
+  }catch(err){
+    res.status(err.response?.status||500).json(err.response?.data||{message:'Upstream error'});
+  }
+});
+
+// TOGGLE PREMIUM
+app.put('/api/logopedie/users/:id/premium', ensureAuth, async (req,res)=>{
+  try{
+    const { token } = req.session;
+    const { id } = req.params;
+    const premium = !!req.body?.premium;
+    const { status:code } = await api.put(`/users/${encodeURIComponent(id)}/premium`,
+      { premium }, { headers: { Authorization: `Bearer ${token}` } });
+    res.status(code).end();
+  }catch(err){
+    res.status(err.response?.status||500).json(err.response?.data||{message:'Upstream error'});
+  }
+});
+
+// DELETE
+app.delete('/api/logopedie/users/:id', ensureAuth, async (req,res)=>{
+  try{
+    const { token } = req.session;
+    const { id } = req.params;
+    const { status:code } = await api.delete(`/users/${encodeURIComponent(id)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(code).end();
+  }catch(err){
+    res.status(err.response?.status||500).json(err.response?.data||{message:'Upstream error'});
+  }
+});
 
 
 /* ------------------------- 404 handler ------------------------- */

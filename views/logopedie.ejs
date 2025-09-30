@@ -1,0 +1,46 @@
+<%- include('partials/head', { title: 'Aplicație Logopedică' }) %>
+<div class="app">
+  <%- include('partials/sidenav', { path, isLogged, user }) %>
+
+  <main class="content-shell">
+    <header class="content-header">
+      <div>
+        <h1>Aplicație Logopedică</h1>
+        <small class="muted">Administrare</small>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <a class="tab tab-active" data-tab="users">Utilizatori</a>
+      <!-- vei adăuga alte tab-uri ulterior -->
+    </div>
+
+    <section id="tab-users">
+      <%- include('partials/datagrid', {
+        gridId: 'log-users',
+        title: 'Utilizatori',
+        subtitle: 'Gestionare conturi logopedie',
+        searchPlaceholder: 'Caută după nume, email sau telefon…',
+        endpoint: '/api/logopedie/users',         // list/search unificat
+        endpointSearch: '/api/logopedie/users',   // datagrid trimite ?q=
+        pageSize: 10,
+        api: { pageParam:'page', sizeParam:'size', sortParam:'sort', sortValue:'{key},{dir}', pageBase:0, searchParam:'q' },
+        response: { items:'content', page:'number', size:'size', total:'totalElements' },
+        columns: [
+          { key:'firstName',        label:'Nume',          sortable:true, sortKey:'firstName' },
+          { key:'lastName',      label:'Prenume',        sortable:true, sortKey:'lastName' },
+          { key:'email',     label:'Email',       sortable:true, sortKey:'email', clamp:1 },
+          { key:'createdAt', label:'Creat la',    sortable:true, sortKey:'createdAt', type:'date' },
+          { key:'updatedAt', label:'Actualizat la',    sortable:true, sortKey:'updatedAt', type:'date' },
+          { key:'gender', label:'Gen',    sortable:true, sortKey:'gender' },
+          { key:'status',    label:'Status',      sortable:true, sortKey:'status' },
+          { key:'role',    label:'Rol',      sortable:true, sortKey:'role' },
+          { key:'isPremium', label:'Premium',     sortable:true, sortKey:'isPremium', type:'bool' },
+          { key:'actions',   label:'Acțiuni',     type:'actions' }
+        ],
+        autosize: { minPx: 90, maxPx: 320 }
+      }) %>
+    </section>
+  </main>
+</div>
+<%- include('partials/footer') %>

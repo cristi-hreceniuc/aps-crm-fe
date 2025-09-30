@@ -1,80 +1,85 @@
 <!-- views/partials/sidenav.ejs -->
-<%
-  const u = user || {};
-  const displayName = (u.name || u.fullName || 'Utilizator');
-  const emailSafe   = (u.email || '').trim();
-  const initial     = (displayName?.[0] || emailSafe?.[0] || 'U').toUpperCase();
-%>
+<% const u=user || {}; const displayName=(u.name || u.fullName || 'Utilizator' ); const emailSafe=(u.email || ''
+  ).trim(); const initial=(displayName?.[0] || emailSafe?.[0] || 'U' ).toUpperCase(); %>
 
 
-<aside class="sidenav" aria-label="Meniu principal">
-  <div class="nav-header">
-    <a href="/" class="brand" title="Acțiune pentru Sănătate">
-      <!-- logo din /public/img/ -->
-      <img class="brand-logo" src="/img/aps-logo.png" alt="APS CRM" />
-      <span class="brand-text" aria-hidden="true">APS CRM</span>
-    </a>
-  </div>
-
-  <nav class="nav-list">
-    <a href="/"          class="nav-link <%= path === '/' ? 'active' : '' %>"          title="Acasă">
-      <span class="nav-ico">🏠</span><span class="nav-text">Acasă</span>
-    </a>
-    <a href="/voluntari" class="nav-link <%= path === '/voluntari' ? 'active' : '' %>" title="Voluntari">
-      <span class="nav-ico">🤝</span><span class="nav-text">Voluntari</span>
-    </a>
-    <a href="/d177" class="nav-link <%= path === '/d177' ? 'active' : '' %>" title="Declarația 177">
-      <span class="nav-ico">📄</span><span class="nav-text">Declarația 177</span>
-    </a>
-    <a href="/sponsorizare"   class="nav-link <%= path === '/sponsorizare' ? 'active' : '' %>"   title="Contract sponsorizare">
-      <span class="nav-ico">💝</span><span class="nav-text">Contract sponsorizare</span>
-    </a>
-    <div class="nav-group <%= path.startsWith('/f230') || path.startsWith('/iban-beneficiari') ? 'open' : '' %>">
-  <a href="#" class="nav-link nav-parent" title="Formular 230">
-    <span class="nav-ico">🧾</span><span class="nav-text">Formular 230</span>
-    <span class="caret">▾</span>
-  </a>
-  <div class="nav-children">
-    <a href="/f230" class="nav-link <%= path.startsWith('/f230') ? 'active' : '' %>">
-      <span class="nav-ico">📄</span><span class="nav-text">Formulare</span>
-    </a>
-    <a href="/iban-beneficiari" class="nav-link <%= path.startsWith('/iban-beneficiari') ? 'active' : '' %>">
-      <span class="nav-ico">🏦</span><span class="nav-text">IBAN Beneficiari</span>
-    </a>
-  </div>
-</div>
-    <a href="/cause" class="nav-link <%= path === '/cause' ? 'active' : '' %>" title="Cauze">
-  <span class="nav-ico">📋</span><span class="nav-text">Cauze</span>
-</a>
-
-    <a href="/rapoarte"  class="nav-link <%= path === '/rapoarte' ? 'active' : '' %>"  title="Rapoarte">
-      <span class="nav-ico">📊</span><span class="nav-text">Rapoarte</span>
-    </a>
-    <a href="/setari"    class="nav-link <%= path === '/setari' ? 'active' : '' %>"    title="Setări">
-      <span class="nav-ico">⚙️</span><span class="nav-text">Setări</span>
-    </a>
-  </nav>
-
-  <!-- Footer cu utilizatorul -->
-  <div class="nav-footer">
-  <div class="user-block" title="<%= displayName %>">
-    <div class="avatar"><%= initial %></div>
-    <div class="user-text">
-      <div class="user-name"><%= displayName %></div>
-      <% if (emailSafe) { %>
-        <div class="user-email"><%= emailSafe %></div>
-      <% } %>
+  <aside class="sidenav" aria-label="Meniu principal">
+    <div class="nav-header">
+      <a href="/" class="brand" title="Acțiune pentru Sănătate">
+        <!-- logo din /public/img/ -->
+        <img class="brand-logo" src="/img/aps-logo.png" alt="APS CRM" />
+        <span class="brand-text" aria-hidden="true">APS CRM</span>
+      </a>
     </div>
-  </div>
-  <form method="post" action="/logout" class="logout-form">
-    <button class="btn-mini outline logout-btn" type="submit">Logout</button>
-  </form>
-</div>
 
-</aside>
+    <nav class="nav-list">
+      <a href="/" class="nav-link <%= path === '/' ? 'active' : '' %>" title="Acasă">
+        <span class="nav-ico">🏠</span><span class="nav-text">Acasă</span>
+      </a>
+      <a href="/voluntari" class="nav-link <%= path === '/voluntari' ? 'active' : '' %>" title="Voluntari">
+        <span class="nav-ico">🤝</span><span class="nav-text">Voluntari</span>
+      </a>
+      <a href="/d177" class="nav-link <%= path === '/d177' ? 'active' : '' %>" title="Declarația 177">
+        <span class="nav-ico">📄</span><span class="nav-text">Declarația 177</span>
+      </a>
+      <a href="/sponsorizare" class="nav-link <%= path === '/sponsorizare' ? 'active' : '' %>"
+        title="Contract sponsorizare">
+        <span class="nav-ico">💝</span><span class="nav-text">Contract sponsorizare</span>
+      </a>
+      <div class="nav-group <%= path.startsWith('/f230') || path.startsWith('/iban-beneficiari') ? 'open' : '' %>">
+        <a href="#" class="nav-link nav-parent" title="Formular 230">
+          <span class="nav-ico">🧾</span><span class="nav-text">Formular 230</span>
+          <span class="caret">▾</span>
+        </a>
+        <div class="nav-children">
+          <a href="/f230" class="nav-link <%= path.startsWith('/f230') ? 'active' : '' %>">
+            <span class="nav-ico">📄</span><span class="nav-text">Formulare</span>
+          </a>
+          <a href="/iban-beneficiari" class="nav-link <%= path.startsWith('/iban-beneficiari') ? 'active' : '' %>">
+            <span class="nav-ico">🏦</span><span class="nav-text">IBAN Beneficiari</span>
+          </a>
+        </div>
+      </div>
+      <a href="/cause" class="nav-link <%= path === '/cause' ? 'active' : '' %>" title="Cauze">
+        <span class="nav-ico">📋</span><span class="nav-text">Cauze</span>
+      </a>
+      <a href="/rapoarte" class="nav-link <%= path === '/rapoarte' ? 'active' : '' %>" title="Rapoarte">
+        <span class="nav-ico">📊</span><span class="nav-text">Rapoarte</span>
+      </a>
+      <a href="/aplicatie-logopedica" class="nav-link <%= path === '/aplicatie-logopedica' ? 'active' : '' %>" title="Aplicatie logopedica">
+        <span class="nav-ico">📱</span><span class="nav-text">Aplicatie logopedica</span>
+      </a>
+      <a href="/setari" class="nav-link <%= path === '/setari' ? 'active' : '' %>" title="Setări">
+        <span class="nav-ico">⚙️</span><span class="nav-text">Setări</span>
+      </a>
+    </nav>
 
-<!-- Mobil: buton hamburger + scrim overlay (globale pe toate paginile) -->
-<button class="nav-toggle" aria-label="Deschide meniul" hidden>
-  <span class="bar"></span>
-</button>
-<div class="nav-scrim" hidden></div>
+    <!-- Footer cu utilizatorul -->
+    <div class="nav-footer">
+      <div class="user-block" title="<%= displayName %>">
+        <div class="avatar">
+          <%= initial %>
+        </div>
+        <div class="user-text">
+          <div class="user-name">
+            <%= displayName %>
+          </div>
+          <% if (emailSafe) { %>
+            <div class="user-email">
+              <%= emailSafe %>
+            </div>
+            <% } %>
+        </div>
+      </div>
+      <form method="post" action="/logout" class="logout-form">
+        <button class="btn-mini outline logout-btn" type="submit">Logout</button>
+      </form>
+    </div>
+
+  </aside>
+
+  <!-- Mobil: buton hamburger + scrim overlay (globale pe toate paginile) -->
+  <button class="nav-toggle" aria-label="Deschide meniul" hidden>
+    <span class="bar"></span>
+  </button>
+  <div class="nav-scrim" hidden></div>

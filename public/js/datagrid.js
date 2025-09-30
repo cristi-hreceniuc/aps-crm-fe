@@ -452,6 +452,16 @@
                   </div>`;
                 break;
 
+              case 'log-users':
+                innerHTML = `
+                  <div class="dg-actions">
+                    <button class="icon-btn btn-approve" title="Activează" data-id="${escapeAttr(row.id)}"><span class="ico">✔️</span></button>
+                    <button class="icon-btn btn-reject"  title="Dezactivează" data-id="${escapeAttr(row.id)}"><span class="ico">🚫</span></button>
+                    <button class="icon-btn btn-del"     title="Șterge" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(nameForConfirm)}"><span class="ico">✖</span></button>
+                  </div>`;
+                break;
+
               case 'offline':
                 if ((row.status || '') === 'Plătit online') {
                   innerHTML = `<div class="dg-actions muted">—</div>`;
@@ -673,28 +683,51 @@
 
         if (approveBtn) {
           const id = approveBtn.getAttribute('data-id');
-          await fetch('/api/offline-payments/' + id + '/status', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({ status: 'approved' })
-          });
+          if (this.gridId === 'log-users') {
+            // ✅ logopedie: activează user-ul
+            await fetch(`/api/logopedie/users/${encodeURIComponent(id)}/status`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ status: 'ACTIVE' })
+            });
+          } else {
+            // (comportamentul vechi pentru offline etc.)
+            await fetch(`/api/offline-payments/${encodeURIComponent(id)}/status`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ status: 'approved' })
+            });
+          }
           this.fetch();
-          window.refreshGrid('cause');
+          window.refreshGrid('this.gridId');
           return;
         }
+
         if (rejectBtn) {
           const id = rejectBtn.getAttribute('data-id');
-          await fetch('/api/offline-payments/' + id + '/status', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({ status: 'rejected' })
-          });
+          if (this.gridId === 'log-users') {
+            // ✅ logopedie: dezactivează user-ul
+            await fetch(`/api/logopedie/users/${encodeURIComponent(id)}/status`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ status: 'INACTIVE' })
+            });
+          } else {
+            await fetch(`/api/offline-payments/${encodeURIComponent(id)}/status`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ status: 'rejected' })
+            });
+          }
           this.fetch();
-          window.refreshGrid('cause');
+          window.refreshGrid(this.gridId);
           return;
         }
+
       });
     }
 
@@ -726,6 +759,26 @@
             alert('Nu am putut salva setarea.');
           }
         }
+        if (this.gridId === 'log-users') {
+          try {
+          // mapăm numele câmpului pentru BE (isPremium -> premium)
+          const beKey = (key === 'isPremium') ? 'premium' : key;
+
+          const res = await fetch(`/api/logopedie/users/${encodeURIComponent(id)}/premium`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ [beKey]: val }) // <-- premium: true/false
+          });
+          if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+        } catch (err) {
+          console.error('Persist toggle failed', err);
+          t.checked = !val;
+          this._toggles[stateKey] = !val;
+          alert('Nu am putut salva setarea.');
+        }
+        return;
+}
       }, { passive: false });
     }
 
@@ -1260,7 +1313,6 @@
         alert('Nu am putut încărca detaliile.');
       }
     }
-
 
   }
 
