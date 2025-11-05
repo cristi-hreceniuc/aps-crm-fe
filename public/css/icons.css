@@ -1,0 +1,117 @@
+/* ========= Premium SVG Icons ========= */
+.icon-svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+}
+
+/* Icon sizes */
+.icon-svg.icon-xs { width: 0.875rem; height: 0.875rem; }
+.icon-svg.icon-sm { width: 1rem; height: 1rem; }
+.icon-svg.icon-md { width: 1.25rem; height: 1.25rem; }
+.icon-svg.icon-lg { width: 1.5rem; height: 1.5rem; }
+.icon-svg.icon-xl { width: 2rem; height: 2rem; }
+
+/* Navigation icons in sidebar */
+.nav-ico .icon-svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: inherit;
+}
+
+/* Action buttons in datagrid */
+.dg-actions .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dg-actions .icon-btn:hover {
+  background: #f3f4f6;
+  color: var(--brand, #ef4444);
+}
+
+.dg-actions .icon-btn .icon-svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.dg-actions .icon-btn.btn-open:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.dg-actions .icon-btn.btn-edit:hover {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.dg-actions .icon-btn.btn-del:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.dg-actions .icon-btn.btn-approve:hover {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.dg-actions .icon-btn.btn-reject:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.dg-actions .icon-btn.btn-pdf:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* Sort icon in datagrid */
+.dg-sort .icon-svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-left: 0.5rem;
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+.dg-sort:hover .icon-svg {
+  opacity: 1;
+}
+
+/* Pagination icons */
+.dg-prev .icon-svg,
+.dg-next .icon-svg {
+  width: 1rem;
+  height: 1rem;
+  margin: 0 0.25rem;
+}
+
+/* Remove old emoji styling */
+.nav-ico,
+.dg-actions .icon-btn .ico {
+  font-size: 0;
+  line-height: 0;
+}
+
+/* Ensure icon container is flex */
+.nav-ico,
+.dg-actions .icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
