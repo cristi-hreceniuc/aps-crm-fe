@@ -66,6 +66,12 @@
   gap: 6px;
 }
 
+.btn-primary .icon-svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
 .btn-primary:hover {
   background: linear-gradient(90deg, #f87171, #ef4444);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);

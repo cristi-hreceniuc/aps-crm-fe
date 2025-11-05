@@ -31,22 +31,29 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border: none;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  background: transparent;
+  background: #fff;
   color: var(--muted, #6b7280);
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .dg-actions .icon-btn:hover {
-  background: #f3f4f6;
+  background: #f9fafb;
+  border-color: #d1d5db;
   color: var(--brand, #ef4444);
 }
 
 .dg-actions .icon-btn .icon-svg {
   width: 1.125rem;
   height: 1.125rem;
+  display: block;
+}
+
+.dg-actions .icon-btn .ico {
+  display: none;
 }
 
 .dg-actions .icon-btn.btn-open:hover {
@@ -105,6 +112,7 @@
 .dg-actions .icon-btn .ico {
   font-size: 0;
   line-height: 0;
+  display: none;
 }
 
 /* Ensure icon container is flex */
@@ -113,5 +121,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Button icons */
+.btn .icon-svg,
+.btn-outline .icon-svg,
+.btn-primary .icon-svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.btn-primary .icon-svg {
+  color: currentColor;
 }
 

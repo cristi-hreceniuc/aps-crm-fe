@@ -362,11 +362,14 @@
 /* Acțiuni */
 .dg-table .dg-actions{ display:flex; align-items:center; gap:8px; justify-content:center; }
 .icon-btn{
-  width:30px; height:30px; border-radius:8px; border:1px solid #e5e7eb;
-  background:#fff; display:grid; place-items:center; cursor:pointer;
+  width:32px; height:32px; border-radius:8px; border:1px solid #e5e7eb;
+  background:#fff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+  flex-shrink: 0;
+  padding: 0;
 }
 .icon-btn:hover{ background:#f9fafb; border-color:#d1d5db; }
-.icon-btn .ico{ font-size:14px; line-height:1; }
+.icon-btn .ico{ font-size:0; line-height:0; display:none; }
+.icon-btn .icon-svg{ width:1.125rem; height:1.125rem; display:block; }
 
 /* === Patch pentru search bar === */
 .dg-right .dg-search {
