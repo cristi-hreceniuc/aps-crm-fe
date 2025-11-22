@@ -13,6 +13,6 @@
 
 /* App shell with left sidebar */
 .app{min-height:100vh}
-.content-shell{ margin-left:var(--sidebar-w); padding:24px 28px 40px }
+.content-shell{ margin-left:var(--sidebar-w); padding:24px 28px 40px; min-width:0; overflow-x:hidden; }
 .content-header{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:18px }
 

@@ -8,14 +8,34 @@
 }
 .dg-right .dg-search:focus{ border-color:#d1d5db; box-shadow:0 0 0 4px #f3f4f6; }
 
-.dg-scroll{ overflow:auto; background:#f8fafc; border-radius:14px; }
+.dg-scroll{ 
+  overflow-x: hidden;
+  overflow-y: auto;
+  background:#f8fafc; 
+  border-radius:14px; 
+  border:1px solid #e5e7eb;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
+  -webkit-overflow-scrolling: touch;
+}
 .dg-table{
-  width:100%; border-collapse:separate; border-spacing:0 8px; table-layout:fixed;
+  width:100%; 
+  border-collapse:separate; 
+  border-spacing:0 6px; 
+  table-layout:fixed;
 }
 
 /* Header */
 .dg-table thead th{
-  position:sticky; top:0; z-index:2; background:#fff; padding:12px 14px; border-bottom:1px solid #e5e7eb; text-align:left;
+  position:sticky; 
+  top:0; 
+  z-index:2; 
+  background:#fff; 
+  padding:12px 10px; 
+  border-bottom:2px solid #e5e7eb; 
+  text-align:left;
+  vertical-align:middle;
+  font-weight:600;
+  color:#374151;
 }
 .dg-table thead th .th-inner{ display:flex; align-items:center; gap:8px; }
 .dg-table thead th .th-label {
@@ -38,12 +58,34 @@
 .dg-table thead th.sort-desc::after{ content:" ▼"; font-size:11px; }
 
 /* Rânduri + celule */
-.dg-table th, .dg-table td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.dg-table tbody tr{ background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04); }
-.dg-table tbody td{ padding:12px 14px; border-bottom:none; }
+.dg-table th, .dg-table td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle; }
+.dg-table tbody tr{ 
+  background:#fff; 
+  box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04); 
+  transition:box-shadow .15s ease, transform .1s ease;
+  border:1px solid transparent;
+}
+.dg-table tbody td{ 
+  padding:12px 10px; 
+  border-bottom:none; 
+  vertical-align:middle;
+  color:#374151;
+}
 .dg-table tbody tr td:first-child{ border-top-left-radius:12px; border-bottom-left-radius:12px; }
 .dg-table tbody tr td:last-child { border-top-right-radius:12px; border-bottom-right-radius:12px; }
-.dg-table tbody tr:hover{ box-shadow:0 3px 8px rgba(0,0,0,.08); }
+.dg-table tbody tr:hover{ 
+  box-shadow:0 4px 12px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.06); 
+  transform:translateY(-1px);
+  border-color:#e5e7eb;
+}
+.dg-table tbody tr.dg-selected {
+  background:#fef2f2;
+  border-color:#fecaca;
+}
+.dg-table tbody tr.dg-selected:hover {
+  background:#fee2e2;
+  border-color:#fca5a5;
+}
 
 /* Paginator */
 .dg-pager{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:12px; }
@@ -315,6 +357,7 @@
   padding-bottom: var(--dg-row-pad-y);
   line-height: var(--dg-row-line);
   font-size: var(--dg-font);
+  vertical-align: middle;
 }
 
 /* dacă folosești .dg-compact, păstrează lățimea „strânsă”, dar creștem doar înălțimea */
@@ -327,55 +370,188 @@
 /* – opțional – un pic mai mult spațiu sub paginator pentru respirație */
 .card.dg-compact .dg-pager{ padding-top: 10px; }
 
-/* Acțiuni (ochi + X) */
-.dg-table .dg-actions{
-  display:flex; align-items:center; gap:8px; justify-content:center;
-}
-.icon-btn{
-  width:30px; height:30px; border-radius:8px; border:1px solid #e5e7eb;
-  background:#fff; display:grid; place-items:center; cursor:pointer;
-}
-.icon-btn:hover{ background:#f9fafb; border-color:#d1d5db; }
-.icon-btn .ico{ font-size:14px; line-height:1; }
-.dg-col.dg-col-_actions{ width: 92px; } /* colgroup width hint */
+.dg-col.dg-col-actions{ 
+  width: 150px !important; 
+  min-width: 150px !important;
+  max-width: 150px !important;
+} /* colgroup width hint for actions column - fixed width to fit 3 buttons */
 
 /* containerul de card/tabel să nu depășească niciodată cadrul */
 .card{ max-width: 100%; }
-.dg-scroll{ max-width: 100%; overflow: hidden; }   /* overflow-x îl controlăm din autosize */
-.dg-table{ max-width: 100%; table-layout: fixed; } /* important pt. ellipsis */
+.dg-table{ 
+  width: 100%; 
+  table-layout: fixed; 
+  min-width: 100%;
+} /* important pt. ellipsis */
 
 /* pe ecrane înguste, lasă un mic padding adaptiv ca să nu atingă muchia */
 .content-shell{ padding-right: clamp(12px, 2vw, 24px); }
 
 /* Toggle boolean (descărcat/verificat/eronat) */
-.dg-toggle-wrap{ position:relative; display:inline-flex; align-items:center; cursor:pointer; }
+.dg-table td[class*="col-"] { vertical-align: middle; }
+.dg-table td.col-downloaded,
+.dg-table td.col-verified,
+.dg-table td.col-corrupt {
+  text-align: center;
+  vertical-align: middle;
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+}
+.dg-table th.col-downloaded,
+.dg-table th.col-verified,
+.dg-table th.col-corrupt {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+}
+
+/* Compact widths for number and short columns */
+.dg-table td.col-id,
+.dg-table th.col-id {
+  width: 70px !important;
+  min-width: 70px !important;
+  max-width: 70px !important;
+}
+.dg-table td.col-year,
+.dg-table th.col-year {
+  width: 85px !important;
+  min-width: 85px !important;
+  max-width: 85px !important;
+}
+.dg-table td.col-nrBorderou,
+.dg-table th.col-nrBorderou {
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
+}
+.dg-table td.col-period,
+.dg-table th.col-period {
+  width: 90px !important;
+  min-width: 90px !important;
+  max-width: 90px !important;
+}
+.dg-toggle-wrap{ 
+  position:relative; 
+  display:inline-flex; 
+  align-items:center; 
+  justify-content:center;
+  cursor:pointer; 
+  margin:0 auto;
+  vertical-align:middle;
+}
 .dg-toggle-wrap input{ position:absolute; opacity:0; pointer-events:none; }
 .dg-toggle-ui{
-  width:38px; height:22px; border-radius:999px; background:#e5e7eb; display:inline-block; position:relative; transition:background .15s ease;
+  width:42px; 
+  height:24px; 
+  border-radius:999px; 
+  background:#d1d5db; 
+  display:inline-block; 
+  position:relative; 
+  transition:background .2s ease, box-shadow .2s ease;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.1);
 }
 .dg-toggle-ui::after{
-  content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:left .15s ease;
+  content:""; 
+  position:absolute; 
+  top:2px; 
+  left:2px; 
+  width:20px; 
+  height:20px; 
+  border-radius:50%; 
+  background:#fff; 
+  box-shadow:0 2px 4px rgba(0,0,0,.2), 0 1px 2px rgba(0,0,0,.1); 
+  transition:left .2s cubic-bezier(0.4, 0, 0.2, 1), transform .2s ease;
 }
-.dg-toggle-wrap input:checked + .dg-toggle-ui{ background:#22c55e; }
-.dg-toggle-wrap input:checked + .dg-toggle-ui::after{ left:19px; }
+.dg-toggle-wrap:hover .dg-toggle-ui{ box-shadow:inset 0 2px 4px rgba(0,0,0,.12); }
+.dg-toggle-wrap input:checked + .dg-toggle-ui{ 
+  background:#22c55e; 
+  box-shadow:inset 0 2px 4px rgba(34,197,94,.3);
+}
+.dg-toggle-wrap input:checked + .dg-toggle-ui::after{ 
+  left:20px; 
+  box-shadow:0 2px 6px rgba(34,197,94,.4), 0 1px 3px rgba(0,0,0,.2);
+}
+.dg-toggle-wrap:active .dg-toggle-ui::after{ transform:scale(0.95); }
 
 /* Acțiuni */
-.dg-table .dg-actions{ display:flex; align-items:center; gap:8px; justify-content:center; }
-.icon-btn{
-  width:32px; height:32px; border-radius:8px; border:1px solid #e5e7eb;
-  background:#fff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
-  flex-shrink: 0;
-  padding: 0;
+.dg-table td.col-actions { 
+  vertical-align: middle; 
+  text-align: center; 
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  overflow: visible !important;
+  white-space: nowrap;
 }
-.icon-btn:hover{ background:#f9fafb; border-color:#d1d5db; }
+.dg-table th.col-actions {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  overflow: visible;
+}
+.dg-table .dg-actions{ 
+  display:flex; 
+  align-items:center; 
+  gap:6px; 
+  justify-content:center; 
+  margin:0 auto;
+  vertical-align:middle;
+  width: fit-content;
+  min-width: fit-content;
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+.icon-btn{
+  width:36px; 
+  height:36px; 
+  min-width:36px;
+  min-height:36px;
+  border-radius:10px; 
+  border:1px solid #e5e7eb;
+  background:#fff; 
+  display:inline-flex; 
+  align-items:center; 
+  justify-content:center; 
+  cursor:pointer;
+  flex-shrink: 0;
+  flex-grow: 0;
+  padding: 0;
+  transition:all .15s ease;
+  position:relative;
+  box-sizing: border-box;
+  overflow: visible;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(229, 57, 53, 0.2);
+}
+.icon-btn:hover{ 
+  background:#f9fafb; 
+  border-color:#d1d5db; 
+  transform:translateY(-1px);
+  box-shadow:0 2px 4px rgba(0,0,0,.08);
+}
+.icon-btn:active{ 
+  transform:translateY(0);
+  box-shadow:0 1px 2px rgba(0,0,0,.1);
+}
 .icon-btn .ico{ font-size:0; line-height:0; display:none; }
-.icon-btn .icon-svg{ width:1.125rem; height:1.125rem; display:block; }
+.icon-btn .icon-svg{ 
+  width:1.25rem; 
+  height:1.25rem; 
+  display:block;
+  color:#6b7280;
+  transition:color .15s ease;
+}
+.icon-btn:hover .icon-svg{ color:#111827; }
 
 /* === Patch pentru search bar === */
 .dg-right .dg-search {
   position: relative;
   z-index: 2000 !important;   /* asigură că e peste tabel/sidebar */
   pointer-events: auto !important; /* permite click și focus */
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 

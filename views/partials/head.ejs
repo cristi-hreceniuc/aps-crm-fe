@@ -27,6 +27,8 @@
   <link rel="stylesheet" href="/css/datagrid.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
   <link rel="stylesheet" href="/css/datagrid.mobile.css" />
+  <link rel="stylesheet" href="/css/datagrid-gap-fix.css" />
+  <!-- Mobile styles must load last to override everything -->
 
   <script src="/js/icons.js"></script>
   <script>
@@ -41,6 +43,35 @@
           return r;
         });
       };
+    })();
+  </script>
+  <!-- Apply sidenav state immediately to prevent flash -->
+  <script>
+    (function() {
+      try {
+        const storedMode = localStorage.getItem('sidenav-mode') || 'auto';
+        function applyState() {
+          const sidenav = document.querySelector('.sidenav');
+          if (sidenav) {
+            sidenav.classList.add('nav-' + storedMode);
+            // Enable transitions after state is applied
+            setTimeout(function() {
+              document.body.classList.add('sidenav-ready');
+            }, 10);
+          }
+        }
+        // Apply immediately if DOM is ready, otherwise wait
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', applyState);
+        } else {
+          applyState();
+        }
+      } catch (e) {
+        // Ignore errors, but still enable transitions
+        setTimeout(function() {
+          document.body.classList.add('sidenav-ready');
+        }, 100);
+      }
     })();
   </script>
 

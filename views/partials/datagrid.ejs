@@ -21,6 +21,21 @@
     </div>
   </div>
 
+  <% if (typeof selectable !== 'undefined' && selectable) { %>
+    <div class="dg-select-all-bar">
+      <button type="button"
+              class="btn-mini outline dg-select-all-btn"
+              title="Selectează toate înregistrările din tabel"
+              aria-live="polite">
+        <span class="dg-select-all-label">Selectează tot:</span>
+        <span class="dg-select-count" aria-live="polite">0</span>
+      </button>
+      <span class="dg-select-all-info muted">
+        Folosește această opțiune pentru a genera XML cu toate înregistrările.
+      </span>
+    </div>
+  <% } %>
+
   <div class="dg-scroll">
     <table class="dg-table">
       <colgroup>
@@ -109,5 +124,102 @@
       auth:     (typeof auth     !== 'undefined' ? auth     : null),
       selectable: !!(typeof selectable !== 'undefined' && selectable)
     }) %>
+  </script>
+  
+  <!-- MOBILE GAP FIX SCRIPT -->
+  <script>
+    (function() {
+      if (window.innerWidth <= 1024) {
+        function forceRemoveGap() {
+          const grids = document.querySelectorAll('[data-grid]');
+          grids.forEach(grid => {
+            const scroll = grid.querySelector('.dg-scroll');
+            const toolbar = grid.querySelector('.dg-toolbar');
+            const table = grid.querySelector('.dg-table');
+            const tbody = table ? table.querySelector('tbody') : null;
+            const thead = table ? table.querySelector('thead') : null;
+            
+            // STEP 1: Completely reset .dg-scroll
+            if (scroll) {
+              scroll.style.cssText = `
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                background: none !important;
+                box-shadow: none !important;
+                line-height: 0 !important;
+                font-size: 0 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+              `;
+            }
+            
+            // STEP 2: Reset toolbar bottom spacing
+            if (toolbar) {
+              toolbar.style.marginBottom = '0';
+              toolbar.style.paddingBottom = '12px';
+            }
+            
+            // STEP 3: Reset table
+            if (table) {
+              table.style.margin = '0';
+              table.style.padding = '0';
+            }
+            
+            // STEP 4: Reset tbody
+            if (tbody) {
+              tbody.style.margin = '0';
+              tbody.style.padding = '0';
+            }
+            
+            // STEP 5: Hide thead completely
+            if (thead) {
+              thead.style.display = 'none';
+              thead.style.height = '0';
+              thead.style.margin = '0';
+              thead.style.padding = '0';
+              thead.style.visibility = 'hidden';
+              thead.style.position = 'absolute';
+            }
+          });
+        }
+        
+        // Run immediately and after load
+        forceRemoveGap();
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', forceRemoveGap);
+        }
+        window.addEventListener('load', forceRemoveGap);
+        
+        // Run again after delays to catch dynamic content
+        setTimeout(forceRemoveGap, 50);
+        setTimeout(forceRemoveGap, 200);
+        setTimeout(forceRemoveGap, 500);
+        setTimeout(forceRemoveGap, 1000);
+        
+        // Watch for DOM changes
+        if (window.MutationObserver) {
+          const observer = new MutationObserver(function(mutations) {
+            let shouldUpdate = false;
+            mutations.forEach(function(mutation) {
+              if (mutation.addedNodes.length > 0) {
+                shouldUpdate = true;
+              }
+            });
+            if (shouldUpdate) {
+              forceRemoveGap();
+            }
+          });
+          
+          document.querySelectorAll('[data-grid]').forEach(grid => {
+            observer.observe(grid, { 
+              childList: true, 
+              subtree: true 
+            });
+          });
+        }
+      }
+    })();
   </script>
 </section>

@@ -1,49 +1,399 @@
-@media (max-width: 760px){
-  .dg-scroll{ border-radius:0; background:transparent; }
+@media (max-width: 1024px){
+  /* COMPLETELY RESET .dg-scroll CONTAINER */
+  .dg-scroll{ 
+    all: unset !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+  }
+  
+  /* Force no spacing */
+  section.card[data-grid] .dg-scroll,
+  .card[data-grid] .dg-scroll {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    line-height: 0 !important;
+  }
   .dg-table thead{ display:none; }
-  .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ display:block; width:100%; }
-  .dg-table tbody{ padding:4px; }
+  .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ 
+    display:block; 
+    width:100%; 
+  }
+  .dg-table{ 
+    margin:0 !important; 
+    padding:0 !important;
+    line-height: normal !important;
+    font-size: 15px !important;
+  }
+  .dg-table tbody{ 
+    padding:0 !important; 
+    margin:0 !important;
+    display:block;
+    line-height: normal !important;
+  }
   .dg-table tbody tr{
-    background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    margin-bottom:12px; padding:10px 10px 6px;
+    background:#fff; 
+    border-radius:14px; 
+    box-shadow:0 2px 4px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    margin-bottom:16px; 
+    padding:16px 14px 12px;
+    margin-top: 0;
+    border: 1px solid #f3f4f6;
+    line-height: normal !important;
+    font-size: 15px !important;
+  }
+  .dg-table tbody tr:first-child {
+    margin-top: 0 !important;
+    padding-top: 16px !important;
+  }
+  .dg-table tbody tr:last-child {
+    margin-bottom: 0;
   }
   .dg-table tbody td{
-    padding:8px 10px; border-bottom:none;
-    display:grid; grid-template-columns: 110px 1fr; column-gap:10px; row-gap:4px;
+    padding:12px 14px; border-bottom:none;
+    display:grid; grid-template-columns: 100px 1fr; column-gap:12px; row-gap:8px;
     white-space:normal; overflow:visible; text-overflow:clip;
+    line-height: 1.5;
+    font-size: 15px;
   }
   .dg-table tbody td::before{
-    content: attr(data-label); font-weight:600; color:#6b7280;
+    content: attr(data-label); 
+    font-weight:600; 
+    color:#6b7280;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
   }
   .dg-table tbody td .dg-val{ grid-column:2; }
   .dg-table tbody td a{ grid-column:2; word-break: break-word; }
 
-  /* Poți ascunde coloane mai puțin esențiale pe mobil: */
+  /* Hide less essential columns on mobile */
   .dg-table tbody td.col-disponibility,
-  .dg-table tbody td.col-link{ display:none; }
-
-  .dg-pager{ flex-wrap:wrap; gap:8px; }
-}
-
-@media (max-width: 760px){
-  .dg-table tbody tr{
-    padding: 12px 12px 8px;        /* înainte: 10px 10px 6px */
+  .dg-table tbody td.col-link,
+  .dg-table tbody td.col-nrBorderou,
+  .dg-table tbody td.col-acordDate { 
+    display:none; 
   }
-  .dg-table tbody td{
-    padding: 10px 12px;            /* înainte: 8px 10px */
-    row-gap: 6px;                   /* mai mult aer între etichetă și valoare */
-    line-height: 1.45;
-    font-size: 15px;
+  
+  /* Make boolean toggles more prominent on mobile */
+  .dg-table tbody td.col-downloaded,
+  .dg-table tbody td.col-verified,
+  .dg-table tbody td.col-corrupt {
+    padding: 14px 14px !important;
   }
-}
+  
+  .dg-toggle-wrap {
+    transform: scale(1.1);
+  }
+  
+  /* Checkbox column on mobile */
+  .dg-table tbody td.col-select {
+    padding: 14px !important;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 12px;
+  }
+  
+  .dg-table tbody td.col-select::before {
+    display: none !important;
+  }
+  
+  .dg-check {
+    transform: scale(1.2);
+  }
 
-@media (max-width:760px){
+  /* Actions column - make it touch-friendly - HIGH SPECIFICITY */
+  /* Override desktop width constraints */
+  .dg-table td.col-actions,
+  .dg-table th.col-actions,
+  .dg-table tbody td.col-actions,
   .dg-table tbody td.col-_actions{
-    display:block;
-    grid-template-columns: 110px 1fr;
+    display:block !important;
+    grid-template-columns: 1fr !important;
+    padding: 16px 12px !important;
+    margin-top: 8px;
+    border-top: 1px solid #e5e7eb;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    vertical-align: top !important;
+    text-align: left !important;
+    overflow: visible !important;
+    white-space: normal !important;
   }
-  .dg-table tbody td.col-_actions .dg-actions{ grid-column:2; justify-content:flex-start; gap:10px; }
+  .dg-table tbody td.col-actions::before,
+  .dg-table tbody td.col-_actions::before{
+    content: attr(data-label) !important;
+    font-weight:600;
+    color:#6b7280;
+    margin-bottom:12px;
+    display:block;
+    font-size: 14px;
+  }
+  .dg-table td.col-actions .dg-actions,
+  .dg-table tbody td.col-actions .dg-actions,
+  .dg-table tbody td.col-_actions .dg-actions{
+    grid-column:1 !important;
+    justify-content:flex-start !important;
+    gap:12px !important;
+    flex-wrap:wrap !important;
+    width:100% !important;
+    display:flex !important;
+    margin:0 !important;
+    align-items:center !important;
+  }
+
+  /* Make action buttons MUCH larger for touch - FORCE IT */
+  .dg-table td.col-actions .icon-btn,
+  .dg-table tbody td.col-actions .icon-btn,
+  .dg-table tbody td.col-_actions .icon-btn,
+  .dg-table td.col-actions .dg-actions .icon-btn,
+  .dg-table tbody td.col-actions .dg-actions .icon-btn,
+  .dg-table tbody td.col-_actions .dg-actions .icon-btn,
+  .dg-table td.col-actions .dg-actions button,
+  .dg-table tbody td.col-actions .dg-actions button,
+  .dg-table tbody td.col-_actions .dg-actions button{
+    min-width:50px !important;
+    min-height:50px !important;
+    width:50px !important;
+    height:50px !important;
+    flex-shrink:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    border-width: 2px !important;
+    display:inline-flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    cursor:pointer !important;
+    touch-action:manipulation !important;
+    -webkit-tap-highlight-color:rgba(229, 57, 53, 0.3) !important;
+  }
+  .dg-table td.col-actions .icon-btn .icon-svg,
+  .dg-table tbody td.col-actions .icon-btn .icon-svg,
+  .dg-table tbody td.col-_actions .icon-btn .icon-svg,
+  .dg-table td.col-actions .dg-actions .icon-btn .icon-svg,
+  .dg-table tbody td.col-actions .dg-actions .icon-btn .icon-svg,
+  .dg-table tbody td.col-_actions .dg-actions .icon-btn .icon-svg{
+    width:1.75rem !important;
+    height:1.75rem !important;
+    display:block !important;
+  }
+
+  .dg-pager{ 
+    flex-wrap:wrap; 
+    gap:10px; 
+    justify-content:center;
+    padding:16px 8px 8px;
+  }
+  
+  /* Make pagination buttons more touch-friendly */
+  .dg-pager .btn-mini {
+    min-height: 44px !important;
+    padding: 10px 16px !important;
+    font-size: 15px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-weight: 600 !important;
+  }
+  
+  .dg-pager .dg-pages {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Remove any min-height that might create empty space */
+  .dg-scroll:empty,
+  .dg-table tbody:empty {
+    display: none !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Hide empty scroll container - more compatible approach */
+  .dg-scroll .dg-table tbody:empty {
+    display: none !important;
+  }
+  
+  /* If tbody is empty, hide the scroll container too */
+  .dg-scroll .dg-table:only-child tbody:empty ~ * {
+    display: none !important;
+  }
+  
+  /* Ensure no extra spacing when loading or empty */
+  .dg-table {
+    margin: 0 !important;
+    border-spacing: 0 !important;
+  }
+  
+  /* Card padding reduction for mobile */
+  section.card[data-grid],
+  .card[data-grid] {
+    padding: 12px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Reduce gap between toolbar and content - USE NEGATIVE MARGIN */
+  .dg-toolbar {
+    margin-bottom: 0 !important;
+    padding-bottom: 12px !important;
+    border-bottom: none !important;
+  }
+  
+  /* Title styling on mobile */
+  .dg-title {
+    font-size: 20px !important;
+    margin: 0 0 4px 0 !important;
+    line-height: 1.2;
+  }
+  
+  /* Subtitle on mobile */
+  .dg-toolbar .muted {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  
+  /* Ensure no gap between toolbar and scroll container - NUCLEAR */
+  .dg-toolbar + .dg-scroll {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    display: block !important;
+    line-height: 0 !important;
+  }
+  
+  /* Target the exact structure */
+  section.card .dg-toolbar + .dg-scroll {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  
+  /* Remove line-height from containing elements */
+  section.card[data-grid] > .dg-scroll {
+    line-height: 0 !important;
+    font-size: 0 !important;
+  }
+  
+  /* Remove any default min-height and collapse empty containers */
+  .dg-scroll {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  
+  /* Alternative: hide if tbody is empty - more compatible */
+  .dg-scroll .dg-table tbody:empty {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+  }
+  
+  /* Hide scroll container when table has no rows */
+  .dg-scroll .dg-table:only-child tbody:empty {
+    display: none !important;
+  }
+  
+  /* Make the scroll container collapse when empty */
+  .dg-scroll .dg-table tbody:empty ~ * {
+    display: none !important;
+  }
+  
+  /* Make sure the table doesn't create space */
+  .dg-table {
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  /* Remove any spacing from thead when hidden */
+  .dg-table thead {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 
-.dg-right .dg-search { z-index: 2000; pointer-events: auto; }
+.dg-right .dg-search { 
+  z-index: 2000; 
+  pointer-events: auto; 
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  box-sizing:border-box !important;
+  font-size: 16px !important; /* Prevents zoom on iOS */
+  padding: 12px 14px !important;
+  min-height: 44px !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.dg-right .dg-search:focus {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1) !important;
+  outline: none !important;
+}
+
+/* Extra aggressive for phones */
+@media (max-width: 480px) {
+  /* Even larger buttons for small phones */
+  .dg-table tbody td.col-actions .icon-btn,
+  .dg-table tbody td.col-_actions .icon-btn,
+  .dg-table td.col-actions .icon-btn,
+  .dg-table td.col-actions .dg-actions .icon-btn,
+  .dg-table tbody td.col-actions .dg-actions .icon-btn,
+  .dg-table tbody td.col-_actions .dg-actions .icon-btn {
+    min-width:56px !important;
+    min-height:56px !important;
+    width:56px !important;
+    height:56px !important;
+  }
+  
+  .dg-table tbody td.col-actions,
+  .dg-table tbody td.col-_actions,
+  .dg-table td.col-actions {
+    padding: 20px 14px !important;
+  }
+  
+  .dg-table tbody td.col-actions .dg-actions,
+  .dg-table tbody td.col-_actions .dg-actions,
+  .dg-table td.col-actions .dg-actions {
+    gap: 16px !important;
+  }
+  
+  /* Smaller label column for small screens */
+  .dg-table tbody td {
+    grid-template-columns: 90px 1fr !important;
+  }
+  
+  /* Card spacing */
+  .dg-table tbody tr {
+    margin-bottom: 14px;
+    padding: 14px 12px 10px;
+  }
+  
+  /* Title even smaller */
+  .dg-title {
+    font-size: 18px !important;
+  }
+}
 

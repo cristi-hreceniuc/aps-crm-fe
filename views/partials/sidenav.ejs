@@ -2,8 +2,51 @@
 <% const u=user || {}; const displayName=(u.name || u.fullName || 'Utilizator' ); const emailSafe=(u.email || ''
   ).trim(); const initial=(displayName?.[0] || emailSafe?.[0] || 'U' ).toUpperCase(); %>
 
-
-  <aside class="sidenav" aria-label="Meniu principal">
+  <aside class="sidenav" aria-label="Meniu principal" id="sidenav-element">
+<script>
+(function(){
+  try {
+    var mode = localStorage.getItem('sidenav-mode') || 'auto';
+    var el = document.getElementById('sidenav-element');
+    if(el) {
+      el.classList.add('nav-' + mode);
+      el.style.transition = 'none';
+      
+      function applyContentShell() {
+        var contentShell = document.querySelector('.content-shell');
+        if(contentShell) {
+          contentShell.style.transition = 'none';
+          if(mode === 'expanded') {
+            contentShell.style.marginLeft = '240px';
+            contentShell.style.width = 'calc(100% - 240px)';
+          } else if(mode === 'collapsed') {
+            contentShell.style.marginLeft = '72px';
+            contentShell.style.width = 'calc(100% - 72px)';
+          }
+          setTimeout(function(){
+            contentShell.style.transition = '';
+          }, 100);
+        }
+      }
+      
+      if(mode === 'expanded') {
+        el.style.width = '240px';
+        applyContentShell();
+        setTimeout(function(){ el.style.transition = ''; }, 100);
+      } else if(mode === 'collapsed') {
+        el.style.width = '72px';
+        applyContentShell();
+        setTimeout(function(){ el.style.transition = ''; }, 100);
+      } else {
+        setTimeout(function(){ el.style.transition = ''; }, 100);
+      }
+      
+      // Also try after a short delay in case content-shell isn't ready yet
+      setTimeout(applyContentShell, 10);
+    }
+  }catch(e){}
+})();
+</script>
     <div class="nav-header">
       <a href="/" class="brand" title="Acțiune pentru Sănătate">
         <!-- logo din /public/img/ -->
@@ -16,7 +59,7 @@
       <a href="/" class="nav-link <%= path === '/' ? 'active' : '' %>" title="Acasă">
         <span class="nav-ico">
           <svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
           </svg>
         </span>
         <span class="nav-text">Acasă</span>
@@ -126,6 +169,20 @@
             <% } %>
         </div>
       </div>
+      <button class="nav-mode-toggle" id="nav-mode-toggle" aria-label="Comută modul meniu" title="Comută modul meniu">
+        <!-- Arrow Up (Auto) -->
+        <svg class="icon-svg nav-icon nav-icon-auto" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+        </svg>
+        <!-- Arrow Left (Expanded - click to shrink) -->
+        <svg class="icon-svg nav-icon nav-icon-expanded" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+        <!-- Arrow Right (Collapsed - click to expand) -->
+        <svg class="icon-svg nav-icon nav-icon-collapsed" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
       <form method="post" action="/logout" class="logout-form">
         <button class="btn-mini outline logout-btn" type="submit">Logout</button>
       </form>
