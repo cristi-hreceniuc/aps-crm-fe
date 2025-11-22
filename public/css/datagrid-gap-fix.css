@@ -1,0 +1,111 @@
+/* ================================================
+   EXTREME GAP FIX - Load this LAST to override everything
+   ================================================ */
+
+@media (max-width: 1024px) {
+  
+  /* ===== STEP 1: REDUCE TOOLBAR BOTTOM SPACING ===== */
+  [data-grid] .dg-toolbar,
+  section[data-grid] .dg-toolbar,
+  section.card[data-grid] .dg-toolbar,
+  .card[data-grid] .dg-toolbar {
+    margin-bottom: 0 !important;
+    padding-bottom: 12px !important;
+  }
+  
+  /* ===== STEP 2: COMPLETELY ELIMINATE .dg-scroll WRAPPER ===== */
+  
+  /* Remove ALL styling from .dg-scroll */
+  [data-grid] .dg-scroll,
+  section[data-grid] .dg-scroll,
+  section.card[data-grid] .dg-scroll,
+  .card[data-grid] .dg-scroll,
+  section.card .dg-scroll,
+  .dg-scroll {
+    all: unset !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+  }
+  
+  /* ===== STEP 3: RESET TABLE CONTAINER ===== */
+  [data-grid] .dg-scroll .dg-table,
+  .dg-scroll .dg-table,
+  [data-grid] .dg-table,
+  section[data-grid] .dg-table {
+    margin: 0 !important;
+    padding: 0 !important;
+    border-spacing: 0 !important;
+    border-collapse: separate !important;
+    line-height: normal !important;
+    font-size: 15px !important;
+  }
+  
+  /* ===== STEP 4: RESET TBODY ===== */
+  [data-grid] .dg-scroll .dg-table tbody,
+  .dg-scroll .dg-table tbody,
+  [data-grid] .dg-table tbody {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    line-height: normal !important;
+  }
+  
+  /* ===== STEP 5: FIRST ROW NO TOP MARGIN ===== */
+  [data-grid] .dg-scroll .dg-table tbody tr:first-child,
+  .dg-scroll .dg-table tbody tr:first-child,
+  [data-grid] .dg-table tbody tr:first-child {
+    margin-top: 0 !important;
+    padding-top: 16px !important;
+  }
+  
+  /* ===== STEP 6: COMPLETELY HIDE THEAD ===== */
+  [data-grid] .dg-table thead,
+  .dg-scroll .dg-table thead,
+  .dg-table thead {
+    display: none !important;
+    height: 0 !important;
+    line-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    opacity: 0 !important;
+  }
+  
+  /* ===== STEP 7: HIDE COLGROUP ===== */
+  [data-grid] .dg-table colgroup,
+  .dg-scroll .dg-table colgroup,
+  .dg-table colgroup {
+    display: none !important;
+  }
+  
+  /* ===== STEP 8: CARD PADDING ===== */
+  section.card[data-grid],
+  .card[data-grid] {
+    padding: 12px !important;
+  }
+  
+  /* ===== STEP 9: FORCE IMMEDIATE SIBLING POSITIONING ===== */
+  [data-grid] .dg-toolbar + *,
+  section[data-grid] .dg-toolbar + * {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
+

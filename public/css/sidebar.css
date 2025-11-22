@@ -19,25 +19,180 @@
   z-index:20;
   display:flex; flex-direction:column;
 }
+/* Prevent transition flash on page load - transitions enabled after state is applied */
+body:not(.sidenav-ready) .sidenav{
+  transition: none !important;
+}
+body:not(.sidenav-ready) .sidenav.nav-expanded{
+  width: var(--nav-expanded) !important;
+}
+body:not(.sidenav-ready) .sidenav.nav-collapsed{
+  width: var(--nav-collapsed) !important;
+}
+body.sidenav-ready .sidenav{
+  transition: width .32s cubic-bezier(.2,.8,.2,1);
+}
 .sidenav:hover{ width: var(--nav-expanded); }
 
-/* conținutul este „împins” la lățimea meniului */
+/* Auto mode (default): hover to expand */
+.sidenav.nav-auto:hover{ width: var(--nav-expanded); }
+
+/* Expanded mode: always expanded, no hover behavior */
+.sidenav.nav-expanded{
+  width: var(--nav-expanded) !important;
+}
+.sidenav.nav-expanded:hover{
+  width: var(--nav-expanded) !important;
+}
+
+/* Collapsed mode: always collapsed, no hover behavior */
+.sidenav.nav-collapsed{
+  width: var(--nav-collapsed) !important;
+}
+.sidenav.nav-collapsed:hover{
+  width: var(--nav-collapsed) !important;
+}
+
+/* conținutul este „împins" la lățimea meniului */
 .content-shell{
   flex:1;
   margin-left: var(--nav-collapsed);
-  transition: margin-left .32s cubic-bezier(.2,.8,.2,1);
+  transition: margin-left .32s cubic-bezier(.2,.8,.2,1), width .32s cubic-bezier(.2,.8,.2,1);
+  box-sizing: border-box;
+  width: calc(100% - var(--nav-collapsed));
+}
+/* Prevent transition flash on page load */
+body:not(.sidenav-ready) .content-shell{
+  transition: none;
 }
 .sidenav:hover ~ .content-shell{
-  margin-left: var(--nav-expanded);   /* ← împinge tabelul */
+  margin-left: var(--nav-expanded);
+  width: calc(100% - var(--nav-expanded));
+}
+
+/* Content shell for expanded state */
+.sidenav.nav-expanded ~ .content-shell{
+  margin-left: var(--nav-expanded) !important;
+  width: calc(100% - var(--nav-expanded)) !important;
+}
+
+/* Content shell for collapsed state */
+.sidenav.nav-collapsed ~ .content-shell{
+  margin-left: var(--nav-collapsed) !important;
+  width: calc(100% - var(--nav-collapsed)) !important;
+}
+/* Set initial width immediately for expanded state to prevent flash */
+body:not(.sidenav-ready) .sidenav.nav-expanded ~ .content-shell{
+  margin-left: var(--nav-expanded) !important;
+  width: calc(100% - var(--nav-expanded)) !important;
+}
+body:not(.sidenav-ready) .sidenav.nav-collapsed ~ .content-shell{
+  margin-left: var(--nav-collapsed) !important;
+  width: calc(100% - var(--nav-collapsed)) !important;
 }
 
 /* Brand */
-.nav-header{ padding:12px; display:flex; justify-content:center; }
+.nav-header{ 
+  padding:12px; 
+  display:flex; 
+  justify-content:center; 
+  align-items:center;
+}
 .brand{ display:flex; align-items:center; justify-content:center; gap:10px; text-decoration:none; color:inherit; }
+
+/* Mode toggle button in footer - update existing nav-footer */
+.nav-mode-toggle{
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all .2s ease;
+  padding: 0;
+  flex-shrink: 0;
+  margin: 4px auto 0;
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+.sidenav:hover .nav-mode-toggle,
+.sidenav.nav-expanded .nav-mode-toggle,
+.sidenav.nav-collapsed .nav-mode-toggle{
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+/* Always visible in expanded/collapsed modes */
+.sidenav.nav-expanded .nav-mode-toggle,
+.sidenav.nav-collapsed .nav-mode-toggle{
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  pointer-events: auto !important;
+}
+.nav-mode-toggle:hover{
+  background: #f3f4f6;
+  color: #111827;
+}
+.nav-mode-toggle:active{
+  transform: scale(0.95);
+}
+.nav-mode-toggle .icon-svg{
+  width: 18px;
+  height: 18px;
+}
+
+/* Icon visibility based on state - default to auto icon */
+.nav-icon-auto{ 
+  display: block !important; 
+}
+.nav-icon-expanded,
+.nav-icon-collapsed{ 
+  display: none !important; 
+}
+
+/* When sidenav has no mode class yet, show auto icon */
+.sidenav:not(.nav-expanded):not(.nav-collapsed) .nav-icon-auto{ 
+  display: block !important; 
+}
+.sidenav:not(.nav-expanded):not(.nav-collapsed) .nav-icon-expanded,
+.sidenav:not(.nav-expanded):not(.nav-collapsed) .nav-icon-collapsed{ 
+  display: none !important; 
+}
+
+.sidenav.nav-auto .nav-icon-auto{ 
+  display: block !important; 
+}
+.sidenav.nav-auto .nav-icon-expanded,
+.sidenav.nav-auto .nav-icon-collapsed{ 
+  display: none !important; 
+}
+
+.sidenav.nav-expanded .nav-icon-expanded{ 
+  display: block !important; 
+}
+.sidenav.nav-expanded .nav-icon-auto,
+.sidenav.nav-expanded .nav-icon-collapsed{ 
+  display: none !important; 
+}
+
+.sidenav.nav-collapsed .nav-icon-collapsed{ 
+  display: block !important; 
+}
+.sidenav.nav-collapsed .nav-icon-auto,
+.sidenav.nav-collapsed .nav-icon-expanded{ 
+  display: none !important; 
+}
 
 /* mai mare decât înainte */
 .brand-logo{ width: 34px; height: 34px; object-fit:contain; display:block; }
-.sidenav:hover .brand-logo{ width: 40px; height: 40px; }
+.sidenav:hover .brand-logo,
+.sidenav.nav-expanded .brand-logo{ width: 40px; height: 40px; }
+.sidenav.nav-collapsed .brand-logo{ width: 34px; height: 34px; }
 
 .brand-text{ display:none; } /* doar imaginea */
 
@@ -60,7 +215,9 @@
 /* textul apare doar expanded sau pe mobil deschis */
 .nav-text{ opacity:0; transform: translateX(-6px); transition: opacity .12s, transform .12s; }
 .sidenav:hover .nav-text,
-body.nav-open .nav-text{ opacity:1; transform:none; }
+body.nav-open .nav-text,
+.sidenav.nav-expanded .nav-text{ opacity:1; transform:none; }
+.sidenav.nav-collapsed .nav-text{ opacity:0; transform: translateX(-6px); }
 
 /* ===== Footer user ===== */
 .nav-footer{
@@ -68,8 +225,13 @@ body.nav-open .nav-text{ opacity:1; transform:none; }
   padding:10px 10px 12px;
   margin-top:auto;
   background:#fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
-.user-block{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.user-block{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
 .nav-footer .avatar {
   width: 36px;
   height: 36px;
@@ -96,11 +258,19 @@ body.nav-open .nav-text{ opacity:1; transform:none; }
 .sidenav:hover .nav-footer .user-text,
 .sidenav:hover .nav-footer .logout-btn,
 body.nav-open .nav-footer .user-text,
-body.nav-open .nav-footer .logout-btn{ display:block; }
+body.nav-open .nav-footer .logout-btn,
+.sidenav.nav-expanded .nav-footer .user-text,
+.sidenav.nav-expanded .nav-footer .logout-btn{ display:block; }
 .sidenav:hover .nav-footer .user-block,
-body.nav-open .nav-footer .user-block{ justify-content:flex-start; }
+body.nav-open .nav-footer .user-block,
+.sidenav.nav-expanded .nav-footer .user-block{ justify-content:flex-start; }
 .sidenav:hover .nav-footer .avatar,
-body.nav-open .nav-footer .avatar{ margin:0; }
+body.nav-open .nav-footer .avatar,
+.sidenav.nav-expanded .nav-footer .avatar{ margin:0; }
+.sidenav.nav-collapsed .nav-footer .user-text,
+.sidenav.nav-collapsed .nav-footer .logout-btn{ display:none; }
+.sidenav.nav-collapsed .nav-footer .user-block{ justify-content:center; }
+.sidenav.nav-collapsed .nav-footer .avatar{ margin:0 auto; }
 
 .logout-form{ display:flex; justify-content:center; }
 .logout-btn{ width:auto; min-width:96px; }
@@ -143,9 +313,14 @@ body.nav-open .nav-footer .avatar{ margin:0; }
 
 /* ====== Footer: fă textul vizibil când meniul e deschis ====== */
 .sidenav:hover .user-text,
-body.nav-open .user-text{
+body.nav-open .user-text,
+.sidenav.nav-expanded .user-text{
   opacity: 1;
   transform: none;
+}
+.sidenav.nav-collapsed .user-text{
+  opacity: 0;
+  transform: translateX(-6px);
 }
 
 /* limitează și afișează corect nume/email (+ellipsis) */
@@ -184,7 +359,9 @@ body.nav-open .user-text{
 
 /* fă textul vizibil în expanded (desktop hover / mobil deschis) */
 .sidenav:hover .user-text,
-body.nav-open .user-text{ opacity:1; transform:none; }
+body.nav-open .user-text,
+.sidenav.nav-expanded .user-text{ opacity:1; transform:none; }
+.sidenav.nav-collapsed .user-text{ opacity:0; transform: translateX(-6px); }
 
 /* —— Logout: accent clar la hover, ca la celelalte butoane —— */
 .nav-footer .btn-mini.outline{
@@ -233,7 +410,9 @@ body.nav-open .user-text{ opacity:1; transform:none; }
 /* Logo puțin mai mare */
 .nav-header{ padding:12px; display:flex; justify-content:center; }
 .brand-logo{ width: 34px; height: 34px; object-fit:contain; display:block; }
-.sidenav:hover .brand-logo{ width: 40px; height: 40px; }
+.sidenav:hover .brand-logo,
+.sidenav.nav-expanded .brand-logo{ width: 40px; height: 40px; }
+.sidenav.nav-collapsed .brand-logo{ width: 34px; height: 34px; }
 
 .user-text{
   display:flex; flex-direction:column; gap:2px;
@@ -246,7 +425,9 @@ body.nav-open .user-text{ opacity:1; transform:none; }
 
 /* devine vizibil doar când meniul e extins/ deschis pe mobil */
 .sidenav:hover .user-text,
-body.nav-open .user-text{ opacity:1; transform:none; }
+body.nav-open .user-text,
+.sidenav.nav-expanded .user-text{ opacity:1; transform:none; }
+.sidenav.nav-collapsed .user-text{ opacity:0; transform: translateX(-6px); }
 
 .nav-footer .btn-mini.outline{
   border:1px solid var(--brand); color:var(--brand); background:#fff;
@@ -275,17 +456,20 @@ body.nav-open .user-text{ opacity:1; transform:none; }
 .nav-group.open .nav-children{ display:block; }
 .nav-parent{ display:flex; align-items:center; justify-content:space-between; }
 .nav-parent .caret{ margin-left:auto; font-size:12px; opacity:.6; }
-.sidenav:hover .nav-group:not(.open):hover .nav-children{ display:block; } /* hover open */
+.sidenav:hover .nav-group:not(.open):hover .nav-children,
+.sidenav.nav-expanded .nav-group:not(.open):hover .nav-children{ display:block; } /* hover open */
 
 /* ===== Submeniuri: indent doar în expanded ===== */
 .sidenav:hover .nav-group .nav-children,
-body.nav-open .nav-group .nav-children {
+body.nav-open .nav-group .nav-children,
+.sidenav.nav-expanded .nav-group .nav-children {
   margin-left: 8px;        /* spațiu față de părinte */
   padding-left: 14px;      /* împinge iconița și textul */
 }
 
 .sidenav:hover .nav-group .nav-children .nav-link,
-body.nav-open .nav-group .nav-children .nav-link {
+body.nav-open .nav-group .nav-children .nav-link,
+.sidenav.nav-expanded .nav-group .nav-children .nav-link {
   padding-left: 14px;      /* mai mult padding la copii */
   font-size: 0.95em;       /* opțional: puțin mai mic textul */
 }

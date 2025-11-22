@@ -48,6 +48,10 @@
       this.bulkBtn = $('.dg-bulk-btn', section);
       this.footer = this.el.querySelector('.dg-footer');
       this.bulkWrap = this.el.querySelector('.dg-bulk');
+      this.selectAllBtn = $('.dg-select-all-btn', section);
+      this.selectAllLabel = this.selectAllBtn ? this.selectAllBtn.querySelector('.dg-select-all-label') : null;
+      this.selectCountEl = this.selectAllBtn ? this.selectAllBtn.querySelector('.dg-select-count') : null;
+      this._selectAllBaseLabel = this.selectAllLabel ? this.selectAllLabel.textContent : 'Selectează tot:';
 
 
       const size = Number(this.cfg.pageSize || 10);
@@ -65,12 +69,14 @@
 
       this._toggles = {};
       this._actionsBound = false;
+      this._selectAllLoading = false;
 
       this._bind();
       this.fetch();
 
       window.addEventListener('resize', debounce(() => this._autosizeColumns(), 150));
       this._setupObservers();
+      this._updateSelectionCounters();
 
       // data implicită în bulk (astăzi) – doar pe f230
       // data implicită în bulk (astăzi) – doar pe f230
@@ -131,16 +137,50 @@
 
 
     /* endpoint normal vs. endpointSearch când există q */
-    _currentEndpointPath() {
+    _currentEndpointPath(qOverride) {
       const ep = this.cfg.endpoint || '';
       const eps = this.cfg.endpointSearch || null;
-      const hasQ = !!(this.state.q && this.state.q.length);
+      const raw = (typeof qOverride === 'string') ? qOverride : (this.state.q || '');
+      const hasQ = !!raw.trim().length;
       return (hasQ && eps) ? eps : ep;
     }
-    _endpointUrl() {
-      const ep = this._currentEndpointPath();
+    _endpointUrl(qOverride) {
+      const ep = this._currentEndpointPath(qOverride);
       try { return new URL(ep, window.location.origin); }
       catch { return new URL(window.location.origin + ep); }
+    }
+    _composeUrlFor(opts = {}) {
+      const api = this.cfg.api || {};
+      const pageParam = api.pageParam || 'page';
+      const sizeParam = api.sizeParam || 'size';
+      const sortParam = api.sortParam || 'sort';
+      const sortValueTpl = api.sortValue || '{key},{dir}';
+      const searchParam = (typeof api.searchParam !== 'undefined') ? api.searchParam : (this.searchEl ? 'q' : null);
+      const pageBase = Number(api.pageBase || 0);
+
+      const page = Number((typeof opts.page === 'number') ? opts.page : this.state.page) || 0;
+      const size = Number((typeof opts.size === 'number') ? opts.size : this.state.size) || 10;
+      const sortKey = (typeof opts.sortKey === 'string') ? opts.sortKey : this.state.sortKey;
+      const sortDir = (opts.sortDir || this.state.sortDir || 'asc');
+      const rawQ = (typeof opts.q === 'string') ? opts.q : (this.state.q || '');
+      const q = rawQ.trim();
+
+      const url = this._endpointUrl(q);
+      const params = url.searchParams;
+      params.set(pageParam, String(page + pageBase));
+      params.set(sizeParam, String(size));
+      if (sortKey) {
+        const beKey = this._columnSortKey(sortKey);
+        const v = sortValueTpl.replace('{key}', beKey).replace('{dir}', sortDir);
+        params.set(sortParam, v);
+      } else {
+        params.delete(sortParam);
+      }
+      if (searchParam) {
+        if (q.length) params.set(searchParam, q);
+        else params.delete(searchParam);
+      }
+      return url;
     }
 
     _bind() {
@@ -192,6 +232,10 @@
           this.fetch();
         }, 500));
         this.searchEl.addEventListener('focus', () => { try { this.searchEl.select(); } catch { } });
+      }
+
+      if (this.selectAllBtn) {
+        this.selectAllBtn.addEventListener('click', () => this._handleSelectAllClick());
       }
 
       // bulk – generează XML (doar pe f230)
@@ -261,15 +305,7 @@
           const id = t.getAttribute('data-id');
           const checked = !!t.checked;
           this._toggleSelection(id, checked);
-
-          // actualizează select-all din header
-          const allCb = this.thead?.querySelector('.dg-check-all');
-          if (allCb) {
-            const pageCbs = $$('.dg-row-check', this.tbody);
-            const allChecked = pageCbs.length && pageCbs.every(x => x.checked);
-            allCb.indeterminate = !allChecked && pageCbs.some(x => x.checked);
-            allCb.checked = allChecked;
-          }
+          this._syncHeaderSelectState();
         }, { passive: false });
       }
     }
@@ -277,32 +313,7 @@
     goto(page) { if (page < 0) page = 0; this.state.page = page; this.fetch(); }
 
     async fetch() {
-      const url = this._endpointUrl();
-      const api = this.cfg.api || {};
-      const pageParam = api.pageParam || 'page';
-      const sizeParam = api.sizeParam || 'size';
-      const sortParam = api.sortParam || 'sort';
-      const sortValueTpl = api.sortValue || '{key},{dir}';
-      const searchParam = (typeof api.searchParam !== 'undefined') ? api.searchParam : (this.searchEl ? 'q' : null);
-      const pageBase = Number(api.pageBase || 0);
-
-      const params = url.searchParams;
-      params.set(pageParam, String(this.state.page + pageBase));
-      params.set(sizeParam, String(this.state.size));
-      if (this.state.sortKey) {
-        const beKey = this._columnSortKey(this.state.sortKey);
-        const v = sortValueTpl.replace('{key}', beKey).replace('{dir}', this.state.sortDir);
-        params.set(sortParam, v);
-      } else {
-        params.delete(sortParam);
-      }
-      const rawQ = this.state.q || '';
-      const q = rawQ.trim();
-      if (searchParam) {
-        if (q.length) params.set(searchParam, q);
-        else params.delete(searchParam);
-      }
-
+      const url = this._composeUrlFor();
       try {
         const res = await fetch(url.toString(), {
           headers: { 'Accept': 'application/json' },
@@ -339,7 +350,7 @@
       this.footer.classList.toggle('has-bulk', !!hasSel);
     }
 
-    _consumeResponse(data) {
+    _parseDataPayload(data) {
       const resp = this.cfg.response || {};
       const itemsKey = resp.items || 'content';
       const pageKey = resp.page || 'number';
@@ -351,16 +362,27 @@
       const page = Number(this._getPath(data, pageKey) ?? data.number ?? 0);
       const size = Number(this._getPath(data, sizeKey) ?? data.size ?? (this.state.size || 10));
       const total = Number(this._getPath(data, totalKey) ?? data.totalElements ?? data.total ?? items.length);
+      return {
+        items,
+        page: isNaN(page) ? 0 : page,
+        size: isNaN(size) ? (this.state.size || 10) : size,
+        total: isNaN(total) ? items.length : total
+      };
+    }
 
-      this.state.page = isNaN(page) ? 0 : page;
-      this.state.size = isNaN(size) ? (this.state.size || 10) : size;
-      this.state.total = isNaN(total) ? items.length : total;
+    _consumeResponse(data) {
+      const parsed = this._parseDataPayload(data);
+      const items = parsed.items || [];
+      this.state.page = parsed.page;
+      this.state.size = parsed.size;
+      this.state.total = parsed.total;
 
       this._renderRows(items);
       this._renderHeaderSort();
       this._renderPager();
 
       requestAnimationFrame(() => this._autosizeColumns());
+      this._updateSelectionCounters();
     }
 
     _renderHeaderSort() {
@@ -385,6 +407,24 @@
         return;
       }
 
+      // Mapping pentru traduceri în română (pentru log-users)
+      const translations = {
+        gender: {
+          'male': 'bărbat',
+          'female': 'femeie'
+        },
+        status: {
+          'ACTIVE': 'ACTIV',
+          'INACTIVE': 'INACTIV',
+          'PENDING': 'ÎN AȘTEPTARE'
+        },
+        role: {
+          'USER': 'UTILIZATOR',
+          'ADMIN': 'ADMINISTRATOR',
+          'MODERATOR': 'MODERATOR'
+        }
+      };
+
       const html = items.map(row => {
         const id = row.id != null ? String(row.id) : '';
         const selectCell = this.cfg.selectable ? `
@@ -401,6 +441,17 @@
           let raw = row[c.key];
           let innerHTML = '';
           let titleStr = '';
+
+          // Aplică traducerile pentru log-users
+          if (this.gridId === 'log-users') {
+            if (c.key === 'gender' && raw && translations.gender[raw]) {
+              raw = translations.gender[raw];
+            } else if (c.key === 'status' && raw && translations.status[raw]) {
+              raw = translations.status[raw];
+            } else if (c.key === 'role' && raw && translations.role[raw]) {
+              raw = translations.role[raw];
+            }
+          }
 
           if (c.type === 'date' && raw) {
             const val = fmtDate(raw);
@@ -531,6 +582,7 @@
       this.tbody.innerHTML = html;
       this._bindRowActions();
       this._bindToggles();
+      this._syncHeaderSelectState();
       this._updateBulkBtn();
     }
 
@@ -971,6 +1023,7 @@
         const tr = inp.closest('tr'); if (tr) tr.classList.toggle('dg-selected', checked);
       });
       this._updateBulkBtn();
+      this._syncHeaderSelectState();
     }
     _clearSelection() {
       // debifează header
@@ -985,12 +1038,137 @@
       this.selected.clear();
       this._updateBulkBtn();
       this._updateFooterVisibility();
+      this._syncHeaderSelectState();
     }
     _updateBulkBtn() {
-      if (!this.bulkBtn || !this.footer) return;
       const hasSel = this.selected.size > 0;
-      this.bulkBtn.disabled = !hasSel;
-      this.footer.classList.toggle('has-bulk', hasSel);
+      if (this.bulkBtn) this.bulkBtn.disabled = !hasSel;
+      if (this.footer) this.footer.classList.toggle('has-bulk', hasSel);
+      this._updateSelectionCounters();
+    }
+
+    _isAllSelected() {
+      const total = Number(this.state.total || 0);
+      return total > 0 && this.selected.size >= total;
+    }
+
+    _setSelectionCountValue(value) {
+      if (!this.selectCountEl) return;
+      const safe = (typeof value === 'number' && isFinite(value)) ? value : (this.selected.size || 0);
+      this.selectCountEl.textContent = String(safe);
+    }
+
+    _updateSelectionCounters() {
+      if (!this.selectAllBtn) return;
+      const total = Number(this.state.total || 0);
+      const allSelected = this._isAllSelected();
+      this._setSelectionCountValue(this.selected.size || 0);
+
+      const title = allSelected
+        ? 'Toate înregistrările sunt selectate. Click pentru a goli selecția.'
+        : 'Selectează toate înregistrările din tabel.';
+      this.selectAllBtn.setAttribute('title', title);
+      this.selectAllBtn.dataset.mode = allSelected ? 'clear' : 'select';
+      this.selectAllBtn.classList.toggle('is-all-selected', allSelected);
+
+      if (!this._selectAllLoading && this.selectAllLabel) {
+        this.selectAllLabel.textContent = this._selectAllBaseLabel;
+      }
+
+      if (!this._selectAllLoading) {
+        this.selectAllBtn.disabled = total === 0;
+      }
+    }
+
+    _syncHeaderSelectState() {
+      const headCb = this.thead?.querySelector('.dg-check-all');
+      if (!headCb || !this.tbody) return;
+      const pageCbs = $$('.dg-row-check', this.tbody);
+      if (!pageCbs.length) {
+        headCb.checked = false;
+        headCb.indeterminate = false;
+        return;
+      }
+      const checkedCount = pageCbs.filter(cb => cb.checked).length;
+      headCb.checked = checkedCount === pageCbs.length;
+      headCb.indeterminate = checkedCount > 0 && checkedCount < pageCbs.length;
+    }
+
+    _applySelectionToVisibleRows() {
+      if (!this.tbody) return;
+      this.tbody.querySelectorAll('.dg-row-check').forEach(cb => {
+        const id = cb.getAttribute('data-id');
+        const isSelected = id && this.selected.has(id);
+        cb.checked = !!isSelected;
+        const tr = cb.closest('tr');
+        if (tr) tr.classList.toggle('dg-selected', !!isSelected);
+      });
+      this._syncHeaderSelectState();
+    }
+
+    _setSelectAllLoading(flag) {
+      if (!this.selectAllBtn) return;
+      this._selectAllLoading = flag;
+      this.selectAllBtn.classList.toggle('is-loading', flag);
+      this.selectAllBtn.disabled = flag;
+      if (this.selectAllLabel) {
+        this.selectAllLabel.textContent = flag ? 'Selectăm…' : this._selectAllBaseLabel;
+      }
+      if (!flag) {
+        this._updateSelectionCounters();
+      } else {
+        this._setSelectionCountValue(this.selected.size || 0);
+      }
+    }
+
+    _handleSelectAllClick() {
+      if (!this.selectAllBtn || this._selectAllLoading) return;
+      const total = Number(this.state.total || 0);
+      if (!total) return;
+      if (this._isAllSelected()) {
+        this._clearSelection();
+        return;
+      }
+      this._selectAllRecords();
+    }
+
+    async _selectAllRecords() {
+      const total = Number(this.state.total || 0);
+      if (!total) return;
+
+      const baseSize = Number(this.state.size || 10);
+      const chunkSize = Math.min(1000, Math.max(baseSize, 200));
+      const pages = Math.ceil(total / chunkSize);
+      const allIds = new Set();
+
+      this._setSelectAllLoading(true);
+      try {
+        for (let page = 0; page < pages; page++) {
+          const url = this._composeUrlFor({ page, size: chunkSize });
+          const res = await fetch(url.toString(), {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin'
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const { items } = this._parseDataPayload(data);
+          (items || []).forEach(row => {
+            if (row && row.id != null) {
+              allIds.add(String(row.id));
+            }
+          });
+          this._setSelectionCountValue(allIds.size);
+        }
+
+        this.selected = allIds;
+        this._applySelectionToVisibleRows();
+        this._updateBulkBtn();
+      } catch (err) {
+        console.error('DataGrid select all error:', err);
+        alert('Nu am putut selecta toate înregistrările. Încearcă din nou.');
+      } finally {
+        this._setSelectAllLoading(false);
+      }
     }
 
     _setupObservers() {
@@ -1024,6 +1202,12 @@
       })();
 
       const widths = colsCfg.map((c) => {
+        // Special handling for actions column - needs space for buttons
+        if (c.type === 'actions') {
+          // 3 buttons (36px each) + 2 gaps (6px each) + padding (32px) = ~152px minimum
+          return 150;
+        }
+
         const th = this.thead?.querySelector(`th.col-${cssEsc(c.key)}`);
         const headerText = th ? th.querySelector('.th-label')?.textContent?.trim() || '' : (c.label || '');
         let w = ctx.measureText(headerText).width;
@@ -1037,18 +1221,59 @@
           if (mw > w) w = mw;
         });
 
-        if (c.type === 'number') w *= 0.85;
-        if (/email|mail/i.test(c.key)) w *= 1.05;
-        if (c.clamp) w = Math.min(w, 220);
-
-        w = Math.ceil(w + padX + (c.sortable ? 18 : 0));
-        w = Math.max(minPx, Math.min(maxPx, w));
+        if (c.type === 'number') w *= 0.75; // More compact for numbers
+        if (/email|mail/i.test(c.key)) w *= 1.0; // Don't expand emails
+        if (c.clamp) w = Math.min(w, 180); // Reduce clamp max width
+        
+        // Make boolean columns more compact
+        if (c.type === 'bool') w = 80; // Fixed small width for toggles
+        
+        w = Math.ceil(w + padX + (c.sortable ? 12 : 0)); // Reduce sort indicator space
+        // Use tighter min/max bounds
+        const tightMin = Math.min(minPx, 70); // Lower minimum
+        const tightMax = Math.min(maxPx, 200); // Lower maximum for most columns
+        w = Math.max(tightMin, Math.min(tightMax, w));
         return w;
       });
 
       const container = this.table.parentElement;
       const available = container.clientWidth || this.table.clientWidth || 0;
-      const sum = widths.reduce((a, b) => a + b, 0) || 1;
+      
+      // Calculate fixed widths for special columns
+      const selectWidth = this.cfg.selectable ? 56 : 0;
+      const actionsWidth = 150; // Fixed width for actions column (3 buttons)
+      
+      // Fixed widths for specific column types
+      const fixedWidths = {
+        'id': 70,
+        'year': 85,
+        'nrBorderou': 100,
+        'period': 90,
+        'downloaded': 80,
+        'verified': 80,
+        'corrupt': 80
+      };
+      
+      // Find which columns have fixed widths
+      const fixedIndices = new Set();
+      let totalFixedWidth = selectWidth;
+      colsCfg.forEach((c, idx) => {
+        if (c.type === 'actions') {
+          fixedIndices.add(idx);
+          totalFixedWidth += actionsWidth;
+        } else if (fixedWidths[c.key]) {
+          fixedIndices.add(idx);
+          totalFixedWidth += fixedWidths[c.key];
+        }
+      });
+      
+      // Calculate sum excluding fixed-width columns
+      const sum = widths.reduce((a, b, idx) => {
+        return fixedIndices.has(idx) ? a : a + b;
+      }, 0) || 1;
+      
+      // Available width minus fixed columns
+      const availableForProportional = Math.max(0, available - totalFixedWidth);
 
       // + 1 col dacă avem select
       const allCols = $$('.dg-col', this.colgroup);
@@ -1058,11 +1283,35 @@
         // dacă e prima coloană și avem selectable, lăsăm lățimea fixă mică
         if (this.cfg.selectable && i === 0) {
           colEl.style.width = '56px';
+          colEl.style.minWidth = '56px';
           return;
         }
         const dataIndex = i - offset;
         if (dataIndex < 0) return;
-        const px = Math.round(widths[dataIndex] * available / sum);
+        
+        // Special handling for fixed-width columns
+        const colCfg = colsCfg[dataIndex];
+        if (colCfg) {
+          // Actions column
+          if (colCfg.type === 'actions') {
+            colEl.style.width = `${actionsWidth}px`;
+            colEl.style.minWidth = `${actionsWidth}px`;
+            colEl.style.maxWidth = `${actionsWidth}px`;
+            return;
+          }
+          // Other fixed-width columns
+          if (fixedWidths[colCfg.key]) {
+            const fixedW = fixedWidths[colCfg.key];
+            colEl.style.width = `${fixedW}px`;
+            colEl.style.minWidth = `${fixedW}px`;
+            colEl.style.maxWidth = `${fixedW}px`;
+            return;
+          }
+        }
+        
+        // Proportional width for other columns
+        const tightMin = Math.min(minPx, 70); // Lower minimum
+        const px = Math.max(tightMin, Math.round(widths[dataIndex] * availableForProportional / sum));
         colEl.style.width = `${px}px`;
       });
     }
@@ -1166,6 +1415,29 @@
           .replace(/"/g, '&quot;').replace(/'/g, '&#039;'));
         const nz = v => (v && String(v).trim()) ? esc(v) : '—';
 
+        // The backend returns:
+        // - companyCounty + companyCity = county, city, and street address (e.g., "JUD. IAŞI, MUN. IAȘI, STR. BASARABI, NR.5B...")
+        // - companyAddress = apartment/floor part (e.g., "AP.2 ET.1")
+        // Construct full street address by combining all parts
+        const companyFullAddress = [d.companyCounty, d.companyCity, d.companyAddress].filter(Boolean).join(' ').trim() || '—';
+        // Extract county/city from the full address string by finding "JUD." and "MUN." patterns
+        let companyCountyCity = '—';
+        if (companyFullAddress && companyFullAddress !== '—') {
+          // Match "JUD. X" and "MUN. Y" patterns (case-insensitive, handle Romanian characters)
+          const judMatch = companyFullAddress.match(/JUD\.\s*[^,]+/i);
+          const munMatch = companyFullAddress.match(/MUN\.\s*[^,]+/i);
+          if (judMatch && munMatch) {
+            // Extract both county and city
+            companyCountyCity = [judMatch[0].trim(), munMatch[0].trim()].join(', ');
+          } else if (judMatch) {
+            // Only county found
+            companyCountyCity = judMatch[0].trim();
+          } else if (munMatch) {
+            // Only city found
+            companyCountyCity = munMatch[0].trim();
+          }
+        }
+
         const firmaHtml = `
       <div class="dg-card">
         <h4>Firmă (Sponsor)</h4>
@@ -1173,9 +1445,8 @@
           <div class="k">Denumire</div><div>${nz(d.companyName)}</div>
           <div class="k">CUI</div><div>${nz(d.fiscalCode)}</div>
           <div class="k">Reg. Comerț</div><div>${nz(d.companyRegCom)}</div>
-          <div class="k">Adresă</div><div>${nz(d.companyAddress)}</div>
-          <div class="k">Județ</div><div>${nz(d.companyCounty)}</div>
-          <div class="k">Oraș</div><div>${nz(d.companyCity)}</div>
+          <div class="k">Adresă</div><div>${nz(companyFullAddress)}</div>
+          <div class="k">Județ / Oraș</div><div>${nz(companyCountyCity)}</div>
         </div>
       </div>`;
 
@@ -1190,13 +1461,16 @@
         </div>
       </div>`;
 
+        // Construct correspondence address: street address + county/city
+        const corrStreetAddress = [d.corrCounty, d.corrCity].filter(Boolean).join(' ').trim();
+        const corrCountyCity = d.corrAddress || '';
+        const corrFullAddress = [corrCountyCity, corrStreetAddress].filter(Boolean).join(' ').trim() || '—';
+
         const corespHtml = `
       <div class="dg-card">
         <h4>Corespondență</h4>
         <div class="dg-kv">
-          <div class="k">Adresă</div><div>${nz(d.corrAddress)}</div>
-          <div class="k">Județ</div><div>${nz(d.corrCounty)}</div>
-          <div class="k">Oraș</div><div>${nz(d.corrCity)}</div>
+          <div class="k">Adresă</div><div>${nz(corrFullAddress)}</div>
         </div>
       </div>`;
 
@@ -1282,20 +1556,34 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
 
+        const esc = s => (s == null ? '' : String(s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#039;'));
+
         const f = data.firma || {};
         const co = data.corespondenta || {};
         const r = data.reprezentant || {};
         const ct = data.contract || {};
+
+        // Construct street address from judet and oras fields (which contain street address parts)
+        const streetAddress = [f.judet, f.oras].filter(Boolean).join(' ').trim() || '—';
+        // Use adresa field for county/city
+        const countyCity = f.adresa || '—';
+
+        // Construct correspondence address: street address + county/city
+        const coStreetAddress = [co.judet, co.oras].filter(Boolean).join(' ').trim();
+        const coCountyCity = co.adresa || '';
+        const correspondenceAddress = [coCountyCity, coStreetAddress].filter(Boolean).join(' ').trim() || '—';
 
         const body = `
       <div class="dg-meta">
         <div class="k">Firmă</div><div><strong>${esc(f.denumire || data.title || '—')}</strong></div>
         <div class="k">CUI</div><div>${esc(f.cui || '—')}</div>
         <div class="k">Reg. Com.</div><div>${esc(f.regcom || '—')}</div>
-        <div class="k">Adresă</div><div>${esc(f.adresa || '—')}</div>
-        <div class="k">Județ / Oraș</div><div>${esc(f.judet || '—')} / ${esc(f.oras || '—')}</div>
+        <div class="k">Adresă</div><div>${esc(streetAddress)}</div>
+        <div class="k">Județ / Oraș</div><div>${esc(countyCity)}</div>
 
-        <div class="k">Corespondență</div><div>${esc(co.adresa || '—')} ${esc(co.judet || '')} ${esc(co.oras || '')}</div>
+        <div class="k">Corespondență</div><div>${esc(correspondenceAddress)}</div>
 
         <div class="k">Reprezentant</div><div>${esc(r.nume || '')} ${esc(r.prenume || '')}</div>
         <div class="k">Email</div><div>${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : '—'}</div>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DG Mobile Test</title>
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/layout.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/datagrid.css" />
+    <link rel="stylesheet" href="./css/responsive.css" />
+    <link rel="stylesheet" href="./css/datagrid.mobile.css" />
+    <link rel="stylesheet" href="./css/datagrid-gap-fix.css" />
+  </head>
+  <body>
+    <main class="content-shell" style="max-width:480px;margin:0 auto;">
+      <section class="card" data-grid>
+        <div class="dg-toolbar">
+          <div class="dg-left">
+            <h2 class="dg-title">Declarația 177</h2>
+            <div class="muted">Contracte & sponsorizări</div>
+          </div>
+          <div class="dg-right">
+            <input class="dg-search" placeholder="Caută după nume firmă, cod fiscal, email, tel" />
+          </div>
+        </div>
+        <div class="dg-scroll">
+          <table class="dg-table">
+            <thead>
+              <tr>
+                <th>Nume firmă</th>
+                <th>Cod fiscal</th>
+              </tr>
+            </thead>
+            <tbody class="dg-body">
+              <tr>
+                <td class="col-companyName" data-label="Nume firmă">
+                  <span class="dg-val">ASSIST SOFTWARE SRL</span>
+                </td>
+                <td class="col-fiscalCode" data-label="Cod fiscal">
+                  <span class="dg-val">2693736</span>
+                </td>
+                <td class="col-email" data-label="Email">
+                  <span class="dg-val">ostafie.ionut@gmail.com</span>
+                </td>
+                <td class="col-phone" data-label="Telefon">
+                  <span class="dg-val">0748931814</span>
+                </td>
+                <td class="col-amount" data-label="Sumă (RON)">
+                  <span class="dg-val">5543</span>
+                </td>
+                <td class="col-contractDate" data-label="Data contractului">
+                  <span class="dg-val">10.09.2025</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="col-companyName" data-label="Nume firmă">
+                  <span class="dg-val">EXEMPLU SRL</span>
+                </td>
+                <td class="col-fiscalCode" data-label="Cod fiscal">
+                  <span class="dg-val">1234567</span>
+                </td>
+                <td class="col-email" data-label="Email">
+                  <span class="dg-val">contact@exemplu.ro</span>
+                </td>
+                <td class="col-phone" data-label="Telefon">
+                  <span class="dg-val">0740000000</span>
+                </td>
+                <td class="col-amount" data-label="Sumă (RON)">
+                  <span class="dg-val">2000</span>
+                </td>
+                <td class="col-contractDate" data-label="Data contractului">
+                  <span class="dg-val">05.04.2025</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
+

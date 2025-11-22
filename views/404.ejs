@@ -1,10 +1,137 @@
 <%- include('partials/head') %>
-<%- include('partials/navbar') %>
 
-<section class="container center pad">
-  <h1>404</h1>
-  <p class="muted">Pagina căutată nu există.</p>
-  <a href="/" class="btn">Înapoi acasă</a>
-</section>
+<!-- Custom navbar for 404 page -->
+<nav class="nav">
+  <div class="nav-inner container">
+    <a href="/" class="brand-logo">
+      <img src="/img/aps-logo.png" alt="Acțiune pentru Sănătate" />
+    </a>
+    <div class="nav-links">
+      <a href="/">Acasă</a>
+      <a href="/" class="btn btn-danger">Deconectează-te</a>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .error-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .error-card {
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    background: #fff;
+    border-radius: 24px;
+    padding: 48px 32px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+  }
+
+  .error-number {
+    font-size: clamp(80px, 15vw, 140px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin: 0 0 16px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .error-title {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 12px 0;
+  }
+
+  .error-text {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0 0 32px 0;
+  }
+
+  .error-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    opacity: 0.15;
+  }
+
+  .error-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: #ef4444;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: filter 0.15s ease, transform 0.02s;
+  }
+
+  .error-btn:hover {
+    filter: brightness(0.96);
+  }
+
+  .error-btn:active {
+    transform: translateY(1px);
+  }
+
+  .error-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Center footer */
+  .footer {
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .error-card {
+      padding: 36px 24px;
+    }
+    .error-btn {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="error-container">
+  <div class="error-card">
+    <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    
+    <h1 class="error-number">404</h1>
+    <h2 class="error-title">Pagina nu a fost găsită</h2>
+    <p class="error-text">
+      Ne pare rău, dar pagina pe care o căutați nu există sau a fost mutată.
+    </p>
+    
+    <a href="/" class="error-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      Înapoi acasă
+    </a>
+  </div>
+</div>
 
 <%- include('partials/footer') %>

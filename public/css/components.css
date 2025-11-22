@@ -486,6 +486,39 @@ th.col-select::after {
   padding: 16px 20px;
 }
 
+.dg-select-all-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px 12px;
+  flex-wrap: wrap;
+}
+.dg-select-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-height: 36px;
+}
+.dg-select-all-btn .dg-select-all-label {
+  font-weight: 600;
+}
+.dg-select-all-btn .dg-select-count {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+}
+.dg-select-all-btn.is-loading {
+  opacity: 0.8;
+  pointer-events: none;
+}
+.dg-select-all-info {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
 /* stânga: bulk */
 .dg-footer .dg-bulk {
   justify-self: start;

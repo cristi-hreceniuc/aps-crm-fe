@@ -1,86 +1,955 @@
 /* ========= Responsive tweaks ========= */
 
-/* Sidebar devine bloc sus; content full-width */
-@media (max-width: 900px){
-  .sidenav .brand-logo img{
+/* ===== Base Mobile Styles (Phone) ===== */
+@media (max-width: 480px) {
+  /* Container padding */
+  .container {
+    padding: 0 12px;
+  }
+
+  /* Content shell padding */
+  .content-shell {
+    padding: 16px 12px 24px !important;
+  }
+
+  /* Headers */
+  h1 {
+    font-size: 24px !important;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  h3 {
+    font-size: 18px !important;
+  }
+
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .content-header small {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  /* Padding adjustments */
+  .pad {
+    padding: 32px 0;
+  }
+}
+
+/* ===== Tablet and below ===== */
+@media (max-width: 768px) {
+  /* Container */
+  .container {
+    padding: 0 14px;
+  }
+
+  /* Content shell */
+  .content-shell {
+    padding: 20px 14px 32px;
+  }
+
+  /* Headers */
+  h1 {
+    font-size: 28px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  h3 {
+    font-size: 19px;
+  }
+
+  /* Content header */
+  .content-header {
+    margin-bottom: 16px;
+  }
+
+  .content-header small {
+    font-size: 14px;
+  }
+
+  /* Grid layouts */
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .grid.three {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cards */
+  .card {
+    padding: 16px;
+  }
+  
+  /* DataGrid card - reduce padding on mobile */
+  section.card[data-grid],
+  .card[data-grid] {
+    padding: 12px !important;
+  }
+  
+  section.card[data-grid] .dg-toolbar,
+  .card[data-grid] .dg-toolbar {
+    margin-bottom: 12px !important;
+  }
+
+  .mini-card {
+    padding: 12px;
+  }
+
+  .mini-card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  /* Hero panel */
+  .hero-panel {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+
+  .headline-xl {
+    font-size: 32px;
+  }
+
+  .hero-lead {
+    font-size: 16px;
+  }
+
+  /* Forms */
+  .auth-card {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 100%;
+  }
+
+  .login-card {
+    padding: 24px 20px;
+  }
+
+  .login-card h2 {
+    font-size: 20px;
+  }
+
+  .form {
+    gap: 12px;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 11px 12px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 11px 16px;
+    font-size: 15px;
+  }
+
+  .btn-primary {
+    padding: 11px 18px;
+    font-size: 15px;
+  }
+
+  .btn-mini {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+
+  /* Intro card */
+  .intro-card {
+    padding: 28px 24px;
+    margin-bottom: 20px;
+  }
+
+  .intro-card .login-logo {
+    width: 120px;
+  }
+
+  .intro-card h1 {
+    font-size: 24px;
+  }
+
+  .intro-card p {
+    font-size: 15px;
+  }
+
+  /* Navigation */
+  .nav-inner {
+    padding: 12px 14px;
+  }
+
+  .nav-links a,
+  .nav-links button {
+    margin-left: 10px;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 20px 0;
+    font-size: 14px;
+  }
+
+  /* KPI lines */
+  .kpi-line {
+    padding: 8px 0;
+  }
+
+  .kpi-line span {
+    font-size: 13px;
+  }
+
+  .kpi-line strong {
+    font-size: 16px;
+  }
+
+  /* Settings */
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .setting-row select,
+  .setting-row input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .setting-row .btn {
+    width: 100%;
+  }
+
+  /* Tabs */
+  .tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tab-btn {
+    padding: 7px 10px;
+    font-size: 14px;
+  }
+
+  /* Modals */
+  .dg-modal-card {
+    width: calc(100% - 24px);
+    max-height: 90vh;
+    padding: 16px;
+  }
+
+  .dg-modal-head {
+    padding: 12px 14px;
+  }
+
+  .dg-modal-head h3 {
+    font-size: 16px;
+  }
+
+  .dg-modal-body {
+    padding: 12px 14px;
+  }
+
+  #dg-modal {
+    width: calc(100% - 24px);
+    max-height: 90vh;
+  }
+
+  #dg-modal .dg-modal-head {
+    padding: 12px 14px;
+  }
+
+  #dg-modal .dg-modal-body {
+    padding: 12px 14px;
+  }
+
+  .dg-kv {
+    grid-template-columns: 1fr;
+    gap: 6px 0;
+  }
+
+  .dg-kv dt {
+    margin-bottom: 2px;
+  }
+
+  .dg-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .dg-row .k {
+    margin-bottom: 4px;
+  }
+
+  /* DataGrid toolbar */
+  .dg-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 12px !important;
+  }
+  
+  /* Remove empty space in DataGrid - NUCLEAR OPTION */
+  .dg-scroll {
+    all: unset !important;
+    display: block !important;
+    width: 100% !important;
+    line-height: 0 !important;
+  }
+  
+  section.card .dg-scroll,
+  .card .dg-scroll {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+  }
+  
+  .dg-table tbody:empty {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .dg-table tbody:empty + * {
+    margin-top: 0 !important;
+  }
+  
+  /* Hide scroll container if tbody is empty */
+  .dg-scroll:has(.dg-table tbody:empty) {
+    display: none !important;
+  }
+  
+  /* Make table collapse when empty */
+  .dg-table {
+    margin: 0 !important;
+    border-spacing: 0 !important;
+  }
+  
+  /* Ensure no space from thead */
+  .dg-table thead {
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Remove margin-top from section.card on mobile */
+  section.card[data-grid],
+  .card[data-grid] {
+    margin-top: 0 !important;
+  }
+  
+  /* No gap between toolbar and scroll - COMPLETE REMOVAL */
+  .dg-toolbar + .dg-scroll {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+  }
+  
+  /* Target all possible containers */
+  .dg-toolbar ~ .dg-scroll,
+  section[data-grid] .dg-scroll,
+  .card[data-grid] .dg-scroll {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .dg-right {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .dg-right .dg-search {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    border: 2px solid #e5e7eb !important;
+  }
+  
+  .dg-right .dg-search:focus {
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1) !important;
+  }
+
+  /* DataGrid footer */
+  .dg-footer {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 16px 14px 12px;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 12px;
+  }
+
+  .dg-footer .dg-bulk {
+    justify-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .dg-bulk-date {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+    border-radius: 12px !important;
+  }
+  
+  .dg-bulk-btn {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 15px !important;
+    min-height: 44px !important;
+  }
+
+  .dg-footer .dg-pager {
+    justify-self: center;
+  }
+
+  .dg-footer .dg-spacer {
+    display: none;
+  }
+
+  .dg-pager {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .dg-pager .dg-pages {
+    padding: 4px 8px;
+    font-size: 14px;
+  }
+}
+
+/* ===== Phone specific (480px and below) ===== */
+@media (max-width: 480px) {
+  /* Even smaller padding */
+  .content-shell {
+    padding: 12px 10px 20px !important;
+  }
+
+  .container {
+    padding: 0 10px;
+  }
+
+  /* Smaller cards */
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .mini-card {
+    padding: 10px;
+  }
+
+  /* Smaller hero */
+  .hero-panel {
+    padding: 24px 16px;
+  }
+
+  .headline-xl {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .hero-lead {
+    font-size: 15px;
+  }
+
+  /* Login page */
+  .login-page {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 20px 16px;
+  }
+
+  .intro-card {
+    padding: 24px 20px;
+  }
+
+  .intro-card .login-logo {
+    width: 100px;
+  }
+
+  .intro-card h1 {
+    font-size: 22px;
+  }
+
+  /* Navigation */
+  .nav-inner {
+    padding: 10px 12px;
+  }
+
+  .brand-logo img {
+    height: clamp(32px, 8vw, 40px);
+  }
+
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-links a,
+  .nav-links button {
+    margin-left: 0;
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .btn-primary {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* Forms */
+  input,
+  select,
+  textarea {
+    padding: 10px 12px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  /* Modals */
+  .dg-modal-card {
+    width: calc(100% - 20px);
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  #dg-modal {
+    width: calc(100% - 20px);
+    border-radius: 12px;
+  }
+
+  .dg-modal-head h3 {
+    font-size: 15px;
+  }
+
+  /* DataGrid */
+  .dg-toolbar {
+    gap: 10px;
+  }
+
+  .dg-right .dg-search {
+    padding: 11px 14px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    min-height: 44px;
+    border: 2px solid #e5e7eb;
+  }
+
+  .dg-footer {
+    padding: 10px 12px;
+  }
+
+  /* KPI adjustments */
+  .kpi-line {
+    padding: 6px 0;
+  }
+
+  .kpi-line span {
+    font-size: 12px;
+  }
+
+  .kpi-line strong {
+    font-size: 15px;
+  }
+}
+
+/* ===== Sidebar mobile behavior ===== */
+@media (max-width: 900px) {
+  .sidenav .brand-logo img {
     width: clamp(110px, 45vw, 190px);
     height: auto;
     transform: translateX(var(--logo-nudge-x));
   }
-  :root{ --logo-nudge-x: 0px; } /* dacă tot pare “înclinat”, pune -4px / +4px */
+
+  :root {
+    --logo-nudge-x: 0px;
+  }
 }
 
 /* ===== Mobile header behavior for sidebar ===== */
-@media (max-width: 900px){
-  /* containerul devine sticky ca un header */
-  .sidenav.light.rosy{
+@media (max-width: 900px) {
+  .sidenav.light.rosy {
     position: sticky;
     top: 0;
     z-index: 60;
     padding: 0;
   }
-  .sidenav-surface{
+
+  .sidenav-surface {
     position: relative;
     top: 0;
     height: auto;
     border-radius: 0;
     padding: 10px 12px;
-    background: rgba(255,255,255,0.75);
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(8px);
     box-shadow: var(--shadow-rose);
-    transition: transform .25s ease, padding .2s ease, box-shadow .2s ease, background .2s ease;
+    transition: transform 0.25s ease, padding 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   }
-  /* când doar micșorăm “înălțimea” header-ului la începutul scroll-ului */
-  .sidenav-surface.shrink{
+
+  .sidenav-surface.shrink {
     padding: 6px 10px;
-    box-shadow: 0 8px 18px rgba(229,57,53,.10);
-    background: rgba(255,255,255,0.72);
+    box-shadow: 0 8px 18px rgba(229, 57, 53, 0.1);
+    background: rgba(255, 255, 255, 0.72);
   }
-  /* când ascundem complet la scroll în jos */
-  .sidenav-surface.hide{
+
+  .sidenav-surface.hide {
     transform: translateY(-105%);
     box-shadow: none;
   }
 }
 
 /* ===== DataGrid: mobile stacked cards ===== */
-@media (max-width: 760px){
-  .dg-scroll{ border:0; }
-  .dg-table thead{ display:none; }
-  .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ display:block; width:100%; }
-  .dg-table tbody tr{
-    background:#fff; border:1px solid #e5e7eb; border-radius:12px;
-    box-shadow: var(--shadow); margin-bottom:12px; padding:10px;
+@media (max-width: 760px) {
+  .dg-scroll {
+    border: 0;
+    background: transparent;
   }
-  .dg-table tbody td{
-    border:none; padding:8px 10px;
+
+  .dg-table thead {
+    display: none;
   }
-  .dg-table tbody td::before{
+
+  .dg-table,
+  .dg-table tbody,
+  .dg-table tr,
+  .dg-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .dg-table tbody {
+    padding: 4px;
+  }
+
+  .dg-table tbody tr {
+    background: #fff;
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    margin-bottom: 12px;
+    padding: 12px 12px 8px;
+  }
+
+  .dg-table tbody td {
+    padding: 10px 12px;
+    border-bottom: none;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    column-gap: 10px;
+    row-gap: 6px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.45;
+    font-size: 15px;
+  }
+
+  .dg-table tbody td::before {
     content: attr(data-label);
-    display:block; font-weight:600; color: var(--muted); margin-bottom:4px;
+    font-weight: 600;
+    color: #6b7280;
   }
-  .dg-pager{ flex-wrap:wrap; gap:8px; }
+
+  .dg-table tbody td .dg-val {
+    grid-column: 2;
+  }
+
+  .dg-table tbody td a {
+    grid-column: 2;
+    word-break: break-word;
+  }
+
+  /* Actions column - full width on mobile - HIGH SPECIFICITY */
+  .dg-table tbody td.col-actions,
+  .dg-table tbody td.col-_actions {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+    padding: 16px 12px !important;
+    margin-top: 8px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .dg-table tbody td.col-actions::before,
+  .dg-table tbody td.col-_actions::before {
+    content: attr(data-label) !important;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 12px;
+    display: block;
+    font-size: 14px;
+  }
+
+  .dg-table tbody td.col-actions .dg-actions,
+  .dg-table tbody td.col-_actions .dg-actions {
+    grid-column: 1 !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    display: flex !important;
+  }
+
+  /* Make action buttons MUCH larger for touch - FORCE IT */
+  .dg-table tbody td.col-actions .icon-btn,
+  .dg-table tbody td.col-_actions .icon-btn,
+  .dg-table tbody td.col-actions .dg-actions .icon-btn,
+  .dg-table tbody td.col-_actions .dg-actions .icon-btn {
+    min-width: 50px !important;
+    min-height: 50px !important;
+    width: 50px !important;
+    height: 50px !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-width: 2px !important;
+  }
+
+  .dg-table tbody td.col-actions .icon-btn .icon-svg,
+  .dg-table tbody td.col-_actions .icon-btn .icon-svg,
+  .dg-table tbody td.col-actions .dg-actions .icon-btn .icon-svg,
+  .dg-table tbody td.col-_actions .dg-actions .icon-btn .icon-svg {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+
+  .dg-pager {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
-/* ===== DataGrid: mobile stacked cards (cu ellipsis) ===== */
-@media (max-width: 760px){
-  .dg-scroll{ border:0; background:transparent; }
-  .dg-table thead{ display:none; }
-  .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ display:block; width:100%; }
-  .dg-table tbody tr{
-    background:#fff; border:0; border-radius:12px;
-    box-shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    margin-bottom:12px; padding:10px;
+/* ===== Very small phones (360px and below) ===== */
+@media (max-width: 360px) {
+  .content-shell {
+    padding: 10px 8px 18px !important;
   }
-  .dg-table tbody td{
-    border:none; padding:8px 10px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; /* tot scurt */
+
+  .container {
+    padding: 0 8px;
   }
-  .dg-table tbody td::before{
-    content: attr(data-label);
-    display:block; font-weight:600; color:#6b7280; margin-bottom:4px;
-    white-space:normal; overflow:visible; text-overflow:clip;
+
+  h1 {
+    font-size: 22px !important;
   }
-  .dg-pager{ flex-wrap:wrap; gap:8px; }
+
+  h2 {
+    font-size: 18px !important;
+  }
+
+  h3 {
+    font-size: 16px !important;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .mini-card {
+    padding: 8px;
+  }
+
+  .btn {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+
+  .login-card {
+    padding: 18px 14px;
+  }
+
+  .intro-card {
+    padding: 20px 16px;
+  }
+}
+
+/* ===== Landscape phone orientation ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .content-shell {
+    padding: 16px 14px 24px;
+  }
+
+  .hero-panel {
+    padding: 20px 24px;
+  }
+
+  .headline-xl {
+    font-size: 28px;
+  }
+}
+
+/* ===== Touch-friendly improvements ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .btn,
+  .btn-primary,
+  .btn-mini {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .nav-link {
+    min-height: 44px;
+  }
+
+  .tab-btn {
+    min-height: 40px;
+    padding: 10px 14px;
+  }
+
+  /* Action buttons must be touch-friendly */
+  .icon-btn,
+  .dg-actions .icon-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  /* Better spacing for touch */
+  .form {
+    gap: 14px;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  /* Prevent text selection on buttons */
+  .btn,
+  .btn-primary,
+  .nav-link {
+    -webkit-tap-highlight-color: rgba(229, 57, 53, 0.2);
+    user-select: none;
+  }
+}
+
+/* ===== Mobile-specific: Ensure action buttons are always touch-friendly ===== */
+@media (max-width: 1024px) {
+  /* Force all action buttons to be large and touchable */
+  .dg-table tbody td .icon-btn,
+  .dg-table tbody td .dg-actions .icon-btn,
+  .icon-btn,
+  .dg-actions .icon-btn {
+    min-width: 50px !important;
+    min-height: 50px !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-width: 2px !important;
+  }
+
+  .dg-table tbody td .icon-btn .icon-svg,
+  .dg-table tbody td .dg-actions .icon-btn .icon-svg,
+  .icon-btn .icon-svg,
+  .dg-actions .icon-btn .icon-svg {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+}
+
+/* ===== Responsive images ===== */
+@media (max-width: 768px) {
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .login-logo,
+  .intro-card .login-logo {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ===== Prevent horizontal scroll ===== */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  * {
+    max-width: 100%;
+  }
+
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+}
+
+/* ===== Better text wrapping on mobile ===== */
+@media (max-width: 768px) {
+  p,
+  span,
+  div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Allow long URLs to break */
+  a {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Improve text readability on mobile */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Better line height for reading */
+  p, li {
+    line-height: 1.6;
+  }
 }
 
