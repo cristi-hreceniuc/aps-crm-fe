@@ -10,12 +10,14 @@
       </div>
     </header>
 
+    <!-- Tabs -->
     <div class="tabs">
-      <a class="tab tab-active" data-tab="users">Utilizatori</a>
-      <a class="tab" data-tab="notifications">Notificări</a>
+      <button class="tab-btn active" data-tab="grid-users">Utilizatori</button>
+      <button class="tab-btn" data-tab="grid-notifications">Notificări</button>
     </div>
 
-    <section id="tab-users">
+    <!-- Grid 1: Utilizatori -->
+    <section id="grid-users" class="tab-pane active">
       <%- include('partials/datagrid', {
         gridId: 'log-users',
         title: 'Utilizatori',
@@ -42,7 +44,8 @@
       }) %>
     </section>
 
-    <section id="tab-notifications" style="display: none;">
+    <!-- Tab 2: Notificări -->
+    <section id="grid-notifications" class="tab-pane">
       <div class="card" style="max-width: 600px; margin: 2rem auto; padding: 2rem;">
         <h2 style="margin-bottom: 0.5rem;">📢 Trimite Notificare</h2>
         <p class="muted" style="margin-bottom: 1.5rem;">Trimite notificări push către utilizatorii aplicației mobile</p>
@@ -113,17 +116,32 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Tab switching
-  const tabs = document.querySelectorAll('.tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('tab-active'));
-      tab.classList.add('tab-active');
-      
-      document.querySelectorAll('[id^="tab-"]').forEach(section => {
-        section.style.display = 'none';
-      });
-      document.getElementById(`tab-${tab.dataset.tab}`).style.display = 'block';
+  // Tab switching (same pattern as cauze.ejs)
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panes = document.querySelectorAll('.tab-pane');
+
+  const savedTab = localStorage.getItem('logopedie-active-tab') || 'grid-users';
+
+  function activateTab(tabId) {
+    tabs.forEach(x => x.classList.remove('active'));
+    panes.forEach(x => x.classList.remove('active'));
+
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    const pane = document.getElementById(tabId);
+
+    if (btn && pane) {
+      btn.classList.add('active');
+      pane.classList.add('active');
+      localStorage.setItem('logopedie-active-tab', tabId);
+      window.dispatchEvent(new Event('resize'));
+    }
+  }
+
+  activateTab(savedTab);
+
+  tabs.forEach(b => {
+    b.addEventListener('click', () => {
+      activateTab(b.dataset.tab);
     });
   });
 
