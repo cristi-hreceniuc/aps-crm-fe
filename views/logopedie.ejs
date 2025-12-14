@@ -12,7 +12,7 @@
 
     <div class="tabs">
       <a class="tab tab-active" data-tab="users">Utilizatori</a>
-      <!-- vei adăuga alte tab-uri ulterior -->
+      <a class="tab" data-tab="notifications">Notificări</a>
     </div>
 
     <section id="tab-users">
@@ -41,6 +41,179 @@
         autosize: { minPx: 90, maxPx: 320 }
       }) %>
     </section>
+
+    <section id="tab-notifications" style="display: none;">
+      <div class="card" style="max-width: 600px; margin: 2rem auto; padding: 2rem;">
+        <h2 style="margin-bottom: 0.5rem;">📢 Trimite Notificare</h2>
+        <p class="muted" style="margin-bottom: 1.5rem;">Trimite notificări push către utilizatorii aplicației mobile</p>
+        
+        <form id="notification-form">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="notif-target" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Destinatari</label>
+            <select id="notif-target" name="target" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;">
+              <option value="all">Toți utilizatorii</option>
+              <option value="premium">Doar Premium</option>
+              <option value="non_premium">Doar Non-Premium</option>
+              <option value="role">După Rol</option>
+            </select>
+          </div>
+
+          <div id="role-options" style="display: none; margin-bottom: 1rem;">
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label for="notif-role" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Rol</label>
+              <select id="notif-role" name="role" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;">
+                <option value="USER">Utilizator (USER)</option>
+                <option value="SPECIALIST">Specialist (SPECIALIST)</option>
+                <option value="ADMIN">Administrator (ADMIN)</option>
+                <option value="VOLUNTEER">Voluntar (VOLUNTEER)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="filter-premium" name="filterPremium">
+                <span>Filtrează și după status premium</span>
+              </label>
+            </div>
+            <div id="premium-filter" style="display: none; margin-top: 0.5rem; margin-left: 1.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="isPremium" value="true"> Premium
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 0.25rem;">
+                <input type="radio" name="isPremium" value="false" checked> Non-Premium
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="notif-title" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Titlu</label>
+            <input type="text" id="notif-title" name="title" required maxlength="100"
+                   placeholder="Ex: Noutăți în aplicație! 🎉"
+                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="notif-body" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Mesaj</label>
+            <textarea id="notif-body" name="body" required rows="4" maxlength="500"
+                      placeholder="Mesajul notificării..."
+                      style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; resize: vertical;"></textarea>
+            <small class="muted" style="display: block; margin-top: 0.25rem;"><span id="char-count">0</span>/500 caractere</small>
+          </div>
+
+          <div id="notification-result" style="display: none; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;"></div>
+
+          <button type="submit" id="send-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
+            <span id="btn-text">📤 Trimite Notificare</span>
+            <span id="btn-loading" style="display: none;">⏳ Se trimite...</span>
+          </button>
+        </form>
+      </div>
+    </section>
   </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('tab-active'));
+      tab.classList.add('tab-active');
+      
+      document.querySelectorAll('[id^="tab-"]').forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(`tab-${tab.dataset.tab}`).style.display = 'block';
+    });
+  });
+
+  // Notification form handling
+  const targetSelect = document.getElementById('notif-target');
+  const roleOptions = document.getElementById('role-options');
+  const filterPremiumCheckbox = document.getElementById('filter-premium');
+  const premiumFilter = document.getElementById('premium-filter');
+  const bodyTextarea = document.getElementById('notif-body');
+  const charCount = document.getElementById('char-count');
+  const form = document.getElementById('notification-form');
+  const resultDiv = document.getElementById('notification-result');
+  const btnText = document.getElementById('btn-text');
+  const btnLoading = document.getElementById('btn-loading');
+  const sendBtn = document.getElementById('send-btn');
+
+  // Show/hide role options based on target selection
+  targetSelect.addEventListener('change', () => {
+    roleOptions.style.display = targetSelect.value === 'role' ? 'block' : 'none';
+  });
+
+  // Show/hide premium filter
+  filterPremiumCheckbox.addEventListener('change', () => {
+    premiumFilter.style.display = filterPremiumCheckbox.checked ? 'block' : 'none';
+  });
+
+  // Character counter
+  bodyTextarea.addEventListener('input', () => {
+    charCount.textContent = bodyTextarea.value.length;
+  });
+
+  // Form submission
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const target = formData.get('target');
+    const title = formData.get('title');
+    const body = formData.get('body');
+    
+    const payload = { title, body, target };
+    
+    if (target === 'role') {
+      payload.role = formData.get('role');
+      if (filterPremiumCheckbox.checked) {
+        payload.isPremium = formData.get('isPremium') === 'true';
+      }
+    }
+
+    // Show loading state
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+    sendBtn.disabled = true;
+    resultDiv.style.display = 'none';
+
+    try {
+      const response = await fetch('/api/logopedie/notifications/targeted', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      
+      resultDiv.style.display = 'block';
+      if (response.ok && data.success) {
+        resultDiv.style.background = 'var(--success-bg, #d4edda)';
+        resultDiv.style.color = 'var(--success-text, #155724)';
+        resultDiv.innerHTML = `✅ ${data.message}`;
+        form.reset();
+        charCount.textContent = '0';
+        roleOptions.style.display = 'none';
+        premiumFilter.style.display = 'none';
+      } else {
+        resultDiv.style.background = 'var(--danger-bg, #f8d7da)';
+        resultDiv.style.color = 'var(--danger-text, #721c24)';
+        resultDiv.innerHTML = `❌ ${data.message || 'Eroare la trimitere'}`;
+      }
+    } catch (err) {
+      resultDiv.style.display = 'block';
+      resultDiv.style.background = 'var(--danger-bg, #f8d7da)';
+      resultDiv.style.color = 'var(--danger-text, #721c24)';
+      resultDiv.innerHTML = `❌ Eroare de conexiune: ${err.message}`;
+    } finally {
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+      sendBtn.disabled = false;
+    }
+  });
+});
+</script>
+
 <%- include('partials/footer') %>

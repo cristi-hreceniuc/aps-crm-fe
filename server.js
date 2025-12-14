@@ -603,6 +603,21 @@ app.delete('/api/logopedie/users/:id', ensureAuth, async (req,res)=>{
   }
 });
 
+// NOTIFICATIONS - Send targeted notification
+app.post('/api/logopedie/notifications/targeted', ensureAuth, async (req, res) => {
+  try {
+    const { token } = req.session;
+    const { status, data } = await api.post('/admin/notifications/targeted', req.body, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {
