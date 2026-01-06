@@ -46,6 +46,7 @@
       <div class="mini-card">
         <h3>IBAN Beneficiari</h3>
         <div class="kpi-line"><span>Nr. IBAN-uri</span><strong id="kpi-iban-tot">—</strong></div>
+        <div class="kpi-line"><span>Ascunse</span><strong id="kpi-iban-hidden">—</strong></div>
       </div>
 
       <!-- Cauze -->
@@ -57,11 +58,19 @@
         <div class="kpi-line"><span>Următoarea campanie</span><strong id="kpi-cau-next">—</strong></div>
       </div>
 
-      <!-- Utilizatori -->
+      <!-- CRM - Conturi -->
       <div class="mini-card">
-        <h3>Conturi</h3>
-        <div class="kpi-line"><span>Utilizatori</span><strong id="kpi-persoane-users">—</strong></div>
-        <div class="kpi-line"><span>Administratori</span><strong id="kpi-persoane-admins">—</strong></div>
+        <h3>CRM - conturi</h3>
+        <div class="kpi-line"><span>Administratori</span><strong id="kpi-crm-admins">—</strong></div>
+        <div class="kpi-line"><span>Voluntari</span><strong id="kpi-crm-volunteers">—</strong></div>
+      </div>
+
+      <!-- Logopedy - Conturi -->
+      <div class="mini-card">
+        <h3>Logopedy - conturi</h3>
+        <div class="kpi-line"><span>Utilizatori</span><strong id="kpi-logopedy-users">—</strong></div>
+        <div class="kpi-line"><span>Specialiști</span><strong id="kpi-logopedy-specialists">—</strong></div>
+        <div class="kpi-line"><span>Premium</span><strong id="kpi-logopedy-premium">—</strong></div>
       </div>
     </section>
   </main>
@@ -97,6 +106,7 @@
 
       // IBAN
       document.getElementById('kpi-iban-tot').textContent = nfmt(k?.iban?.total);
+      document.getElementById('kpi-iban-hidden').textContent = nfmt(k?.iban?.hidden);
 
       // Cauze
       document.getElementById('kpi-cau-tot').textContent  = nfmt(k?.causes?.total);
@@ -104,9 +114,14 @@
       document.getElementById('kpi-cau-avg').textContent  = nfmt(k?.causes?.avgProgressPct?.toFixed?.(1) ?? k?.causes?.avgProgressPct);
       document.getElementById('kpi-cau-next').textContent = dfmt(k?.causes?.nextCampaignDate);
 
-      // Utilizatori
-      document.getElementById('kpi-persoane-users').textContent = nfmt(k?.persoane?.users);
-      document.getElementById('kpi-persoane-admins').textContent = nfmt(k?.persoane?.admins);
+      // CRM - Conturi
+      document.getElementById('kpi-crm-admins').textContent = nfmt(k?.persoane?.crmAdmins);
+      document.getElementById('kpi-crm-volunteers').textContent = nfmt(k?.persoane?.crmVolunteers);
+
+      // Logopedy - Conturi
+      document.getElementById('kpi-logopedy-users').textContent = nfmt(k?.persoane?.logopedyUsers);
+      document.getElementById('kpi-logopedy-specialists').textContent = nfmt(k?.persoane?.logopedySpecialists);
+      document.getElementById('kpi-logopedy-premium').textContent = nfmt(k?.persoane?.logopedyPremium);
     })
     .catch(()=>{/* lasă "—" pe carduri */});
 })();
