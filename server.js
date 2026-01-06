@@ -476,6 +476,7 @@ app.put('/api/f230/:id/flags', proxyPut(req => `/f230/${req.params.id}/flags`));
 app.put('/api/sponsorizare/:id/flags', proxyPut(req => `/sponsorizare/${req.params.id}/flags`));
 app.put('/api/offline-payments/:id/status', proxyPut(req => `/offline-payments/${req.params.id}/status`));
 app.put('/api/settings/:id', proxyPut(req => `/settings/${req.params.id}`));
+app.put('/api/iban/:id/hide', proxyPut(req => `/iban/${req.params.id}/hide`));
 
 app.post('/api/settings/:id/reset', proxyPost(req => `/settings/${req.params.id}/reset`));
 app.post('/api/f230/borderou', proxyPost('/f230/borderou'));

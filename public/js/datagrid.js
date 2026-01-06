@@ -829,6 +829,23 @@
             alert('Nu am putut salva setarea.');
           }
         }
+        if (this.gridId === 'iban' && key === 'hidden') {
+          try {
+            const res = await fetch(`/api/iban/${encodeURIComponent(id)}/hide`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ hidden: val })
+            });
+            if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+          } catch (err) {
+            console.error('Persist toggle failed', err);
+            t.checked = !val;
+            this._toggles[stateKey] = !val;
+            alert('Nu am putut salva setarea.');
+          }
+          return;
+        }
         if (this.gridId === 'log-users') {
           try {
           // mapăm numele câmpului pentru BE (isPremium -> premium)
