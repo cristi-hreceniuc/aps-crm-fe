@@ -39,7 +39,7 @@
         <input id="regEmail" name="email" type="email" required placeholder="you@example.com" />
 
         <label for="regPass">Parolă</label>
-        <input id="regPass" name="password" type="password" required minlength="6" placeholder="Min. 6 caractere" />
+        <input id="regPass" name="password" type="password" required minlength="8" placeholder="Min. 8 caractere" />
 
         <button class="btn btn-outline no-fill" type="submit">Creează cont</button>
       </form>
@@ -58,8 +58,25 @@ document.getElementById('regForm').addEventListener('submit', async (e) => {
   const email     = document.getElementById('regEmail').value.trim();
   const password  = document.getElementById('regPass').value;
 
-  if (!firstName || !lastName || !gender || !email || !password) {
-    alert('Te rugăm completează toate câmpurile.');
+  // Client-side validation with specific error messages
+  const errors = [];
+  if (!firstName) errors.push('Prenumele este obligatoriu');
+  if (!lastName) errors.push('Numele este obligatoriu');
+  if (!gender) errors.push('Genul este obligatoriu');
+  if (!email) errors.push('Email-ul este obligatoriu');
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('Email-ul nu este valid');
+  if (!password) errors.push('Parola este obligatorie');
+  else if (password.length < 8) errors.push('Parola trebuie să aibă cel puțin 8 caractere');
+
+  if (errors.length > 0) {
+    // Show errors in the alert box instead of browser alert
+    const alertBox = document.querySelector('.alert-danger') || document.createElement('div');
+    alertBox.className = 'alert alert-danger';
+    alertBox.textContent = errors.join('. ') + '.';
+    if (!document.querySelector('.alert-danger')) {
+      const form = document.getElementById('regForm');
+      form.parentNode.insertBefore(alertBox, form);
+    }
     return;
   }
 
@@ -73,7 +90,7 @@ document.getElementById('regForm').addEventListener('submit', async (e) => {
     const html = await res.text();
     document.open(); document.write(html); document.close();
   } catch {
-    alert('Eroare la înregistrare');
+    alert('Eroare la înregistrare. Verifică conexiunea la internet.');
   }
 });
 </script>

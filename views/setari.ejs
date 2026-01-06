@@ -45,6 +45,51 @@
             <!-- rândurile vin din /js/settings.js -->
           </div>
         </section>
+
+        <!-- ===== Conturi Web (Admin/Voluntar) ===== -->
+        <% 
+          const isAdmin = user && user.userRole === 'ADMIN';
+          const webUsersColumns = [
+            { key: 'id',        label: 'ID',          sortable: false, width: '22%' },
+            { key: 'firstName', label: 'Prenume',     sortable: true,  width: '12%' },
+            { key: 'lastName',  label: 'Nume',        sortable: true,  width: '12%' },
+            { key: 'email',     label: 'Email',       sortable: true,  width: '18%' },
+            { key: 'role',      label: 'Rol',         sortable: true,  width: '10%' },
+            { key: 'status',    label: 'Status',      sortable: true,  width: '10%' },
+            { key: 'createdAt', label: 'Data creării', sortable: true, width: '12%', type: 'date' }
+          ];
+          // Only admins can delete accounts
+          if (isAdmin) {
+            webUsersColumns.push({ key: '_actions', label: 'Acțiuni', sortable: false, type: 'actions' });
+          }
+        %>
+        <%- include('partials/datagrid', {
+          gridId: 'web-users',
+          title: 'Conturi Web',
+          subtitle: 'Administrează conturile de admin și voluntar',
+          searchPlaceholder: 'Caută după nume, email, rol…',
+
+          endpoint: '/api/web-users',
+
+          pageSize: 10,
+
+          api: {
+            pageParam: 'page',
+            sizeParam: 'size',
+            sortParam: 'sort',
+            sortValue: '{key},{dir}',
+            pageBase: 0,
+            searchParam: 'q'
+          },
+          response: {
+            items: 'content',
+            page: 'number',
+            size: 'size',
+            total: 'totalElements'
+          },
+          extraClass: 'dg-compact',
+          columns: webUsersColumns
+        }) %>
       </main>
   </div>
   <%- include('partials/footer') %>

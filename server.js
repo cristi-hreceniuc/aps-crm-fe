@@ -147,7 +147,8 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
-    const { data } = await api.post('/auth/login', { email, password });
+    // Send platform=WEB so ADMIN and VOLUNTEER can log in
+    const { data } = await api.post('/auth/login', { email, password, platform: 'WEB' });
     if (!data?.token) throw new Error('Missing token from API');
 
     req.session.token = data.token;
@@ -172,17 +173,54 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  const { email, password, firstName, lastName, gender } = req.body; // ← noi
+  const { email, password, firstName, lastName, gender } = req.body;
   try {
-    await api.post('/auth/register', { email, password, firstName, lastName, gender });
+    // Default role for FE-created accounts is VOLUNTEER
+    await api.post('/auth/register', { email, password, firstName, lastName, gender, userRole: 'VOLUNTEER' });
     res.render('register', {
       title: 'Înregistrare',
       message: 'Cont creat! Te poți autentifica.',
       error: null
     });
   } catch (err) {
-    const msg = err.response?.data?.message || 'Eroare la crearea contului';
-    res.status(400).render('register', { title: 'Înregistrare', message: null, error: msg });
+    const data = err.response?.data;
+    let msg = 'Eroare la crearea contului';
+    
+    if (data) {
+      // RFC 7807 ProblemDetail format - check 'detail' field first
+      if (data.detail) {
+        msg = data.detail;
+      } else if (data.message) {
+        msg = data.message;
+      } else if (data.title) {
+        msg = data.title;
+      }
+      
+      // If there are field-specific validation errors, format them nicely
+      if (data.errors && typeof data.errors === 'object') {
+        const errorMessages = Object.entries(data.errors)
+          .map(([field, message]) => {
+            // Translate field names to Romanian
+            const fieldNames = {
+              email: 'Email',
+              password: 'Parolă',
+              firstName: 'Prenume',
+              lastName: 'Nume',
+              gender: 'Gen'
+            };
+            const fieldName = fieldNames[field] || field;
+            return `${fieldName}: ${message}`;
+          })
+          .join('; ');
+        msg = errorMessages || msg;
+      }
+    }
+    
+    res.status(err.response?.status || 400).render('register', { 
+      title: 'Înregistrare', 
+      message: null, 
+      error: msg 
+    });
   }
 });
 
@@ -262,6 +300,10 @@ app.get('/api/kpi', proxyGet('/kpi'));
 app.get('/api/offline-payments', proxyGet('/offline-payments'));
 
 app.get('/api/settings/xml', proxyGet('settings/xml'));
+
+// Web users (ADMIN/VOLUNTEER) for settings page
+app.get('/api/web-users', proxyGet('/users/web/search'));
+app.get('/api/web-users/search', proxyGet('/users/web/search'));
 /* === Proxy către BE (cu Bearer) === */
 
 const proxyDelete = (targetPathBuilder) => async (req, res) => {
@@ -469,6 +511,14 @@ app.delete('/api/f230/:id', proxyDelete(req => `/f230/${req.params.id}`));
 app.delete('/api/iban/:id', proxyDelete(req => `/iban/${req.params.id}`));
 app.delete('/api/offline-payments/:id', proxyDelete(req => `/offline-payments/${req.params.id}`));
 app.delete('/api/sponsorizare/:id', proxyDelete(req => `/sponsorizare/${req.params.id}`));
+// Only ADMIN can delete web users
+app.delete('/api/web-users/:id', (req, res, next) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot șterge conturi.' });
+  }
+  return proxyDelete(r => `/users/${r.params.id}`)(req, res, next);
+});
 app.delete('/api/settings/:id', proxyDelete(req => `/settings/${req.params.id}`));
 
 app.put('/api/d177/:id/flags', proxyPut(req => `/formulare/d177/${req.params.id}/flags`));
@@ -538,7 +588,15 @@ app.put('/api/iban/:id', ensureAuth, async (req, res) => {
   }
 });
 
-app.get('/aplicatie-logopedica', (req,res)=> {
+// Only ADMIN users can access the logopedy app management page
+app.get('/aplicatie-logopedica', (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).render('404', { 
+      title: 'Acces interzis',
+      message: 'Doar administratorii pot accesa această pagină.'
+    });
+  }
   res.render('logopedie', { title: 'Aplicație Logopedică', heading: 'Aplicație Logopedică' });
 });
 
