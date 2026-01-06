@@ -65,44 +65,28 @@
     <!-- Tab 2: Notificări -->
     <section id="grid-notifications" class="tab-pane">
       <div class="card" style="max-width: 600px; margin: 2rem auto; padding: 2rem;">
-        <h2 style="margin-bottom: 0.5rem;">📢 Trimite Notificare</h2>
+        <h2 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.5rem; height: 1.5rem; color: var(--primary, #dc2626);">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a23.91 23.91 0 010 3.46" />
+          </svg>
+          Trimite Notificare
+        </h2>
         <p class="muted" style="margin-bottom: 1.5rem;">Trimite notificări push către utilizatorii aplicației mobile</p>
         
         <form id="notification-form">
-          <div class="form-group" style="margin-bottom: 1rem;">
+          <div class="form-group" style="margin-bottom: 1rem; position: relative;">
             <label for="notif-target" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Destinatari</label>
-            <select id="notif-target" name="target" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;">
+            <select id="notif-target" name="target" required style="width: 100%; padding: 0.75rem; padding-right: 2.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; appearance: none; background-color: var(--bg, #fff);">
               <option value="all">Toți utilizatorii</option>
-              <option value="premium">Doar Premium</option>
-              <option value="non_premium">Doar Non-Premium</option>
-              <option value="role">După Rol</option>
+              <option value="user_normal">Toți utilizatorii normali</option>
+              <option value="user_premium">Toți utilizatorii premium</option>
+              <option value="specialist_all">Toți specialiștii</option>
+              <option value="specialist_normal">Toți specialiștii normali</option>
+              <option value="specialist_premium">Toți specialiștii premium</option>
             </select>
-          </div>
-
-          <div id="role-options" style="display: none; margin-bottom: 1rem;">
-            <div class="form-group" style="margin-bottom: 1rem;">
-              <label for="notif-role" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Rol</label>
-              <select id="notif-role" name="role" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;">
-                <option value="USER">Utilizator (USER)</option>
-                <option value="SPECIALIST">Specialist (SPECIALIST)</option>
-                <option value="ADMIN">Administrator (ADMIN)</option>
-                <option value="VOLUNTEER">Voluntar (VOLUNTEER)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="filter-premium" name="filterPremium">
-                <span>Filtrează și după status premium</span>
-              </label>
-            </div>
-            <div id="premium-filter" style="display: none; margin-top: 0.5rem; margin-left: 1.5rem;">
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="radio" name="isPremium" value="true"> Premium
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 0.25rem;">
-                <input type="radio" name="isPremium" value="false" checked> Non-Premium
-              </label>
-            </div>
+            <svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; position: absolute; right: 0.75rem; top: 2.5rem; pointer-events: none; color: var(--text-muted, #6b7280);">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
           </div>
 
           <div class="form-group" style="margin-bottom: 1rem;">
@@ -122,9 +106,19 @@
 
           <div id="notification-result" style="display: none; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;"></div>
 
-          <button type="submit" id="send-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
-            <span id="btn-text">📤 Trimite Notificare</span>
-            <span id="btn-loading" style="display: none;">⏳ Se trimite...</span>
+          <button type="submit" id="send-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span id="btn-text" style="display: flex; align-items: center; gap: 0.5rem;">
+              <svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+              Trimite Notificare
+            </span>
+            <span id="btn-loading" style="display: none; align-items: center; gap: 0.5rem;">
+              <svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; animation: spin 1s linear infinite;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Se trimite...
+            </span>
           </button>
         </form>
       </div>
@@ -165,9 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Notification form handling
   const targetSelect = document.getElementById('notif-target');
-  const roleOptions = document.getElementById('role-options');
-  const filterPremiumCheckbox = document.getElementById('filter-premium');
-  const premiumFilter = document.getElementById('premium-filter');
   const bodyTextarea = document.getElementById('notif-body');
   const charCount = document.getElementById('char-count');
   const form = document.getElementById('notification-form');
@@ -175,16 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnText = document.getElementById('btn-text');
   const btnLoading = document.getElementById('btn-loading');
   const sendBtn = document.getElementById('send-btn');
-
-  // Show/hide role options based on target selection
-  targetSelect.addEventListener('change', () => {
-    roleOptions.style.display = targetSelect.value === 'role' ? 'block' : 'none';
-  });
-
-  // Show/hide premium filter
-  filterPremiumCheckbox.addEventListener('change', () => {
-    premiumFilter.style.display = filterPremiumCheckbox.checked ? 'block' : 'none';
-  });
 
   // Character counter
   bodyTextarea.addEventListener('input', () => {
@@ -228,11 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
   requireActiveToggle.addEventListener('change', async () => {
     const isChecked = requireActiveToggle.checked;
     settingStatus.style.display = 'block';
-    settingStatus.style.background = 'var(--info-bg, #d1ecf1)';
-    settingStatus.style.color = 'var(--info-text, #0c5460)';
-    settingStatus.style.padding = '0.5rem';
-    settingStatus.style.borderRadius = '4px';
-    settingStatus.textContent = '⏳ Se salvează...';
+        settingStatus.style.background = 'var(--info-bg, #d1ecf1)';
+        settingStatus.style.color = 'var(--info-text, #0c5460)';
+        settingStatus.style.padding = '0.5rem';
+        settingStatus.style.borderRadius = '4px';
+        settingStatus.innerHTML = '<svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem; animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Se salvează...';
     requireActiveToggle.disabled = true;
 
     try {
@@ -246,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         settingStatus.style.background = 'var(--success-bg, #d4edda)';
         settingStatus.style.color = 'var(--success-text, #155724)';
-        settingStatus.textContent = '✅ Setare salvată cu succes!';
+        settingStatus.innerHTML = '<svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Setare salvată cu succes!';
         updateToggleLabel();
         setTimeout(() => {
           settingStatus.style.display = 'none';
@@ -255,13 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
         settingStatus.style.background = 'var(--danger-bg, #f8d7da)';
         settingStatus.style.color = 'var(--danger-text, #721c24)';
-        settingStatus.textContent = `❌ Eroare: ${data.message || 'Nu s-a putut salva setarea'}`;
+        settingStatus.innerHTML = `<svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>Eroare: ${data.message || 'Nu s-a putut salva setarea'}`;
         requireActiveToggle.checked = !isChecked; // Revert on error
       }
     } catch (err) {
       settingStatus.style.background = 'var(--danger-bg, #f8d7da)';
       settingStatus.style.color = 'var(--danger-text, #721c24)';
-      settingStatus.textContent = `❌ Eroare de conexiune: ${err.message}`;
+      settingStatus.innerHTML = `<svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>Eroare de conexiune: ${err.message}`;
       requireActiveToggle.checked = !isChecked; // Revert on error
     } finally {
       requireActiveToggle.disabled = false;
@@ -281,18 +262,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = formData.get('title');
     const body = formData.get('body');
     
-    const payload = { title, body, target };
+    const payload = { title, body };
     
-    if (target === 'role') {
-      payload.role = formData.get('role');
-      if (filterPremiumCheckbox.checked) {
-        payload.isPremium = formData.get('isPremium') === 'true';
-      }
+    // Map target values to API payload
+    switch (target) {
+      case 'all':
+        payload.target = 'all';
+        break;
+      case 'user_normal':
+        payload.target = 'role';
+        payload.role = 'USER';
+        payload.isPremium = false;
+        break;
+      case 'user_premium':
+        payload.target = 'role';
+        payload.role = 'USER';
+        payload.isPremium = true;
+        break;
+      case 'specialist_all':
+        payload.target = 'role';
+        payload.role = 'SPECIALIST';
+        break;
+      case 'specialist_normal':
+        payload.target = 'role';
+        payload.role = 'SPECIALIST';
+        payload.isPremium = false;
+        break;
+      case 'specialist_premium':
+        payload.target = 'role';
+        payload.role = 'SPECIALIST';
+        payload.isPremium = true;
+        break;
+      default:
+        payload.target = target;
     }
 
     // Show loading state
     btnText.style.display = 'none';
-    btnLoading.style.display = 'inline';
+    btnLoading.style.display = 'flex';
     sendBtn.disabled = true;
     resultDiv.style.display = 'none';
 
@@ -309,23 +316,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok && data.success) {
         resultDiv.style.background = 'var(--success-bg, #d4edda)';
         resultDiv.style.color = 'var(--success-text, #155724)';
-        resultDiv.innerHTML = `✅ ${data.message}`;
+        resultDiv.innerHTML = `<svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>${data.message}`;
         form.reset();
         charCount.textContent = '0';
-        roleOptions.style.display = 'none';
-        premiumFilter.style.display = 'none';
       } else {
         resultDiv.style.background = 'var(--danger-bg, #f8d7da)';
         resultDiv.style.color = 'var(--danger-text, #721c24)';
-        resultDiv.innerHTML = `❌ ${data.message || 'Eroare la trimitere'}`;
+        resultDiv.innerHTML = `<svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>${data.message || 'Eroare la trimitere'}`;
       }
     } catch (err) {
       resultDiv.style.display = 'block';
       resultDiv.style.background = 'var(--danger-bg, #f8d7da)';
       resultDiv.style.color = 'var(--danger-text, #721c24)';
-      resultDiv.innerHTML = `❌ Eroare de conexiune: ${err.message}`;
+      resultDiv.innerHTML = `<svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 1.125rem; height: 1.125rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>Eroare de conexiune: ${err.message}`;
     } finally {
-      btnText.style.display = 'inline';
+      btnText.style.display = 'flex';
       btnLoading.style.display = 'none';
       sendBtn.disabled = false;
     }

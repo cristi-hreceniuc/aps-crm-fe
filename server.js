@@ -126,6 +126,85 @@ function logoutOnUnauthorized(req, res, err) {
   return false;
 }
 
+// Translates common English error messages to Romanian
+function translateErrorMessage(message) {
+  if (!message || typeof message !== 'string') return message;
+  
+  const lowerMessage = message.toLowerCase();
+  
+  // Email already registered errors
+  if (lowerMessage.includes('email already registered') ||
+      lowerMessage.includes('email already exists') ||
+      lowerMessage.includes('user already exists') ||
+      lowerMessage.includes('email is already registered') ||
+      lowerMessage.includes('email is already in use') ||
+      (lowerMessage.includes('email') && lowerMessage.includes('already'))) {
+    // Extract email if present in the message
+    const emailMatch = message.match(/['"]([^'"]+@[^'"]+)['"]/);
+    if (emailMatch) {
+      return `Adresa de email '${emailMatch[1]}' este deja înregistrată.`;
+    }
+    return 'Adresa de email este deja înregistrată.';
+  }
+  
+  // Bad credentials
+  if (lowerMessage.includes('bad credentials') || 
+      lowerMessage.includes('wrong credentials') ||
+      lowerMessage.includes('invalid credentials') ||
+      lowerMessage.includes('incorrect credentials')) {
+    return 'Email sau parolă incorectă. Te rog verifică credențialele și încearcă din nou.';
+  }
+  
+  // User not found
+  if (lowerMessage.includes('user not found') || 
+      lowerMessage.includes('email not found') ||
+      lowerMessage.includes('account not found')) {
+    return 'Email-ul nu a fost găsit. Te rog verifică adresa de email.';
+  }
+  
+  // Password errors
+  if (lowerMessage.includes('password') && lowerMessage.includes('incorrect')) {
+    return 'Parolă incorectă. Te rog verifică parola și încearcă din nou.';
+  }
+  
+  // Email format errors
+  if (lowerMessage.includes('email') && lowerMessage.includes('incorrect')) {
+    return 'Email incorect. Te rog verifică adresa de email.';
+  }
+  
+  // Unauthorized
+  if (lowerMessage.includes('unauthorized') || lowerMessage.includes('not authorized')) {
+    return 'Nu ai permisiunea de a accesa această resursă.';
+  }
+  
+  // Forbidden
+  if (lowerMessage.includes('forbidden') || lowerMessage.includes('access denied')) {
+    return 'Acces interzis. Te rog verifică permisiunile tale.';
+  }
+  
+  // Not found
+  if (lowerMessage.includes('not found') || lowerMessage.includes('404')) {
+    return 'Resursa nu a fost găsită.';
+  }
+  
+  // Data integrity violation
+  if (lowerMessage.includes('data integrity violation')) {
+    return 'Eroare la validarea datelor. Verifică că toate câmpurile sunt corecte.';
+  }
+  
+  // Invalid role
+  if (lowerMessage.includes('invalid user role') || lowerMessage.includes('invalid role')) {
+    return 'Rol de utilizator invalid.';
+  }
+  
+  // Password validation
+  if (lowerMessage.includes('password') && (lowerMessage.includes('8') || lowerMessage.includes('min'))) {
+    return 'Parola trebuie să aibă cel puțin 8 caractere.';
+  }
+  
+  return message; // Return original if no translation found
+}
+
 
 /* ------------------------ Auth gate --------------------- */
 function requireAuth(req, res, next) {
@@ -189,11 +268,11 @@ app.post('/register', async (req, res) => {
     if (data) {
       // RFC 7807 ProblemDetail format - check 'detail' field first
       if (data.detail) {
-        msg = data.detail;
+        msg = translateErrorMessage(data.detail);
       } else if (data.message) {
-        msg = data.message;
+        msg = translateErrorMessage(data.message);
       } else if (data.title) {
-        msg = data.title;
+        msg = translateErrorMessage(data.title);
       }
       
       // If there are field-specific validation errors, format them nicely
@@ -209,7 +288,9 @@ app.post('/register', async (req, res) => {
               gender: 'Gen'
             };
             const fieldName = fieldNames[field] || field;
-            return `${fieldName}: ${message}`;
+            // Translate the error message as well
+            const translatedMessage = translateErrorMessage(String(message));
+            return `${fieldName}: ${translatedMessage}`;
           })
           .join('; ');
         msg = errorMessages || msg;
@@ -301,9 +382,61 @@ app.get('/api/offline-payments', proxyGet('/offline-payments'));
 
 app.get('/api/settings/xml', proxyGet('settings/xml'));
 
-// Web users (ADMIN/VOLUNTEER) for settings page
-app.get('/api/web-users', proxyGet('/users/web/search'));
-app.get('/api/web-users/search', proxyGet('/users/web/search'));
+// Web users (ADMIN/VOLUNTEER) for settings page - Only show ADMIN and VOLUNTEER roles
+app.get('/api/web-users', async (req, res) => {
+  if (!req.session?.token) return res.status(401).json({ message: 'Not authenticated' });
+  try {
+    const { data, status } = await api.get('/users/web/search', {
+      headers: { Authorization: `Bearer ${req.session.token}` },
+      params: req.query
+    });
+    
+    // Only show web users: ADMIN and VOLUNTEER
+    if (data && data.content && Array.isArray(data.content)) {
+      const allowedRoles = ['ADMIN', 'VOLUNTEER', 'ADMINISTRATOR'];
+      data.content = data.content.filter(user => 
+        allowedRoles.includes(user.role) || allowedRoles.includes(user.userRole)
+      );
+      // Update total count after filtering
+      if (data.totalElements !== undefined) {
+        data.totalElements = data.content.length;
+      }
+    }
+    
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+app.get('/api/web-users/search', async (req, res) => {
+  if (!req.session?.token) return res.status(401).json({ message: 'Not authenticated' });
+  try {
+    const { data, status } = await api.get('/users/web/search', {
+      headers: { Authorization: `Bearer ${req.session.token}` },
+      params: req.query
+    });
+    
+    // Only show web users: ADMIN and VOLUNTEER
+    if (data && data.content && Array.isArray(data.content)) {
+      const allowedRoles = ['ADMIN', 'VOLUNTEER', 'ADMINISTRATOR'];
+      data.content = data.content.filter(user => 
+        allowedRoles.includes(user.role) || allowedRoles.includes(user.userRole)
+      );
+      // Update total count after filtering
+      if (data.totalElements !== undefined) {
+        data.totalElements = data.content.length;
+      }
+    }
+    
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
 /* === Proxy către BE (cu Bearer) === */
 
 const proxyDelete = (targetPathBuilder) => async (req, res) => {
@@ -624,7 +757,7 @@ app.get('/aplicatie-logopedica', (req, res) => {
   res.render('logopedie', { title: 'Aplicație Logopedică', heading: 'Aplicație Logopedică' });
 });
 
-// LIST / SEARCH
+// LIST / SEARCH - Only show SPECIALIST, USER and PREMIUM users (mobile app users)
 app.get('/api/logopedie/users', async (req,res)=>{
   if (!req.session?.token) return res.status(401).json({ message:'Not authenticated' });
   try {
@@ -632,6 +765,17 @@ app.get('/api/logopedie/users', async (req,res)=>{
       headers: { Authorization: `Bearer ${req.session.token}` },
       params: req.query
     });
+    
+    // Only show mobile app users: SPECIALIST, USER (which includes PREMIUM users based on isPremium flag)
+    if (data && data.content && Array.isArray(data.content)) {
+      const allowedRoles = ['SPECIALIST', 'USER'];
+      data.content = data.content.filter(user => allowedRoles.includes(user.role));
+      // Update total count after filtering
+      if (data.totalElements !== undefined) {
+        data.totalElements = data.content.length;
+      }
+    }
+    
     res.status(status).json(data);
   } catch (err) {
     const s = err.response?.status || 500;
