@@ -33,6 +33,11 @@
       <span class="dg-select-all-info muted">
         Folosește această opțiune pentru a genera XML cu toate înregistrările.
       </span>
+      <!-- Mobile-only bulk actions (date + generate) - shown right under select all -->
+      <div class="dg-bulk-mobile">
+        <input type="date" class="dg-bulk-date-mobile" aria-label="Data borderou">
+        <button type="button" class="btn-mini dg-bulk-btn-mobile" disabled>Generează XML</button>
+      </div>
     </div>
   <% } %>
 
@@ -125,101 +130,58 @@
       selectable: !!(typeof selectable !== 'undefined' && selectable)
     }) %>
   </script>
-  
-  <!-- MOBILE GAP FIX SCRIPT -->
   <script>
-    (function() {
-      if (window.innerWidth <= 1024) {
-        function forceRemoveGap() {
-          const grids = document.querySelectorAll('[data-grid]');
-          grids.forEach(grid => {
-            const scroll = grid.querySelector('.dg-scroll');
-            const toolbar = grid.querySelector('.dg-toolbar');
-            const table = grid.querySelector('.dg-table');
-            const tbody = table ? table.querySelector('tbody') : null;
-            const thead = table ? table.querySelector('thead') : null;
-            
-            // STEP 1: Completely reset .dg-scroll
-            if (scroll) {
-              scroll.style.cssText = `
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                background: none !important;
-                box-shadow: none !important;
-                line-height: 0 !important;
-                font-size: 0 !important;
-                height: auto !important;
-                min-height: 0 !important;
-                overflow: visible !important;
-              `;
-            }
-            
-            // STEP 2: Reset toolbar bottom spacing
-            if (toolbar) {
-              toolbar.style.marginBottom = '0';
-              toolbar.style.paddingBottom = '12px';
-            }
-            
-            // STEP 3: Reset table
-            if (table) {
-              table.style.margin = '0';
-              table.style.padding = '0';
-            }
-            
-            // STEP 4: Reset tbody
-            if (tbody) {
-              tbody.style.margin = '0';
-              tbody.style.padding = '0';
-            }
-            
-            // STEP 5: Hide thead completely
-            if (thead) {
-              thead.style.display = 'none';
-              thead.style.height = '0';
-              thead.style.margin = '0';
-              thead.style.padding = '0';
-              thead.style.visibility = 'hidden';
-              thead.style.position = 'absolute';
-            }
-          });
-        }
-        
-        // Run immediately and after load
-        forceRemoveGap();
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', forceRemoveGap);
-        }
-        window.addEventListener('load', forceRemoveGap);
-        
-        // Run again after delays to catch dynamic content
-        setTimeout(forceRemoveGap, 50);
-        setTimeout(forceRemoveGap, 200);
-        setTimeout(forceRemoveGap, 500);
-        setTimeout(forceRemoveGap, 1000);
-        
-        // Watch for DOM changes
-        if (window.MutationObserver) {
-          const observer = new MutationObserver(function(mutations) {
-            let shouldUpdate = false;
-            mutations.forEach(function(mutation) {
-              if (mutation.addedNodes.length > 0) {
-                shouldUpdate = true;
-              }
-            });
-            if (shouldUpdate) {
-              forceRemoveGap();
-            }
-          });
-          
-          document.querySelectorAll('[data-grid]').forEach(grid => {
-            observer.observe(grid, { 
-              childList: true, 
-              subtree: true 
-            });
-          });
-        }
-      }
-    })();
+  (function(){
+    if(window.innerWidth>1024)return;
+    var fix=function(){
+      // Reset ALL container heights
+      var containers='.app,.content-shell,.card,[data-grid],.dg-scroll,.dg-table,.dg-table tbody,.dg-table thead,.dg-table colgroup';
+      document.querySelectorAll(containers).forEach(function(el){
+        el.style.setProperty('display','block','important');
+        el.style.setProperty('height','auto','important');
+        el.style.setProperty('min-height','0','important');
+        el.style.setProperty('max-height','none','important');
+        el.style.setProperty('flex','none','important');
+      });
+      // Make scroll container completely invisible
+      document.querySelectorAll('.dg-scroll').forEach(function(el){
+        el.style.setProperty('border','0','important');
+        el.style.setProperty('border-width','0','important');
+        el.style.setProperty('background','none','important');
+        el.style.setProperty('background-color','transparent','important');
+        el.style.setProperty('box-shadow','none','important');
+        el.style.setProperty('padding','0','important');
+        el.style.setProperty('margin','0','important');
+        el.style.setProperty('overflow','visible','important');
+        el.style.setProperty('border-radius','0','important');
+      });
+      // Completely hide thead and colgroup
+      document.querySelectorAll('.dg-table thead,.dg-table colgroup').forEach(function(el){
+        el.style.setProperty('display','none','important');
+        el.style.setProperty('visibility','hidden','important');
+        el.style.setProperty('height','0','important');
+        el.style.setProperty('position','absolute','important');
+        el.style.setProperty('left','-9999px','important');
+      });
+      // Fix table
+      document.querySelectorAll('.dg-table').forEach(function(el){
+        el.style.setProperty('table-layout','auto','important');
+        el.style.setProperty('border-collapse','collapse','important');
+        el.style.setProperty('border-spacing','0','important');
+      });
+    };
+    fix();
+    document.addEventListener('DOMContentLoaded',fix);
+    window.addEventListener('load',fix);
+    setTimeout(fix,10);
+    setTimeout(fix,50);
+    setTimeout(fix,100);
+    setTimeout(fix,250);
+    setTimeout(fix,500);
+    setTimeout(fix,1000);
+    if(window.MutationObserver){
+      new MutationObserver(function(){fix();}).observe(document.body,{childList:true,subtree:true});
+    }
+  })();
   </script>
 </section>

@@ -8,6 +8,11 @@
     padding: 0 !important;
     line-height: 0 !important;
     font-size: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
   }
   
   /* Force no spacing */
@@ -16,13 +21,14 @@
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
-    background: none !important;
+    background: transparent !important;
     box-shadow: none !important;
     min-height: 0 !important;
     height: auto !important;
     line-height: 0 !important;
+    border-radius: 0 !important;
   }
-  .dg-table thead{ display:none; }
+  .dg-table thead{ display:none !important; height: 0 !important; overflow: hidden !important; }
   .dg-table, .dg-table tbody, .dg-table tr, .dg-table td{ 
     display:block; 
     width:100%; 
@@ -32,6 +38,7 @@
     padding:0 !important;
     line-height: normal !important;
     font-size: 15px !important;
+    border-spacing: 0 !important;
   }
   .dg-table tbody{ 
     padding:0 !important; 
@@ -49,6 +56,8 @@
     border: 1px solid #f3f4f6;
     line-height: normal !important;
     font-size: 15px !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    overflow: hidden; /* For the checkbox bar styling */
   }
   .dg-table tbody tr:first-child {
     margin-top: 0 !important;
@@ -56,6 +65,16 @@
   }
   .dg-table tbody tr:last-child {
     margin-bottom: 0;
+  }
+  
+  /* Empty state row - reduce whitespace */
+  .dg-table tbody tr:only-child td.muted,
+  .dg-table tbody tr td[colspan] {
+    padding: 16px 12px !important;
+    text-align: center;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    color: #6b7280;
   }
   .dg-table tbody td{
     padding:12px 14px; border-bottom:none;
@@ -119,22 +138,95 @@
     min-height: 24px !important;
   }
   
-  /* Checkbox column on mobile */
+  /* Checkbox column on mobile - simple row with label and checkbox */
   .dg-table tbody td.col-select {
-    padding: 14px !important;
     display: flex !important;
-    justify-content: center;
-    align-items: center;
-    border-bottom: 1px solid #f3f4f6;
-    margin-bottom: 12px;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 14px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background: #f9fafb !important;
+    margin: 0 0 10px 0 !important;
+    width: 100% !important;
+    grid-template-columns: none !important;
   }
   
+  /* Add "Selectează" label - override components.css rule with higher specificity */
+  section.card .dg-table tbody td.col-select::before,
+  .card .dg-table tbody td.col-select::before,
   .dg-table tbody td.col-select::before {
-    display: none !important;
+    content: 'Selectează' !important;
+    display: block !important;
+    font-weight: 600 !important;
+    color: #6b7280 !important;
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.02em !important;
   }
   
-  .dg-check {
-    transform: scale(1.2);
+  /* Make the checkbox label visible and properly sized on mobile */
+  .dg-table tbody td.col-select label.dg-check {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  
+  /* Make the .box visual checkbox larger on mobile */
+  .dg-table tbody td.col-select label.dg-check .box {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+    border-width: 2px !important;
+  }
+  
+  /* Larger checkmark for mobile */
+  .dg-table tbody td.col-select label.dg-check input:checked + .box::after {
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 5px !important;
+  }
+  
+  /* Keep .vh hidden but don't hide .box */
+  .dg-table tbody td.col-select label.dg-check .vh {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+  }
+  
+  /* ===== SELECTED ROW STYLING - Mobile ===== */
+  /* Very visible selection with thick left border and background */
+  .dg-table tbody tr.dg-selected {
+    background: #fef2f2 !important;
+    border: 2px solid #fca5a5 !important;
+    border-left: 5px solid var(--brand, #e53935) !important;
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.15) !important;
+  }
+  
+  /* Selected row checkbox area gets highlight too */
+  .dg-table tbody tr.dg-selected td.col-select {
+    background: #fee2e2 !important;
+    border-bottom-color: #fca5a5 !important;
+  }
+  
+  /* IMPORTANT: Override ALL desktop box-shadow styles on cells */
+  /* These desktop styles in components.css create inset shadows that look bad on mobile */
+  .dg-table tbody tr.dg-selected > td,
+  .dg-table tbody tr.dg-selected > td:first-child,
+  .dg-table tbody tr.dg-selected > td:last-child,
+  .dg-table tbody tr.dg-selected td {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Remove any ::before pseudo-elements from desktop (but keep our label) */
+  .dg-table tbody tr.dg-selected::before {
+    content: none !important;
+    display: none !important;
   }
 
   /* Actions column - make it touch-friendly - HIGH SPECIFICITY */
@@ -276,10 +368,10 @@
     margin-bottom: 0 !important;
   }
   
-  /* Reduce gap between toolbar and content - USE NEGATIVE MARGIN */
+  /* Reduce gap between toolbar and content */
   .dg-toolbar {
-    margin-bottom: 0 !important;
-    padding-bottom: 12px !important;
+    margin-bottom: 16px !important;
+    padding-bottom: 0 !important;
     border-bottom: none !important;
   }
   
@@ -294,9 +386,10 @@
   .dg-toolbar .muted {
     font-size: 13px;
     line-height: 1.4;
+    margin-bottom: 12px;
   }
   
-  /* Ensure no gap between toolbar and scroll container - NUCLEAR */
+  /* Ensure no gap between toolbar and scroll container */
   .dg-toolbar + .dg-scroll {
     margin-top: 0 !important;
     padding-top: 0 !important;
@@ -353,6 +446,8 @@
     height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    visibility: hidden !important;
+    position: absolute !important;
   }
 }
 
@@ -376,6 +471,116 @@
   border-color: var(--brand) !important;
   box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1) !important;
   outline: none !important;
+}
+
+/* ===== SELECT ALL + BULK ACTIONS - Mobile styling ===== */
+@media (max-width: 1024px) {
+  .dg-select-all-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 0 0 16px !important;
+    margin-bottom: 12px;
+  }
+  
+  /* "Selectează tot" button - simple outline style */
+  .dg-select-all-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px !important;
+    border-radius: 12px !important;
+    font-size: 14px !important;
+    font-weight: 600;
+    min-height: 44px;
+    transition: all 0.15s ease;
+    background: #fff !important;
+    border: 2px solid var(--brand, #e53935) !important;
+    color: var(--brand, #e53935) !important;
+  }
+  
+  .dg-select-all-btn:active {
+    background: var(--brand, #e53935) !important;
+    color: #fff !important;
+  }
+  
+  .dg-select-all-btn .dg-select-count {
+    background: var(--brand, #e53935);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 13px;
+    min-width: 24px;
+    text-align: center;
+    font-weight: 700;
+  }
+  
+  /* When button is active/pressed, invert the count badge */
+  .dg-select-all-btn:active .dg-select-count {
+    background: #fff;
+    color: var(--brand, #e53935);
+  }
+  
+  /* Selection info text - hide on mobile */
+  .dg-select-all-info {
+    display: none !important;
+  }
+  
+  /* === MOBILE BULK ACTIONS === */
+  /* Show mobile bulk area under select-all */
+  .dg-bulk-mobile {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 4px;
+  }
+  
+  .dg-bulk-mobile .dg-bulk-date-mobile {
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    font-size: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    color: #374151;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .dg-bulk-mobile .dg-bulk-date-mobile:focus {
+    border-color: var(--brand, #e53935);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1);
+  }
+  
+  .dg-bulk-mobile .dg-bulk-btn-mobile {
+    width: 100%;
+    min-height: 48px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+  }
+  
+  .dg-bulk-mobile .dg-bulk-btn-mobile:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* Hide desktop bulk from footer on mobile */
+  .dg-footer .dg-bulk {
+    display: none !important;
+  }
+}
+
+/* Hide mobile bulk on desktop */
+@media (min-width: 1025px) {
+  .dg-bulk-mobile {
+    display: none !important;
+  }
 }
 
 /* Extra aggressive for phones */

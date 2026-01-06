@@ -44,10 +44,16 @@
       // footer / bulk
       this.footer = $('.dg-footer', section) || section;
       this.bulkBox = $('.dg-bulk', section);
-      this.bulkDate = $('.dg-bulk-date', section);
-      this.bulkBtn = $('.dg-bulk-btn', section);
-      this.footer = this.el.querySelector('.dg-footer');
       this.bulkWrap = this.el.querySelector('.dg-bulk');
+      // Desktop bulk elements (in footer)
+      this.bulkDate = this.bulkWrap ? this.bulkWrap.querySelector('.dg-bulk-date') : null;
+      this.bulkBtn = this.bulkWrap ? this.bulkWrap.querySelector('.dg-bulk-btn') : null;
+      
+      // Mobile bulk elements (under select-all bar)
+      const mobileWrap = section.querySelector('.dg-bulk-mobile');
+      this.bulkDateMobile = mobileWrap ? mobileWrap.querySelector('.dg-bulk-date-mobile') : null;
+      this.bulkBtnMobile = mobileWrap ? mobileWrap.querySelector('.dg-bulk-btn-mobile') : null;
+      
       this.selectAllBtn = $('.dg-select-all-btn', section);
       this.selectAllLabel = this.selectAllBtn ? this.selectAllBtn.querySelector('.dg-select-all-label') : null;
       this.selectCountEl = this.selectAllBtn ? this.selectAllBtn.querySelector('.dg-select-count') : null;
@@ -79,18 +85,31 @@
       this._updateSelectionCounters();
 
       // data implicită în bulk (astăzi) – doar pe f230
-      // data implicită în bulk (astăzi) – doar pe f230
-      if (this.gridId === 'f230' && this.bulkDate && !this.bulkDate.value) {
+      if (this.gridId === 'f230') {
         const d = new Date();
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
-        if (this.bulkDate.type === 'date') {
-          // pentru <input type="date">
-          this.bulkDate.value = `${yyyy}-${mm}-${dd}`;
-        } else {
-          // pentru input text
-          this.bulkDate.value = `${dd}.${mm}.${yyyy}`;
+        const dateValue = `${yyyy}-${mm}-${dd}`;
+        const textValue = `${dd}.${mm}.${yyyy}`;
+        
+        // Set desktop date
+        if (this.bulkDate && !this.bulkDate.value) {
+          this.bulkDate.value = this.bulkDate.type === 'date' ? dateValue : textValue;
+        }
+        // Set mobile date
+        if (this.bulkDateMobile && !this.bulkDateMobile.value) {
+          this.bulkDateMobile.value = this.bulkDateMobile.type === 'date' ? dateValue : textValue;
+        }
+        
+        // Sync dates between desktop and mobile
+        if (this.bulkDate && this.bulkDateMobile) {
+          this.bulkDate.addEventListener('change', () => {
+            this.bulkDateMobile.value = this.bulkDate.value;
+          });
+          this.bulkDateMobile.addEventListener('change', () => {
+            this.bulkDate.value = this.bulkDateMobile.value;
+          });
         }
       }
       this.el._dgInstance = this;
@@ -239,61 +258,73 @@
       }
 
       // bulk – generează XML (doar pe f230)
-      if (this.bulkBtn) {
-        this.bulkBtn.addEventListener('click', async () => {
-          if (this.bulkBtn.disabled) return;
-          if (this.gridId !== 'f230') return;
+      // Helper function for generating XML
+      const handleBulkGenerate = async () => {
+        if (this.gridId !== 'f230') return;
+        const ids = Array.from(this.selected);
+        // Use mobile date if on mobile, otherwise desktop date
+        const date = (this.bulkDateMobile && this.bulkDateMobile.value) || (this.bulkDate && this.bulkDate.value) || '';
+        
+        try {
+          const res = await fetch('/api/f230/borderou', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/octet-stream,application/xml,application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ ids, date })
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
 
-          const ids = Array.from(this.selected);
-          const date = (this.bulkDate && this.bulkDate.value) || '';
+          let borderouId = res.headers.get('X-Borderou-Id') || res.headers.get('X-APS-Borderou');
 
-          try {
-            const res = await fetch('/api/f230/borderou', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/octet-stream,application/xml,application/json'
-              },
-              credentials: 'same-origin',
-              body: JSON.stringify({ ids, date })
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-
-            // încercăm să luăm id-ul borderoului din header sau json pt nume fișier
-            let borderouId = res.headers.get('X-Borderou-Id') || res.headers.get('X-APS-Borderou');
-
-            const ct = (res.headers.get('content-type') || '').toLowerCase();
-            if (ct.includes('application/json')) {
-              const data = await res.json();
-              if (!borderouId) borderouId = data.borderouId || data.id;
-              if (data.url) {
-                window.open(data.url, '_blank', 'noopener');
-              } else if (data.filename && data.xml) {
-                const blob = new Blob([data.xml], { type: 'application/xml' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = data.filename;
-                a.click();
-                setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-              }
-            } else {
-              const blob = await res.blob();
+          const ct = (res.headers.get('content-type') || '').toLowerCase();
+          if (ct.includes('application/json')) {
+            const data = await res.json();
+            if (!borderouId) borderouId = data.borderouId || data.id;
+            if (data.url) {
+              window.open(data.url, '_blank', 'noopener');
+            } else if (data.filename && data.xml) {
+              const blob = new Blob([data.xml], { type: 'application/xml' });
               const a = document.createElement('a');
               a.href = URL.createObjectURL(blob);
-              const ymd = (date || new Date().toISOString().slice(0, 10)).replace(/[^0-9]/g, '');
-              const fname = borderouId ? `borderou_${borderouId}.xml` : `borderou_${ymd}.xml`;
-              a.download = fname;
+              a.download = data.filename;
               a.click();
               setTimeout(() => URL.revokeObjectURL(a.href), 2000);
             }
-
-            // după generare: debifează tot + reîncarcă pagina curentă
-            this._clearSelection();
-            await this.fetch();
-          } catch (err) {
-            console.error(err);
-            alert('Nu am putut genera XML.');
+          } else {
+            const blob = await res.blob();
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            const ymd = (date || new Date().toISOString().slice(0, 10)).replace(/[^0-9]/g, '');
+            const fname = borderouId ? `borderou_${borderouId}.xml` : `borderou_${ymd}.xml`;
+            a.download = fname;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
           }
+
+          this._clearSelection();
+          await this.fetch();
+        } catch (err) {
+          console.error(err);
+          alert('Nu am putut genera XML.');
+        }
+      };
+      
+      // Desktop bulk button
+      if (this.bulkBtn) {
+        this.bulkBtn.addEventListener('click', async () => {
+          if (this.bulkBtn.disabled) return;
+          await handleBulkGenerate();
+        });
+      }
+      
+      // Mobile bulk button
+      if (this.bulkBtnMobile) {
+        this.bulkBtnMobile.addEventListener('click', async () => {
+          if (this.bulkBtnMobile.disabled) return;
+          await handleBulkGenerate();
         });
       }
 
@@ -325,7 +356,7 @@
       } catch (err) {
         console.error('DataGrid fetch error:', err);
         if (this.tbody)
-          this.tbody.innerHTML = `<tr><td colspan="${(this.cfg.columns || []).length + (this.cfg.selectable ? 1 : 0)}" class="muted" style="text-align:center;padding:22px">Eroare la încărcare.</td></tr>`;
+          this.tbody.innerHTML = `<tr class="dg-empty-row"><td colspan="${(this.cfg.columns || []).length + (this.cfg.selectable ? 1 : 0)}" class="dg-empty-cell muted">Eroare la încărcare.</td></tr>`;
         if (this.pagesEl) this.pagesEl.textContent = '—';
         if (this.prevBtn) this.prevBtn.disabled = true;
         if (this.nextBtn) this.nextBtn.disabled = true;
@@ -402,7 +433,8 @@
       const cols = this.cfg.columns || [];
       if (!items.length) {
         const colspan = cols.length + (this.cfg.selectable ? 1 : 0);
-        this.tbody.innerHTML = `<tr><td colspan="${colspan}" class="muted" style="text-align:center;padding:22px">Nicio înregistrare.</td></tr>`;
+        // Use class instead of inline padding - let CSS handle mobile styling
+        this.tbody.innerHTML = `<tr class="dg-empty-row"><td colspan="${colspan}" class="dg-empty-cell muted">Nicio înregistrare.</td></tr>`;
         this._updateBulkBtn(); // ascunde butonul dacă e cazul
         return;
       }
@@ -1059,7 +1091,10 @@
     }
     _updateBulkBtn() {
       const hasSel = this.selected.size > 0;
+      // Update desktop bulk button
       if (this.bulkBtn) this.bulkBtn.disabled = !hasSel;
+      // Update mobile bulk button
+      if (this.bulkBtnMobile) this.bulkBtnMobile.disabled = !hasSel;
       if (this.footer) this.footer.classList.toggle('has-bulk', hasSel);
       this._updateSelectionCounters();
     }
@@ -1202,134 +1237,71 @@
       if (!this.table || !this.colgroup) return;
 
       const colsCfg = this.cfg.columns || [];
-      const minPx = Number(this.cfg.autosize?.minPx ?? 150);
-      const maxPx = Number(this.cfg.autosize?.maxPx ?? 340);
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const refCell = this.tbody.querySelector('td') || this.thead.querySelector('th');
-      const style = refCell ? getComputedStyle(refCell) : { font: '14px Inter' };
-      const font = `${style.fontStyle || ''} ${style.fontVariant || ''} ${style.fontWeight || ''} ${style.fontSize || '14px'}/${style.lineHeight || '20px'} ${style.fontFamily || 'Inter, Arial'}`.trim();
-      ctx.font = font;
-
-      const padX = (() => {
-        if (!refCell) return 20;
-        const cs = getComputedStyle(refCell);
-        return (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
-      })();
-
-      const widths = colsCfg.map((c) => {
-        // Special handling for actions column - needs space for buttons
+      // With table-layout: auto, we just set hints via colgroup
+      // The browser will naturally size based on content
+      
+      // Column width hints based on content type
+      const getColumnWidthHints = (c) => {
+        // Actions column - fixed width for buttons
         if (c.type === 'actions') {
-          // 3 buttons (36px each) + 2 gaps (6px each) + padding (32px) = ~152px minimum
-          return 150;
+          return { min: 120, max: 160 };
         }
-
-        const th = this.thead?.querySelector(`th.col-${cssEsc(c.key)}`);
-        const headerText = th ? th.querySelector('.th-label')?.textContent?.trim() || '' : (c.label || '');
-        let w = ctx.measureText(headerText).width;
-
-        const cells = $$(`.col-${cssEsc(c.key)}`, this.tbody).slice(0, 20);
-        cells.forEach(td => {
-          const link = td.querySelector('a');
-          const span = td.querySelector('span.dg-val');
-          const txt = link?.textContent || span?.textContent || td.textContent || '';
-          const mw = ctx.measureText(txt.trim()).width;
-          if (mw > w) w = mw;
-        });
-
-        if (c.type === 'number') w *= 0.75; // More compact for numbers
-        if (/email|mail/i.test(c.key)) w *= 1.0; // Don't expand emails
-        if (c.clamp) w = Math.min(w, 180); // Reduce clamp max width
-        
-        // Make boolean columns more compact
-        if (c.type === 'bool') w = 80; // Fixed small width for toggles
-        
-        w = Math.ceil(w + padX + (c.sortable ? 12 : 0)); // Reduce sort indicator space
-        // Use tighter min/max bounds
-        const tightMin = Math.min(minPx, 70); // Lower minimum
-        const tightMax = Math.min(maxPx, 200); // Lower maximum for most columns
-        w = Math.max(tightMin, Math.min(tightMax, w));
-        return w;
-      });
-
-      const container = this.table.parentElement;
-      const available = container.clientWidth || this.table.clientWidth || 0;
-      
-      // Calculate fixed widths for special columns
-      const selectWidth = this.cfg.selectable ? 56 : 0;
-      const actionsWidth = 150; // Fixed width for actions column (3 buttons)
-      
-      // Fixed widths for specific column types
-      const fixedWidths = {
-        'id': 70,
-        'year': 85,
-        'nrBorderou': 100,
-        'period': 90,
-        'downloaded': 80,
-        'verified': 80,
-        'corrupt': 80
+        // Boolean toggles - compact
+        if (c.type === 'bool') {
+          return { min: 70, max: 100 };
+        }
+        // ID columns (often UUIDs) - give generous width
+        if (c.key === 'id' || c.key.endsWith('Id') || c.key.endsWith('_id')) {
+          return { min: 100, max: 320 };
+        }
+        // Date columns - compact
+        if (c.type === 'date' || /date|createdAt|updatedAt/i.test(c.key)) {
+          return { min: 90, max: 140 };
+        }
+        // Status/Role - short text
+        if (/status|role|type/i.test(c.key)) {
+          return { min: 70, max: 140 };
+        }
+        // Name columns
+        if (/name|firstName|lastName|prenume|nume/i.test(c.key)) {
+          return { min: 80, max: 200 };
+        }
+        // Email columns
+        if (/email|mail/i.test(c.key)) {
+          return { min: 120, max: 280 };
+        }
+        // Year, period, numbers - compact
+        if (c.type === 'number' || /year|period|nr|number/i.test(c.key)) {
+          return { min: 60, max: 120 };
+        }
+        // Default for other columns
+        return { min: 80, max: 250 };
       };
-      
-      // Find which columns have fixed widths
-      const fixedIndices = new Set();
-      let totalFixedWidth = selectWidth;
-      colsCfg.forEach((c, idx) => {
-        if (c.type === 'actions') {
-          fixedIndices.add(idx);
-          totalFixedWidth += actionsWidth;
-        } else if (fixedWidths[c.key]) {
-          fixedIndices.add(idx);
-          totalFixedWidth += fixedWidths[c.key];
-        }
-      });
-      
-      // Calculate sum excluding fixed-width columns
-      const sum = widths.reduce((a, b, idx) => {
-        return fixedIndices.has(idx) ? a : a + b;
-      }, 0) || 1;
-      
-      // Available width minus fixed columns
-      const availableForProportional = Math.max(0, available - totalFixedWidth);
 
       // + 1 col dacă avem select
       const allCols = $$('.dg-col', this.colgroup);
       const offset = this.cfg.selectable ? 1 : 0;
 
       allCols.forEach((colEl, i) => {
-        // dacă e prima coloană și avem selectable, lăsăm lățimea fixă mică
+        // Select column - fixed small width
         if (this.cfg.selectable && i === 0) {
           colEl.style.width = '56px';
           colEl.style.minWidth = '56px';
+          colEl.style.maxWidth = '56px';
           return;
         }
+        
         const dataIndex = i - offset;
-        if (dataIndex < 0) return;
+        if (dataIndex < 0 || dataIndex >= colsCfg.length) return;
         
-        // Special handling for fixed-width columns
         const colCfg = colsCfg[dataIndex];
-        if (colCfg) {
-          // Actions column
-          if (colCfg.type === 'actions') {
-            colEl.style.width = `${actionsWidth}px`;
-            colEl.style.minWidth = `${actionsWidth}px`;
-            colEl.style.maxWidth = `${actionsWidth}px`;
-            return;
-          }
-          // Other fixed-width columns
-          if (fixedWidths[colCfg.key]) {
-            const fixedW = fixedWidths[colCfg.key];
-            colEl.style.width = `${fixedW}px`;
-            colEl.style.minWidth = `${fixedW}px`;
-            colEl.style.maxWidth = `${fixedW}px`;
-            return;
-          }
-        }
+        const hints = getColumnWidthHints(colCfg);
         
-        // Proportional width for other columns
-        const tightMin = Math.min(minPx, 70); // Lower minimum
-        const px = Math.max(tightMin, Math.round(widths[dataIndex] * availableForProportional / sum));
-        colEl.style.width = `${px}px`;
+        // Set width hints - browser will use these with table-layout: auto
+        colEl.style.width = 'auto';
+        colEl.style.minWidth = `${hints.min}px`;
+        colEl.style.maxWidth = `${hints.max}px`;
       });
     }
 
@@ -1541,7 +1513,7 @@
 
         const body = `
       <dl class="dg-kv">
-        <dt>An fiscal</dt><dd>${d.year || ''}</dd>
+        <dt>An fiscal</dt><dd>${d.year || d.anFiscal || ''}</dd>
         <dt>Trimis pe</dt><dd>${(d.postDateIso || '').replace('T', ' ')}</dd>
         <dt>Perioadă</dt><dd>${twoYears ? '2 ani' : '1 an'}</dd>
         <dt>Nume</dt><dd>${fullName || ''}</dd>

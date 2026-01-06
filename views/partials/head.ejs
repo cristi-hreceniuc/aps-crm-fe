@@ -16,18 +16,18 @@
   <link rel="icon" type="image/png" href="/img/aps-logo-small.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/img/aps-logo-small.png">
 
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/sidebar.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/icons.css" />
-  <link rel="stylesheet" href="/css/dark-theme.css">
+  <link rel="stylesheet" href="/css/base.css?v=4" />
+  <link rel="stylesheet" href="/css/layout.css?v=4" />
+  <link rel="stylesheet" href="/css/sidebar.css?v=4" />
+  <link rel="stylesheet" href="/css/components.css?v=4" />
+  <link rel="stylesheet" href="/css/icons.css?v=4" />
+  <link rel="stylesheet" href="/css/dark-theme.css?v=4">
 
   <!-- DataGrid CSS separat (după components ca să aibă prioritate) -->
-  <link rel="stylesheet" href="/css/datagrid.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
-  <link rel="stylesheet" href="/css/datagrid.mobile.css" />
-  <link rel="stylesheet" href="/css/datagrid-gap-fix.css" />
+  <link rel="stylesheet" href="/css/datagrid.css?v=4" />
+  <link rel="stylesheet" href="/css/responsive.css?v=4" />
+  <link rel="stylesheet" href="/css/datagrid.mobile.css?v=4" />
+  <link rel="stylesheet" href="/css/datagrid-gap-fix.css?v=4" />
   <!-- Mobile styles must load last to override everything -->
 
   <script src="/js/icons.js"></script>
@@ -78,3 +78,14 @@
 </head>
 
 <body>
+<script>
+// Mobile layout fix - runs immediately before DOM is painted
+(function(){
+  if(window.innerWidth>1024)return;
+  document.body.classList.add('is-mobile-view');
+  var css=document.createElement('style');
+  css.id='mobile-gap-fix';
+  css.textContent='@media(max-width:1024px){html,body{height:auto!important;min-height:0!important;overflow-x:hidden!important}.app{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;flex:none!important}main,.content-shell{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;flex:none!important;flex-grow:0!important}.card,.card[data-grid],section.card,[data-grid]{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;flex:none!important}.dg-scroll{display:block!important;height:auto!important;min-height:0!important;border:0!important;border-width:0!important;background:transparent!important;background-color:transparent!important;box-shadow:none!important;padding:0!important;margin:0!important;overflow:visible!important;border-radius:0!important}.dg-table,.dg-table tbody,.dg-table tr,.dg-table td{display:block!important;height:auto!important;min-height:0!important}.dg-table thead,.dg-table colgroup{display:none!important;visibility:hidden!important;height:0!important;position:absolute!important;left:-9999px!important}}';
+  document.head.appendChild(css);
+})();
+</script>

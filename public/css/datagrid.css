@@ -21,7 +21,7 @@
   width:100%; 
   border-collapse:separate; 
   border-spacing:0 6px; 
-  table-layout:fixed;
+  table-layout:auto;
 }
 
 /* Header */
@@ -81,12 +81,32 @@
   border-color:#e5e7eb;
 }
 .dg-table tbody tr.dg-selected {
-  background:#fef2f2;
+  background: linear-gradient(135deg, #fef2f2 0%, #fff8f8 100%);
   border-color:#fecaca;
+  position: relative;
+}
+.dg-table tbody tr.dg-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  background: linear-gradient(180deg, #e53935 0%, #ef5350 100%);
+  border-radius: 0 3px 3px 0;
 }
 .dg-table tbody tr.dg-selected:hover {
-  background:#fee2e2;
+  background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
   border-color:#fca5a5;
+}
+
+/* Checkbox styling is handled by components.css */
+/* Just ensure proper sizing and cursor */
+.dg-check {
+  cursor: pointer;
+}
+.dg-check input {
+  cursor: pointer;
 }
 
 /* Paginator */
@@ -121,7 +141,7 @@
 .card.dg-compact .dg-scroll{ border-radius:12px; }
 .card.dg-compact .dg-table{
   border-spacing: 0 4px;               /* mai puțin spațiu între rânduri */
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 /* header mai îngust */
@@ -147,11 +167,9 @@
   padding:4px 6px; font-size:14px;
 }
 
-/* opțional: îngustează ușor câteva coloane ca să câștigăm spațiu */
-.card.dg-compact .dg-table thead th.col-id,
-.card.dg-compact .dg-table tbody td.col-id{ width:72px; }
+/* opțional: hint-uri pentru coloane compacte */
 .card.dg-compact .dg-table thead th.col-age,
-.card.dg-compact .dg-table tbody td.col-age{ width:70px; text-align:left; }
+.card.dg-compact .dg-table tbody td.col-age{ min-width:60px; max-width:90px; text-align:left; }
 
 /* păstrează clamp-ul (2 linii) și fă-l un pic mai strâns vizual */
 .card.dg-compact .dg-table td .dg-val.dg-clamp{ -webkit-line-clamp: 2; line-height:1.3; }
@@ -163,12 +181,12 @@
   padding: 6px 8px;                                            /* mai puțin padding stânga/dreapta => coloane mai apropiate */
   font-size: 14px;
 }
-/* Tabelul rămâne fixed pentru ellipsis, dar lățimile vin din <col> */
+/* Tabelul folosește auto pentru a se adapta la conținut */
 .dg-table{
   width:100%;
   border-collapse:separate;
   border-spacing:0 8px;
-  table-layout:fixed;           /* important pentru ellipsis */
+  table-layout:auto;           /* se adaptează la conținut */
 }
 
 /* ellipsis + clamp (deja aveai, pun important ca fallback) */
@@ -373,18 +391,18 @@
 .card.dg-compact .dg-pager{ padding-top: 10px; }
 
 .dg-col.dg-col-actions{ 
-  width: 150px !important; 
-  min-width: 150px !important;
-  max-width: 150px !important;
-} /* colgroup width hint for actions column - fixed width to fit 3 buttons */
+  width: auto;
+  min-width: 120px;
+  max-width: 160px;
+} /* colgroup width hint for actions column - flexible to fit buttons */
 
 /* containerul de card/tabel să nu depășească niciodată cadrul */
 .card{ max-width: 100%; }
 .dg-table{ 
   width: 100%; 
-  table-layout: fixed; 
+  table-layout: auto; 
   min-width: 100%;
-} /* important pt. ellipsis */
+} /* se adaptează la conținut */
 
 /* pe ecrane înguste, lasă un mic padding adaptiv ca să nu atingă muchia */
 .content-shell{ padding-right: clamp(12px, 2vw, 24px); }
@@ -396,42 +414,31 @@
 .dg-table td.col-corrupt {
   text-align: center;
   vertical-align: middle;
-  width: 80px !important;
-  min-width: 80px !important;
-  max-width: 80px !important;
+  min-width: 70px;
+  max-width: 100px;
 }
 .dg-table th.col-downloaded,
 .dg-table th.col-verified,
 .dg-table th.col-corrupt {
-  width: 80px !important;
-  min-width: 80px !important;
-  max-width: 80px !important;
+  min-width: 70px;
+  max-width: 100px;
 }
 
-/* Compact widths for number and short columns */
-.dg-table td.col-id,
-.dg-table th.col-id {
-  width: 70px !important;
-  min-width: 70px !important;
-  max-width: 70px !important;
-}
+/* Flexible widths for number and short columns - adapts to content */
 .dg-table td.col-year,
 .dg-table th.col-year {
-  width: 85px !important;
-  min-width: 85px !important;
-  max-width: 85px !important;
+  min-width: 70px;
+  max-width: 100px;
 }
 .dg-table td.col-nrBorderou,
 .dg-table th.col-nrBorderou {
-  width: 100px !important;
-  min-width: 100px !important;
-  max-width: 100px !important;
+  min-width: 80px;
+  max-width: 120px;
 }
 .dg-table td.col-period,
 .dg-table th.col-period {
-  width: 90px !important;
-  min-width: 90px !important;
-  max-width: 90px !important;
+  min-width: 70px;
+  max-width: 110px;
 }
 .dg-toggle-wrap{ 
   position:relative; 
@@ -480,16 +487,14 @@
 .dg-table td.col-actions { 
   vertical-align: middle; 
   text-align: center; 
-  width: 150px !important;
-  min-width: 150px !important;
-  max-width: 150px !important;
+  min-width: 120px;
+  max-width: 160px;
   overflow: visible !important;
   white-space: nowrap;
 }
 .dg-table th.col-actions {
-  width: 150px !important;
-  min-width: 150px !important;
-  max-width: 150px !important;
+  min-width: 120px;
+  max-width: 160px;
   overflow: visible;
 }
 .dg-table .dg-actions{ 
@@ -594,4 +599,86 @@
   pointer-events:none;
   filter:none;
   transform:none;
+}
+
+/* ===== Dynamic column widths - content-aware ===== */
+
+/* Base cell behavior - allow shrinking but set reasonable min-width */
+.dg-table th,
+.dg-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 60px;  /* minimum for any column */
+  max-width: 400px; /* maximum for any column */
+}
+
+/* ID columns - give more space for UUIDs */
+.dg-table th.col-id,
+.dg-table td.col-id {
+  width: auto !important;
+  min-width: 100px !important;
+  max-width: 320px !important;
+}
+
+/* Short text columns - Role, Status, etc */
+.dg-table th.col-role,
+.dg-table td.col-role,
+.dg-table th.col-status,
+.dg-table td.col-status {
+  width: auto !important;
+  min-width: 70px !important;
+  max-width: 140px !important;
+}
+
+/* Name columns - medium width */
+.dg-table th.col-firstName,
+.dg-table td.col-firstName,
+.dg-table th.col-lastName,
+.dg-table td.col-lastName,
+.dg-table th.col-name,
+.dg-table td.col-name {
+  width: auto !important;
+  min-width: 80px !important;
+  max-width: 180px !important;
+}
+
+/* Email columns - flexible but can shrink */
+.dg-table th.col-email,
+.dg-table td.col-email {
+  width: auto !important;
+  min-width: 120px !important;
+  max-width: 280px !important;
+}
+
+/* Date columns - compact */
+.dg-table th.col-createdAt,
+.dg-table td.col-createdAt,
+.dg-table th.col-date,
+.dg-table td.col-date {
+  width: auto !important;
+  min-width: 90px !important;
+  max-width: 130px !important;
+}
+
+/* Allow text to be fully shown when there's space */
+.dg-table td .dg-val {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* ===== EMPTY STATE STYLES ===== */
+.dg-table tbody tr.dg-empty-row {
+  background: transparent;
+}
+
+.dg-table tbody td.dg-empty-cell {
+  text-align: center;
+  padding: 24px 16px;
+  color: #9ca3af;
+  font-size: 14px;
+  background: transparent;
 }

@@ -16,3 +16,17 @@
 .content-shell{ margin-left:var(--sidebar-w); padding:24px 28px 40px; min-width:0; overflow-x:hidden; }
 .content-header{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:18px }
 
+/* Mobile: prevent vertical stretching */
+@media (max-width: 1024px) {
+  .app {
+    display: block !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+  .content-shell {
+    height: auto !important;
+    min-height: auto !important;
+    flex: none !important;
+  }
+}
+

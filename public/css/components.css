@@ -445,6 +445,7 @@ td.col-select {
   background: #fff;
   display: inline-block;
   transition: border-color .15s ease, background .15s ease;
+  position: relative; /* Needed for ::after positioning */
 }
 
 .dg-check input:focus-visible+.box {
@@ -468,12 +469,14 @@ td.col-select {
   transform: translate(-50%, -50%);
 }
 
-/* Remove any accidental pseudo-content */
-td.col-select::before,
-td.col-select::after,
-th.col-select::before,
-th.col-select::after {
-  content: none !important;
+/* Remove any accidental pseudo-content (desktop only) */
+@media (min-width: 1025px) {
+  td.col-select::before,
+  td.col-select::after,
+  th.col-select::before,
+  th.col-select::after {
+    content: none !important;
+  }
 }
 
 /* ===== Footer layout ===== */

@@ -7,9 +7,18 @@
     padding: 0 12px;
   }
 
-  /* Content shell padding */
+  /* Content shell padding - prevent vertical stretch */
   .content-shell {
     padding: 16px 12px 24px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: none !important;
+  }
+  
+  /* App container - don't force flex stretch on mobile */
+  .app {
+    display: block !important;
+    min-height: auto !important;
   }
 
   /* Headers */
@@ -46,14 +55,23 @@
 
 /* ===== Tablet and below ===== */
 @media (max-width: 768px) {
+  /* App container - prevent flex stretch */
+  .app {
+    display: block !important;
+    min-height: auto !important;
+  }
+  
   /* Container */
   .container {
     padding: 0 14px;
   }
 
-  /* Content shell */
+  /* Content shell - prevent vertical stretch */
   .content-shell {
     padding: 20px 14px 32px;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: none !important;
   }
 
   /* Headers */
@@ -300,15 +318,18 @@
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-    margin-bottom: 12px !important;
+    margin-bottom: 16px !important;
   }
   
-  /* Remove empty space in DataGrid - NUCLEAR OPTION */
+  /* Remove empty space in DataGrid */
   .dg-scroll {
     all: unset !important;
     display: block !important;
     width: 100% !important;
     line-height: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
   }
   
   section.card .dg-scroll,
@@ -316,12 +337,13 @@
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
-    background: none !important;
+    background: transparent !important;
     box-shadow: none !important;
     min-height: 0 !important;
     height: auto !important;
     line-height: 0 !important;
     font-size: 0 !important;
+    border-radius: 0 !important;
   }
   
   .dg-table tbody:empty {
@@ -349,9 +371,12 @@
   
   /* Ensure no space from thead */
   .dg-table thead {
+    display: none !important;
     height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    visibility: hidden !important;
+    position: absolute !important;
   }
   
   /* Remove margin-top from section.card on mobile */
@@ -360,7 +385,7 @@
     margin-top: 0 !important;
   }
   
-  /* No gap between toolbar and scroll - COMPLETE REMOVAL */
+  /* No gap between toolbar and scroll */
   .dg-toolbar + .dg-scroll {
     margin: 0 !important;
     padding: 0 !important;
@@ -648,12 +673,19 @@
 /* ===== DataGrid: mobile stacked cards ===== */
 @media (max-width: 760px) {
   .dg-scroll {
-    border: 0;
-    background: transparent;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .dg-table thead {
-    display: none;
+    display: none !important;
+    height: 0 !important;
+    visibility: hidden !important;
+    position: absolute !important;
   }
 
   .dg-table,
@@ -665,16 +697,26 @@
   }
 
   .dg-table tbody {
-    padding: 4px;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .dg-table tbody tr {
     background: #fff;
-    border: 0;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-    margin-bottom: 12px;
-    padding: 12px 12px 8px;
+    border: 1px solid #f3f4f6;
+    border-radius: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    margin-bottom: 16px;
+    margin-top: 0;
+    padding: 16px 14px 12px;
+  }
+  
+  .dg-table tbody tr:first-child {
+    margin-top: 0 !important;
+  }
+  
+  .dg-table tbody tr:last-child {
+    margin-bottom: 0;
   }
 
   .dg-table tbody td {
@@ -874,6 +916,18 @@
 
 /* ===== Mobile-specific: Ensure action buttons are always touch-friendly ===== */
 @media (max-width: 1024px) {
+  /* App container - prevent flex stretch that causes cards to expand */
+  .app {
+    display: block !important;
+    min-height: auto !important;
+  }
+  
+  .content-shell {
+    height: auto !important;
+    min-height: 0 !important;
+    flex: none !important;
+  }
+  
   /* Force all action buttons to be large and touchable */
   .dg-table tbody td .icon-btn,
   .dg-table tbody td .dg-actions .icon-btn,

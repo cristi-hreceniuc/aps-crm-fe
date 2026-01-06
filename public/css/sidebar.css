@@ -441,6 +441,13 @@ body.nav-open .user-text,
 
 /* MOBIL */
 @media (max-width: 1024px){
+  /* CRITICAL: Reset app flex to prevent content stretching */
+  .app {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  
   .sidenav{
     width: var(--nav-expanded);
     transform: translateX(-100%);
@@ -448,7 +455,15 @@ body.nav-open .user-text,
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
   }
   body.nav-open .sidenav{ transform: translateX(0); }
-  .content-shell{ width: 100%; margin-left: 0; }
+  
+  /* CRITICAL: Reset flex to prevent vertical stretching */
+  .content-shell{ 
+    width: 100%; 
+    margin-left: 0; 
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
 }
 
 .nav-group{ position: relative; }
