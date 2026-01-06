@@ -9,7 +9,7 @@
 
   /* Content shell padding - prevent vertical stretch */
   .content-shell {
-    padding: 16px 12px 24px !important;
+    padding: 90px 12px 24px !important;
     height: auto !important;
     min-height: 0 !important;
     flex: none !important;
@@ -68,7 +68,7 @@
 
   /* Content shell - prevent vertical stretch */
   .content-shell {
-    padding: 20px 14px 32px;
+    padding: 90px 14px 32px;
     height: auto !important;
     min-height: 0 !important;
     flex: none !important;
@@ -478,7 +478,7 @@
 @media (max-width: 480px) {
   /* Even smaller padding */
   .content-shell {
-    padding: 12px 10px 20px !important;
+    padding: 90px 10px 20px !important;
   }
 
   .container {
@@ -668,6 +668,11 @@
     transform: translateY(-105%);
     box-shadow: none;
   }
+
+  /* Add top padding to content-shell to prevent overlap with sticky header */
+  .content-shell {
+    padding-top: 90px !important;
+  }
 }
 
 /* ===== DataGrid: mobile stacked cards ===== */
@@ -810,7 +815,7 @@
 /* ===== Very small phones (360px and below) ===== */
 @media (max-width: 360px) {
   .content-shell {
-    padding: 10px 8px 18px !important;
+    padding: 90px 8px 18px !important;
   }
 
   .container {
@@ -854,7 +859,7 @@
 /* ===== Landscape phone orientation ===== */
 @media (max-width: 768px) and (orientation: landscape) {
   .content-shell {
-    padding: 16px 14px 24px;
+    padding: 90px 14px 24px;
   }
 
   .hero-panel {

@@ -701,6 +701,40 @@ app.post('/api/logopedie/notifications/targeted', ensureAuth, async (req, res) =
   }
 });
 
+// GET require_active_for_login setting
+app.get('/api/logopedie/require-active-for-login', ensureAuth, async (req, res) => {
+  try {
+    const { token } = req.session;
+    const { status, data } = await api.get('/settings/require-active-for-login', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
+// PUT require_active_for_login setting (admin only)
+app.put('/api/logopedie/require-active-for-login', ensureAuth, async (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot modifica această setare.' });
+  }
+  try {
+    const { token } = req.session;
+    const { status, data } = await api.put('/settings/require-active-for-login', req.body, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {

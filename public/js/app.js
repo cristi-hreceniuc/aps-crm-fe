@@ -36,7 +36,7 @@ document.addEventListener('click', (e)=>{
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.querySelector(".theme-toggle input");
+  const toggle = document.getElementById("darkThemeToggle");
   const body = document.body;
 
   // Citește preferința din localStorage

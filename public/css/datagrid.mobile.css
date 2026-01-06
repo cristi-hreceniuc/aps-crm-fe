@@ -82,6 +82,25 @@
     white-space:normal; overflow:visible; text-overflow:clip;
     line-height: 1.5;
     font-size: 15px;
+    min-width: 0; /* Allow grid to shrink if needed */
+  }
+  
+  /* Allow status/role/year/period columns to expand beyond grid if needed */
+  .dg-table tbody td.col-status,
+  .dg-table tbody td.col-role,
+  .dg-table tbody td.col-gender,
+  .dg-table tbody td.col-year,
+  .dg-table tbody td.col-period {
+    grid-template-columns: 100px minmax(0, 1fr) !important;
+    /* Ensure the value column can expand to fit content */
+    min-width: 0;
+  }
+  
+  /* Ensure year and period values don't break */
+  .dg-table tbody td.col-year .dg-val,
+  .dg-table tbody td.col-period .dg-val {
+    min-width: fit-content !important;
+    width: auto !important;
   }
   .dg-table tbody td::before{
     content: attr(data-label); 
@@ -91,7 +110,139 @@
     text-transform: uppercase;
     letter-spacing: 0.02em;
   }
-  .dg-table tbody td .dg-val{ grid-column:2; }
+  .dg-table tbody td .dg-val{ 
+    grid-column:2; 
+    /* Override desktop ellipsis - allow full text to show on mobile */
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+    /* Remove line-clamp restrictions on mobile - show full text */
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+    line-height: 1.5 !important;
+    /* Prevent character-by-character breaking */
+    letter-spacing: normal !important;
+  }
+  
+  /* Date columns - prevent breaking dates across lines */
+  .dg-table tbody td.col-date,
+  .dg-table tbody td.col-createdAt,
+  .dg-table tbody td.col-updatedAt,
+  .dg-table tbody td.col-dateStart,
+  .dg-table tbody td.col-bookingDate,
+  .dg-table tbody td.col-paymentDate,
+  .dg-table tbody td[data-label*="Dată"],
+  .dg-table tbody td[data-label*="dată"] {
+    word-break: keep-all !important;
+  }
+  
+  .dg-table tbody td.col-date .dg-val,
+  .dg-table tbody td.col-createdAt .dg-val,
+  .dg-table tbody td.col-updatedAt .dg-val,
+  .dg-table tbody td.col-dateStart .dg-val,
+  .dg-table tbody td.col-bookingDate .dg-val,
+  .dg-table tbody td.col-paymentDate .dg-val,
+  .dg-table tbody td[data-label*="Dată"] .dg-val,
+  .dg-table tbody td[data-label*="dată"] .dg-val {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: keep-all !important;
+    min-width: fit-content !important;
+  }
+  
+  /* Status and Role columns - prevent breaking translated values */
+  .dg-table tbody td.col-status,
+  .dg-table tbody td.col-role,
+  .dg-table tbody td.col-gender,
+  .dg-table tbody td[data-label="Status"],
+  .dg-table tbody td[data-label="Rol"],
+  .dg-table tbody td[data-label="Gen"] {
+    word-break: keep-all !important;
+  }
+  
+  .dg-table tbody td.col-status .dg-val,
+  .dg-table tbody td.col-role .dg-val,
+  .dg-table tbody td.col-gender .dg-val,
+  .dg-table tbody td[data-label="Status"] .dg-val,
+  .dg-table tbody td[data-label="Rol"] .dg-val,
+  .dg-table tbody td[data-label="Gen"] .dg-val {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: keep-all !important;
+    min-width: fit-content !important;
+  }
+  
+  /* Year and Period columns - prevent breaking numbers and short text */
+  .dg-table tbody td.col-year,
+  .dg-table tbody td.col-period,
+  .dg-table tbody td[data-label*="An fiscal"],
+  .dg-table tbody td[data-label*="an fiscal"],
+  .dg-table tbody td[data-label*="Perioadă"],
+  .dg-table tbody td[data-label*="perioadă"] {
+    word-break: keep-all !important;
+  }
+  
+  .dg-table tbody td.col-year .dg-val,
+  .dg-table tbody td.col-period .dg-val,
+  .dg-table tbody td[data-label*="An fiscal"] .dg-val,
+  .dg-table tbody td[data-label*="an fiscal"] .dg-val,
+  .dg-table tbody td[data-label*="Perioadă"] .dg-val,
+  .dg-table tbody td[data-label*="perioadă"] .dg-val {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: keep-all !important;
+    min-width: fit-content !important;
+  }
+  
+  /* Number columns - keep on one line */
+  .dg-table tbody td.col-number,
+  .dg-table tbody td.col-id,
+  .dg-table tbody td.col-goal,
+  .dg-table tbody td.col-donors,
+  .dg-table tbody td.col-donated,
+  .dg-table tbody td[data-label*="ID"],
+  .dg-table tbody td[data-label*="Obiectiv"],
+  .dg-table tbody td[data-label*="Donatori"],
+  .dg-table tbody td[data-label*="Strâns"],
+  .dg-table tbody td[data-label*="Sumă"] {
+    word-break: keep-all !important;
+  }
+  
+  .dg-table tbody td.col-number .dg-val,
+  .dg-table tbody td.col-id .dg-val,
+  .dg-table tbody td.col-goal .dg-val,
+  .dg-table tbody td.col-donors .dg-val,
+  .dg-table tbody td.col-donated .dg-val,
+  .dg-table tbody td[data-label*="ID"] .dg-val,
+  .dg-table tbody td[data-label*="Obiectiv"] .dg-val,
+  .dg-table tbody td[data-label*="Donatori"] .dg-val,
+  .dg-table tbody td[data-label*="Strâns"] .dg-val,
+  .dg-table tbody td[data-label*="Sumă"] .dg-val {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    min-width: fit-content !important;
+  }
+  
+  /* Text columns with clamp - remove clamp on mobile to show full text */
+  .dg-table tbody td .dg-val.dg-clamp,
+  .dg-table tbody td .dg-val.dg-clamp-2,
+  .dg-table tbody td .dg-val.dg-clamp-3 {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+  }
   .dg-table tbody td a{ grid-column:2; word-break: break-word; }
 
   /* Hide less essential columns on mobile */
@@ -613,6 +764,62 @@
   /* Smaller label column for small screens */
   .dg-table tbody td {
     grid-template-columns: 90px 1fr !important;
+  }
+  
+  /* Ensure text values are fully visible on small screens */
+  .dg-table tbody td .dg-val {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+    /* Remove clamp restrictions */
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+  }
+  
+  /* Dates and numbers should not break */
+  .dg-table tbody td.col-date .dg-val,
+  .dg-table tbody td[data-label*="Dată"] .dg-val {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+  }
+  
+  .dg-table tbody td.col-id .dg-val,
+  .dg-table tbody td.col-goal .dg-val,
+  .dg-table tbody td.col-donors .dg-val,
+  .dg-table tbody td.col-donated .dg-val,
+  .dg-table tbody td[data-label*="ID"] .dg-val,
+  .dg-table tbody td[data-label*="Obiectiv"] .dg-val,
+  .dg-table tbody td[data-label*="Donatori"] .dg-val,
+  .dg-table tbody td[data-label*="Strâns"] .dg-val {
+    white-space: nowrap !important;
+  }
+  
+  /* Status and Role - prevent word breaking on small screens too */
+  .dg-table tbody td.col-status .dg-val,
+  .dg-table tbody td.col-role .dg-val,
+  .dg-table tbody td.col-gender .dg-val,
+  .dg-table tbody td[data-label="Status"] .dg-val,
+  .dg-table tbody td[data-label="Rol"] .dg-val,
+  .dg-table tbody td[data-label="Gen"] .dg-val {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+  
+  /* Year and Period - prevent breaking on small screens */
+  .dg-table tbody td.col-year .dg-val,
+  .dg-table tbody td.col-period .dg-val,
+  .dg-table tbody td[data-label*="An fiscal"] .dg-val,
+  .dg-table tbody td[data-label*="Perioadă"] .dg-val {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
   }
   
   /* Card spacing */

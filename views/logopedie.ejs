@@ -42,6 +42,24 @@
         ],
         autosize: { minPx: 90, maxPx: 320 }
       }) %>
+
+      <!-- Settings Card (Admin Only) -->
+      <% if (user && user.userRole === 'ADMIN') { %>
+      <div class="card" style="margin-top: 2rem;">
+        <h2 style="margin-bottom: 0.5rem;">Setări Autentificare</h2>
+        <p class="muted" style="margin-bottom: 1rem;">Controlează restricțiile de autentificare pentru aplicația mobilă</p>
+        
+        <label class="auth-toggle" style="margin-top: 12px; display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+          <input type="checkbox" id="require-active-toggle">
+          <span class="slider"></span>
+          <span id="toggle-label">Permite autentificare doar pentru conturi ACTIVE</span>
+        </label>
+        <small class="muted" style="display: block; margin-top: 0.5rem; margin-left: 3rem;">
+          <span id="toggle-description">Când este activată, doar conturile cu status ACTIVE pot să se autentifice în aplicația mobilă.</span>
+        </small>
+        <div id="setting-status" style="margin-top: 0.75rem; margin-left: 3rem; display: none;"></div>
+      </div>
+      <% } %>
     </section>
 
     <!-- Tab 2: Notificări -->
@@ -172,6 +190,87 @@ document.addEventListener('DOMContentLoaded', () => {
   bodyTextarea.addEventListener('input', () => {
     charCount.textContent = bodyTextarea.value.length;
   });
+
+  // Load and handle require_active_for_login setting (admin only)
+  <% if (user && user.userRole === 'ADMIN') { %>
+  const requireActiveToggle = document.getElementById('require-active-toggle');
+  const toggleLabel = document.getElementById('toggle-label');
+  const toggleDescription = document.getElementById('toggle-description');
+  const settingStatus = document.getElementById('setting-status');
+
+  // Load current setting
+  async function loadRequireActiveSetting() {
+    try {
+      const res = await fetch('/api/logopedie/require-active-for-login', {
+        credentials: 'same-origin'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        requireActiveToggle.checked = data.requireActiveForLogin || false;
+        updateToggleLabel();
+      }
+    } catch (err) {
+      console.error('Error loading setting:', err);
+    }
+  }
+
+  function updateToggleLabel() {
+    if (requireActiveToggle.checked) {
+      toggleLabel.textContent = 'Permite autentificare doar pentru conturi ACTIVE';
+      toggleDescription.textContent = 'Când este activată, doar conturile cu status ACTIVE pot să se autentifice în aplicația mobilă.';
+    } else {
+      toggleLabel.textContent = 'Permite autentificare pentru toate conturile';
+      toggleDescription.textContent = 'Când este dezactivată, toate conturile (ACTIVE, PENDING, INACTIVE) pot să se autentifice în aplicația mobilă.';
+    }
+  }
+
+  // Save setting on toggle
+  requireActiveToggle.addEventListener('change', async () => {
+    const isChecked = requireActiveToggle.checked;
+    settingStatus.style.display = 'block';
+    settingStatus.style.background = 'var(--info-bg, #d1ecf1)';
+    settingStatus.style.color = 'var(--info-text, #0c5460)';
+    settingStatus.style.padding = '0.5rem';
+    settingStatus.style.borderRadius = '4px';
+    settingStatus.textContent = '⏳ Se salvează...';
+    requireActiveToggle.disabled = true;
+
+    try {
+      const res = await fetch('/api/logopedie/require-active-for-login', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ requireActiveForLogin: isChecked })
+      });
+
+      if (res.ok) {
+        settingStatus.style.background = 'var(--success-bg, #d4edda)';
+        settingStatus.style.color = 'var(--success-text, #155724)';
+        settingStatus.textContent = '✅ Setare salvată cu succes!';
+        updateToggleLabel();
+        setTimeout(() => {
+          settingStatus.style.display = 'none';
+        }, 3000);
+      } else {
+        const data = await res.json();
+        settingStatus.style.background = 'var(--danger-bg, #f8d7da)';
+        settingStatus.style.color = 'var(--danger-text, #721c24)';
+        settingStatus.textContent = `❌ Eroare: ${data.message || 'Nu s-a putut salva setarea'}`;
+        requireActiveToggle.checked = !isChecked; // Revert on error
+      }
+    } catch (err) {
+      settingStatus.style.background = 'var(--danger-bg, #f8d7da)';
+      settingStatus.style.color = 'var(--danger-text, #721c24)';
+      settingStatus.textContent = `❌ Eroare de conexiune: ${err.message}`;
+      requireActiveToggle.checked = !isChecked; // Revert on error
+    } finally {
+      requireActiveToggle.disabled = false;
+    }
+  });
+
+  // Load setting on page load
+  loadRequireActiveSetting();
+  <% } %>
 
   // Form submission
   form.addEventListener('submit', async (e) => {
