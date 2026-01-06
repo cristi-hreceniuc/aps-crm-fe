@@ -439,7 +439,7 @@
         return;
       }
 
-      // Mapping pentru traduceri în română (pentru log-users)
+      // Mapping pentru traduceri în română (pentru log-users și web-users)
       const translations = {
         gender: {
           'male': 'bărbat',
@@ -453,7 +453,8 @@
         role: {
           'USER': 'UTILIZATOR',
           'ADMIN': 'ADMINISTRATOR',
-          'MODERATOR': 'MODERATOR'
+          'MODERATOR': 'MODERATOR',
+          'VOLUNTEER': 'VOLUNTAR'
         }
       };
 
@@ -474,8 +475,8 @@
           let innerHTML = '';
           let titleStr = '';
 
-          // Aplică traducerile pentru log-users
-          if (this.gridId === 'log-users') {
+          // Aplică traducerile pentru log-users și web-users
+          if (this.gridId === 'log-users' || this.gridId === 'web-users') {
             if (c.key === 'gender' && raw && translations.gender[raw]) {
               raw = translations.gender[raw];
             } else if (c.key === 'status' && raw && translations.status[raw]) {
@@ -510,6 +511,9 @@
             const docUrl = row.docUrl || row.documentUrl || row.pdfUrl || '';
             const nameForConfirm = row.name || row.companyName || row.title || '';
             
+            // Check if current user can delete (VOLUNTEER users cannot delete)
+            const canDelete = this.cfg.userRole !== 'VOLUNTEER';
+            
             // Helper function to create SVG icon
             const icon = (name) => {
               const paths = {
@@ -528,14 +532,17 @@
               </svg>`;
             };
 
+            // Helper to create delete button (only if user can delete)
+            const delBtn = canDelete ? `<button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                            data-name="${escapeAttr(nameForConfirm)}">${icon('trash')}</button>` : '';
+
             switch (gid) {
               case 'voluntari':
                 innerHTML = `
                   <div class="dg-actions">
                     <button class="icon-btn btn-open" title="Vezi" data-id="${escapeAttr(row.id)}"
                             ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}>${icon('eye')}</button>
-                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                            data-name="${escapeAttr(nameForConfirm)}">${icon('trash')}</button>
+                    ${delBtn}
                   </div>`;
                 break;
 
@@ -548,8 +555,7 @@
                             ${viewUrl ? `data-link="${escapeAttr(viewUrl)}"` : ''}>${icon('eye')}</button>
                     <button class="icon-btn btn-pdf" title="Descarcă" data-id="${escapeAttr(row.id)}"
                             ${docUrl ? `data-link="${escapeAttr(docUrl)}"` : ''}>${icon('download')}</button>
-                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                            data-name="${escapeAttr(nameForConfirm)}">${icon('trash')}</button>
+                    ${delBtn}
                   </div>`;
                 break;
 
@@ -558,8 +564,7 @@
                   <div class="dg-actions">
                     <button class="icon-btn btn-approve" title="Activează" data-id="${escapeAttr(row.id)}">${icon('check')}</button>
                     <button class="icon-btn btn-reject"  title="Dezactivează" data-id="${escapeAttr(row.id)}">${icon('ban')}</button>
-                    <button class="icon-btn btn-del"     title="Șterge" data-id="${escapeAttr(row.id)}"
-                            data-name="${escapeAttr(nameForConfirm)}">${icon('trash')}</button>
+                    ${delBtn}
                   </div>`;
                 break;
 
@@ -571,7 +576,7 @@
                     <div class="dg-actions">
                       <button class="icon-btn btn-approve" title="Acceptă" data-id="${escapeAttr(row.id)}">${icon('check')}</button>
                       <button class="icon-btn btn-reject"  title="Respinge" data-id="${escapeAttr(row.id)}">${icon('ban')}</button>
-                      <button class="icon-btn btn-del"     title="Șterge" data-id="${escapeAttr(row.id)}">${icon('trash')}</button>
+                      ${delBtn}
                     </div>`;
                 }
                 break;
@@ -581,17 +586,30 @@
                   <div class="dg-actions">
                     <button class="icon-btn btn-edit" title="Editează" data-id="${escapeAttr(row.id)}"
                             data-name="${escapeAttr(row.name || '')}" data-iban="${escapeAttr(row.iban || '')}">${icon('edit')}</button>
-                    <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
-                            data-name="${escapeAttr(nameForConfirm)}">${icon('trash')}</button>
+                    ${delBtn}
                   </div>`;
                 break;
 
+              case 'web-users':
+                // ADMIN accounts cannot be deleted - hide delete button for them
+                const isTargetAdmin = row.role === 'ADMIN' || row.userRole === 'ADMIN';
+                if (isTargetAdmin || !canDelete) {
+                  innerHTML = `<div class="dg-actions muted">—</div>`;
+                } else {
+                  innerHTML = `
+                    <div class="dg-actions">
+                      <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
+                              data-name="${escapeAttr(nameForConfirm)}">${icon('trash')}</button>
+                    </div>`;
+                }
+                break;
+
               default:
-                innerHTML = `
+                innerHTML = canDelete ? `
                   <div class="dg-actions">
                     <button class="icon-btn btn-del" title="Șterge" data-id="${escapeAttr(row.id)}"
                             data-name="${escapeAttr(nameForConfirm)}">${icon('trash')}</button>
-                  </div>`;
+                  </div>` : `<div class="dg-actions muted">—</div>`;
             }
             titleStr = '';
           } else {

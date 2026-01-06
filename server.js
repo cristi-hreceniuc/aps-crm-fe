@@ -424,6 +424,15 @@ app.get('/api/cause', async (req, res) => {
 // server.js (sau unde ai celelalte proxy-uri)
 const ensureAuth = (req, res, next) => req.session?.token ? next() : res.status(401).json({ message: 'Not authenticated' });
 
+// Middleware: Volunteer accounts cannot perform DELETE operations
+const blockVolunteerDelete = (req, res, next) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole === 'VOLUNTEER') {
+    return res.status(403).json({ message: 'Conturile de voluntar nu pot șterge înregistrări.' });
+  }
+  return next();
+};
+
 // list/search
 app.get('/api/offline-payments', async (req, res) => {
   try {
@@ -505,21 +514,36 @@ app.get('/api/voluntari/:id', proxyGet(req => `/volunteers/${req.params.id}`));
 app.get('/api/sponsorizare/:id', proxyGet(req => `/sponsorizare/${req.params.id}`));
 
 // rutele proxy (unde ai și GET-urile):
-app.delete('/api/voluntari/:id', proxyDelete(req => `/volunteers/${req.params.id}`));
-app.delete('/api/d177/:id', proxyDelete(req => `/formulare/d177/${req.params.id}`));
-app.delete('/api/f230/:id', proxyDelete(req => `/f230/${req.params.id}`));
-app.delete('/api/iban/:id', proxyDelete(req => `/iban/${req.params.id}`));
-app.delete('/api/offline-payments/:id', proxyDelete(req => `/offline-payments/${req.params.id}`));
-app.delete('/api/sponsorizare/:id', proxyDelete(req => `/sponsorizare/${req.params.id}`));
-// Only ADMIN can delete web users
-app.delete('/api/web-users/:id', (req, res, next) => {
+// All DELETE routes are protected - VOLUNTEER accounts cannot delete anything
+app.delete('/api/voluntari/:id', blockVolunteerDelete, proxyDelete(req => `/volunteers/${req.params.id}`));
+app.delete('/api/d177/:id', blockVolunteerDelete, proxyDelete(req => `/formulare/d177/${req.params.id}`));
+app.delete('/api/f230/:id', blockVolunteerDelete, proxyDelete(req => `/f230/${req.params.id}`));
+app.delete('/api/iban/:id', blockVolunteerDelete, proxyDelete(req => `/iban/${req.params.id}`));
+app.delete('/api/offline-payments/:id', blockVolunteerDelete, proxyDelete(req => `/offline-payments/${req.params.id}`));
+app.delete('/api/sponsorizare/:id', blockVolunteerDelete, proxyDelete(req => `/sponsorizare/${req.params.id}`));
+// Only ADMIN can delete web users, and ADMIN accounts cannot be deleted
+app.delete('/api/web-users/:id', async (req, res, next) => {
   const userRole = req.session?.user?.userRole;
   if (userRole !== 'ADMIN') {
     return res.status(403).json({ message: 'Doar administratorii pot șterge conturi.' });
   }
+  
+  // Check if the target user is an ADMIN - ADMIN accounts cannot be deleted
+  try {
+    const { data: targetUser } = await api.get(`/users/${req.params.id}`, {
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+    if (targetUser && (targetUser.userRole === 'ADMIN' || targetUser.role === 'ADMIN')) {
+      return res.status(403).json({ message: 'Conturile de administrator nu pot fi șterse.' });
+    }
+  } catch (err) {
+    // If we can't fetch the user, let the delete proceed and fail naturally if needed
+    console.error('Error checking target user role:', err.message);
+  }
+  
   return proxyDelete(r => `/users/${r.params.id}`)(req, res, next);
 });
-app.delete('/api/settings/:id', proxyDelete(req => `/settings/${req.params.id}`));
+app.delete('/api/settings/:id', blockVolunteerDelete, proxyDelete(req => `/settings/${req.params.id}`));
 
 app.put('/api/d177/:id/flags', proxyPut(req => `/formulare/d177/${req.params.id}/flags`));
 app.put('/api/f230/:id/flags', proxyPut(req => `/f230/${req.params.id}/flags`));
@@ -648,8 +672,8 @@ app.put('/api/logopedie/users/:id/premium', ensureAuth, async (req,res)=>{
   }
 });
 
-// DELETE
-app.delete('/api/logopedie/users/:id', ensureAuth, async (req,res)=>{
+// DELETE - protected: VOLUNTEER accounts cannot delete
+app.delete('/api/logopedie/users/:id', ensureAuth, blockVolunteerDelete, async (req,res)=>{
   try{
     const { token } = req.session;
     const { id } = req.params;

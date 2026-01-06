@@ -127,7 +127,8 @@
       api:      (typeof api      !== 'undefined' ? api      : {}),
       response: (typeof response !== 'undefined' ? response : {}),
       auth:     (typeof auth     !== 'undefined' ? auth     : null),
-      selectable: !!(typeof selectable !== 'undefined' && selectable)
+      selectable: !!(typeof selectable !== 'undefined' && selectable),
+      userRole: (typeof user !== 'undefined' && user ? user.userRole : null)
     }) %>
   </script>
   <script>
