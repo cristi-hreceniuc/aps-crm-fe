@@ -879,6 +879,139 @@ app.put('/api/logopedie/require-active-for-login', ensureAuth, async (req, res) 
   }
 });
 
+// ============== BUNDLE MANAGEMENT (Admin Only) ==============
+
+// List all bundles
+app.get('/api/logopedie/bundles', ensureAuth, async (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot accesa bundle-urile.' });
+  }
+  try {
+    const { token } = req.session;
+    const { status, data } = await api.get('/admin/bundles', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
+// Get bundle detail
+app.get('/api/logopedie/bundles/:specialistId', ensureAuth, async (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot accesa bundle-urile.' });
+  }
+  try {
+    const { token } = req.session;
+    const { specialistId } = req.params;
+    const { status, data } = await api.get(`/admin/bundles/${encodeURIComponent(specialistId)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
+// Assign bundle to specialist
+app.post('/api/logopedie/bundles', ensureAuth, async (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot adăuga bundle-uri.' });
+  }
+  try {
+    const { token } = req.session;
+    const { status, data } = await api.post('/admin/bundles', req.body, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
+// Toggle premium for bundle specialist
+app.put('/api/logopedie/bundles/:specialistId/premium', ensureAuth, async (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot modifica bundle-urile.' });
+  }
+  try {
+    const { token } = req.session;
+    const { specialistId } = req.params;
+    const { status, data } = await api.put(`/admin/bundles/${encodeURIComponent(specialistId)}/premium`, req.body, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).json(data);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
+// Revoke bundle
+app.delete('/api/logopedie/bundles/:specialistId', ensureAuth, async (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot revoca bundle-uri.' });
+  }
+  try {
+    const { token } = req.session;
+    const { specialistId } = req.params;
+    const { status } = await api.delete(`/admin/bundles/${encodeURIComponent(specialistId)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    res.status(status).end();
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
+// Search specialists (only SPECIALIST role, not SPECIALIST_BUNDLE)
+app.get('/api/logopedie/specialists/search', ensureAuth, async (req, res) => {
+  const userRole = req.session?.user?.userRole;
+  if (userRole !== 'ADMIN') {
+    return res.status(403).json({ message: 'Doar administratorii pot căuta specialiști.' });
+  }
+  try {
+    const { token } = req.session;
+    const { q } = req.query;
+    
+    // Search users with SPECIALIST role
+    const { data } = await api.get('/users/search', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { q, size: 20 }
+    });
+    
+    // Filter to only SPECIALIST role (not SPECIALIST_BUNDLE)
+    const specialists = (data.content || [])
+      .filter(u => u.role === 'SPECIALIST')
+      .map(u => ({
+        id: u.id,
+        name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+        email: u.email
+      }));
+    
+    res.json(specialists);
+  } catch (err) {
+    if (logoutOnUnauthorized(req, res, err)) return;
+    const s = err.response?.status || 500;
+    res.status(s).json(err.response?.data || { message: 'Upstream error' });
+  }
+});
+
 
 /* ------------------------- 404 handler ------------------------- */
 app.use((req, res) => {
