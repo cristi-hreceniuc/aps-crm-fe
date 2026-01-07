@@ -757,7 +757,7 @@ app.get('/aplicatie-logopedica', (req, res) => {
   res.render('logopedie', { title: 'Aplicație Logopedică', heading: 'Aplicație Logopedică' });
 });
 
-// LIST / SEARCH - Only show SPECIALIST, USER and PREMIUM users (mobile app users)
+// LIST / SEARCH - Only show SPECIALIST, SPECIALIST_BUNDLE, and USER users (mobile app users)
 app.get('/api/logopedie/users', async (req,res)=>{
   if (!req.session?.token) return res.status(401).json({ message:'Not authenticated' });
   try {
@@ -766,9 +766,9 @@ app.get('/api/logopedie/users', async (req,res)=>{
       params: req.query
     });
     
-    // Only show mobile app users: SPECIALIST, USER (which includes PREMIUM users based on isPremium flag)
+    // Only show mobile app users: SPECIALIST, SPECIALIST_BUNDLE, USER (which includes PREMIUM users based on isPremium flag)
     if (data && data.content && Array.isArray(data.content)) {
-      const allowedRoles = ['SPECIALIST', 'USER'];
+      const allowedRoles = ['SPECIALIST', 'SPECIALIST_BUNDLE', 'USER'];
       data.content = data.content.filter(user => allowedRoles.includes(user.role));
       // Update total count after filtering
       if (data.totalElements !== undefined) {
